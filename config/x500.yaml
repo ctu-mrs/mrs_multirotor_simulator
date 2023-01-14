@@ -1,0 +1,28 @@
+n_motors: 4
+mass: 3.5 # [kg]
+arm_length: 0.25 # [m]
+motor_time_constant: 0.033333
+g: 9.81 # [ms^-2]
+
+propulsion:
+
+  force_constant: 0.0020560
+  moment_constant: 0.07
+
+  prop_radius: 0.15 # [m]
+
+  mixing_matrix: [
+    0, 0, 1, -1,
+    -1, 1, 0, 0,
+    1, 1, -1, -1,
+  ]
+
+rpm:
+  min: 0
+  max: 8951
+
+J: [
+  2.64e-3, 0, 0,
+  0, 2.64e-3, 0,
+  0, 0, 4.96e-3,
+]

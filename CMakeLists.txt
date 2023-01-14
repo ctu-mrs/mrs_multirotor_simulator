@@ -27,7 +27,9 @@ include_directories(include
   )
 
 add_library(MrsMultirotorSimulator
-  src/multirotor_simulator.cpp)
+  src/multirotor_simulator.cpp
+  src/quadrotor_model.cpp
+  )
 
 add_dependencies(MrsMultirotorSimulator
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
