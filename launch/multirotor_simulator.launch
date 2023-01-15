@@ -1,0 +1,30 @@
+<launch>
+
+  <arg name="uav_name" default="uav1"/>
+
+  <arg name="debug" default="false" />
+  <arg name="standalone" default="true" />
+
+  <arg     if="$(eval arg('standalone') or arg('debug'))" name="nodelet" value="standalone" />
+  <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet" value="load" />
+  <arg     if="$(eval arg('standalone') or arg('debug'))" name="nodelet_manager" value="" />
+  <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet_manager" value="$(arg UAV_NAME)_nodelet_manager" />
+
+  <arg     if="$(arg debug)" name="launch_prefix" value="debug_roslaunch" />
+  <arg unless="$(arg debug)" name="launch_prefix" value="" />
+
+  <group ns="$(arg uav_name)">
+
+    <node pkg="nodelet" type="nodelet" name="multirotor_simulator" args="$(arg nodelet) mrs_multirotor_simulator/MultirotorSimulator $(arg nodelet_manager)" output="screen" launch-prefix="$(arg launch_prefix)">
+
+      <rosparam file="$(find mrs_multirotor_simulator)/config/x500.yaml" />
+
+      <remap from="~imu_out" to="~imu" />
+      <remap from="~range_out" to="~range" />
+      <remap from="~pose_out" to="~pose" />
+
+    </node>
+
+  </group>
+
+</launch>

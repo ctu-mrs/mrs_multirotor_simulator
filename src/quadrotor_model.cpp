@@ -14,46 +14,38 @@ namespace mrs_multirotor_simulator
 /* constructor QuadrotorModel //{ */
 
 QuadrotorModel::QuadrotorModel(void) {
-
-  state_.x         = Eigen::Vector3d::Zero();
-  state_.v         = Eigen::Vector3d::Zero();
-  state_.R         = Eigen::Matrix3d::Identity();
-  state_.omega     = Eigen::Vector3d::Zero();
-  state_.motor_rpm = Eigen::Array4d::Zero();
-
-  external_force_.setZero();
-
-  updateInternalState();
-
-  input_ = Eigen::Array4d::Zero();
 }
 
 QuadrotorModel::QuadrotorModel(const ModelParams_t& params) {
 
   params_ = params;
 
-  state_.x         = Eigen::Vector3d::Zero();
-  state_.v         = Eigen::Vector3d::Zero();
-  state_.R         = Eigen::Matrix3d::Identity();
-  state_.omega     = Eigen::Vector3d::Zero();
-  state_.motor_rpm = Eigen::Array4d::Zero();
+  state_.x     = Eigen::Vector3d::Zero();
+  state_.v     = Eigen::Vector3d::Zero();
+  state_.R     = Eigen::Matrix3d::Identity();
+  state_.omega = Eigen::Vector3d::Zero();
+
+  state_.motor_rpm = Eigen::VectorXd::Zero(params.n_motors);
 
   external_force_.setZero();
+  external_moment_.setZero();
+
+  input_ = Eigen::VectorXd::Zero(params.n_motors);
 
   updateInternalState();
-
-  input_ = Eigen::Array4d::Zero();
 }
 
 //}
 
 /* step() //{ */
 
-void QuadrotorModel::step(double dt) {
+void QuadrotorModel::step(const double& dt) {
 
   auto save = internal_state_;
 
-  odeint::integrate(boost::ref(*this), internal_state_, 0.0, dt, dt);
+  boost::numeric::odeint::runge_kutta4<InternalState> rk;
+
+  odeint::integrate_n_steps(rk, boost::ref(*this), internal_state_, 0.0, dt, 1);
 
   for (int i = 0; i < 22; ++i) {
     if (std::isnan(internal_state_[i])) {
@@ -108,6 +100,8 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
 
   State cur_state;
 
+  cur_state.motor_rpm = Eigen::VectorXd::Zero(params_.n_motors);
+
   for (int i = 0; i < 3; i++) {
     cur_state.x(i)     = x[0 + i];
     cur_state.v(i)     = x[3 + i];
@@ -117,7 +111,7 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
     cur_state.omega(i) = x[15 + i];
   }
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < params_.n_motors; i++) {
     cur_state.motor_rpm(i) = x[18 + i];
   }
 
@@ -130,7 +124,7 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
   Eigen::Vector3d omega_dot;
   Eigen::Matrix3d R_dot;
 
-  Eigen::ArrayXd  motor_rpm_dot;
+  Eigen::VectorXd motor_rpm_dot;
   Eigen::VectorXd motor_rpm_sq;
   Eigen::Matrix3d omega_tensor(Eigen::Matrix3d::Zero());
 
@@ -145,9 +139,11 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
 
   double thrust = params_.kf * motor_rpm_sq.sum();
 
+  std::cout << "thrust " << thrust << std::endl;
+
   Eigen::Vector3d moments = params_.mixing_matrix * motor_rpm_sq;
 
-  double resistance = 0.1 * 3.14159265 * (params_.arm_length) * (params_.arm_length) * cur_state.v.norm() * cur_state.v.norm();
+  double resistance = 0.2 * 3.14159265 * (params_.arm_length) * (params_.arm_length) * cur_state.v.norm() * cur_state.v.norm();
 
   Eigen::Vector3d vnorm = cur_state.v;
   if (vnorm.norm() != 0) {
@@ -159,8 +155,10 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
 
   acc_ = v_dot;
 
-  R_dot         = R * omega_tensor;
-  omega_dot     = params_.J.inverse() * (moments - cur_state.omega.cross(params_.J * cur_state.omega) + external_moment_);
+  R_dot = R * omega_tensor;
+
+  omega_dot = params_.J.inverse() * (moments - cur_state.omega.cross(params_.J * cur_state.omega) + external_moment_);
+
   motor_rpm_dot = (input_ - cur_state.motor_rpm) / params_.motor_time_constant;
 
   for (int i = 0; i < 3; i++) {
@@ -212,20 +210,17 @@ void QuadrotorModel::updateInternalState(void) {
 
 void QuadrotorModel::setInput(const Eigen::VectorXd& input) {
 
-  input_ = input;
+  for (int i = 0; i < params_.n_motors; i++) {
 
-  for (int i = 0; i < input.size(); i++) {
+    double val = input(i);
 
-    if (std::isnan(input_(i))) {
-      input_(i) = (params_.max_rpm + params_.min_rpm) / 2.0;
-      std::cout << "NAN input ";
+    if (val < 0.0) {
+      val = 0.0;
+    } else if (val > 1.0) {
+      val = 1.0;
     }
 
-    if (input_(i) > params_.max_rpm) {
-      input_(i) = params_.max_rpm;
-    } else if (input_(i) < params_.min_rpm) {
-      input_(i) = params_.min_rpm;
-    }
+    input_(i) = params_.min_rpm + (params_.max_rpm - params_.min_rpm) * val;
   }
 }
 

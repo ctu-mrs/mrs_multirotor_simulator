@@ -14,7 +14,6 @@ typedef struct
   double g;  // gravity acceleration
   double mass;
   double kf;
-  double km;
   double prop_radius;
   double arm_length;
   double motor_time_constant;  // unit: sec
@@ -23,9 +22,9 @@ typedef struct
   double propulsion_force_constant;
   double propulsion_moment_constant;
 
-  Eigen::Matrix3d J;  // Inertia
+  Eigen::Matrix3d J;
   Eigen::MatrixXd mixing_matrix;
-
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 } ModelParams_t;
 
 class QuadrotorModel {
@@ -37,7 +36,7 @@ public:
     Eigen::Vector3d v;
     Eigen::Matrix3d R;
     Eigen::Vector3d omega;
-    Eigen::Array4d  motor_rpm;
+    Eigen::VectorXd motor_rpm;
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   };
 
@@ -57,9 +56,6 @@ public:
   double getGravity(void) const;
   void   setGravity(double g);
 
-  const Eigen::Matrix3d& getInertia(void) const;
-  void                   setInertia(const Eigen::Matrix3d& inertia);
-
   const Eigen::Vector3d& getExternalForce(void) const;
   void                   setExternalForce(const Eigen::Vector3d& force);
 
@@ -69,7 +65,7 @@ public:
   void setInput(const Eigen::VectorXd& input);
 
   // Runs the actual dynamics simulation with a time step of dt
-  void step(double dt);
+  void step(const double& dt);
 
   // For internal use, but needs to be public for odeint
   typedef boost::array<double, 22> InternalState;
@@ -84,12 +80,11 @@ private:
 
   Eigen::Vector3d acc_;
 
-  Eigen::Array4d  input_;
+  Eigen::VectorXd input_;
   Eigen::Vector3d external_force_;
   Eigen::Vector3d external_moment_;
 
   ModelParams_t params_;
-  double        km_;
 
   InternalState internal_state_;
 };
