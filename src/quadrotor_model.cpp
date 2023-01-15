@@ -115,8 +115,6 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
     cur_state.motor_rpm(i) = x[18 + i];
   }
 
-  std::cout << "rpms " << cur_state.motor_rpm << std::endl;
-
   Eigen::LLT<Eigen::Matrix3d> llt(cur_state.R.transpose() * cur_state.R);
   Eigen::Matrix3d             P = llt.matrixL();
   Eigen::Matrix3d             R = cur_state.R * P.inverse();
@@ -139,11 +137,8 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
 
   motor_rpm_sq = cur_state.motor_rpm.array().square();
 
-  /* double thrust = params_.kf * motor_rpm_sq.sum(); */
-
   Eigen::Vector4d moments = params_.mixing_matrix * (params_.kf * motor_rpm_sq);
   double          thrust  = moments(3);
-  std::cout << "thrust " << thrust << std::endl;
 
   double resistance = 0.2 * 3.14159265 * (params_.arm_length) * (params_.arm_length) * cur_state.v.norm() * cur_state.v.norm();
 

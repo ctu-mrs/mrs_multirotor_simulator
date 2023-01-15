@@ -169,11 +169,11 @@ void MultirotorSimulator::timerMain(const ros::TimerEvent& event) {
 
   RateController::RateController::Reference reference;
 
-  if (sh_rate_cmd_.hasMsg()) {
+  if (sh_rate_cmd_.hasMsg() && (ros::Time::now() - sh_rate_cmd_.lastMsgTime()).toSec() < 0.25) {
 
     auto cmd = sh_rate_cmd_.getMsg();
 
-    reference.throttle = cmd->throttle;
+    reference.throttle        = cmd->throttle;
     reference.angular_rate(0) = cmd->body_rate.x;
     reference.angular_rate(1) = cmd->body_rate.y;
     reference.angular_rate(2) = cmd->body_rate.z;
@@ -187,8 +187,6 @@ void MultirotorSimulator::timerMain(const ros::TimerEvent& event) {
   }
 
   Eigen::VectorXd input = rate_controller_.getControlSignal(quadrotor_model_->getState(), reference, 0.01);
-
-  ROS_INFO_STREAM("[MultirotorSimulator]: control input = " << input);
 
   quadrotor_model_->setInput(input);
 
@@ -237,7 +235,7 @@ void MultirotorSimulator::timerMain(const ros::TimerEvent& event) {
 void MultirotorSimulator::callbackRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>& wrp) {
 
   if (!is_initialized_) {
-    return; 
+    return;
   }
 
   ROS_INFO_ONCE("[MultirotorSimulator]: getting attitude rate command");
