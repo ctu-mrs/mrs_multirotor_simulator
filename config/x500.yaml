@@ -11,10 +11,13 @@ propulsion:
 
   prop_radius: 0.15 # [m]
 
+  # [moment;
+  #  total_force] = matrix * motor_force
   mixing_matrix: [
-    0, 0, 1, -1,
-    -1, 1, 0, 0,
-    1, 1, -1, -1,
+    0,  0, 1,  -1,
+    -1, 1, 0,  0,
+    1,  1, -1, -1,
+    1,  1, 1,  1,
   ]
 
 rpm:

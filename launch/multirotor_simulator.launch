@@ -17,11 +17,14 @@
 
     <node pkg="nodelet" type="nodelet" name="multirotor_simulator" args="$(arg nodelet) mrs_multirotor_simulator/MultirotorSimulator $(arg nodelet_manager)" output="screen" launch-prefix="$(arg launch_prefix)">
 
+      <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/rate_controller.yaml" />
       <rosparam file="$(find mrs_multirotor_simulator)/config/x500.yaml" />
 
       <remap from="~imu_out" to="~imu" />
       <remap from="~range_out" to="~range" />
       <remap from="~pose_out" to="~pose" />
+
+      <remap from="~rate_cmd_in" to="~rate_cmd" />
 
     </node>
 

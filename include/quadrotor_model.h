@@ -1,5 +1,5 @@
-#ifndef __QUADROTOR_SIMULATOR_QUADROTOR_H__
-#define __QUADROTOR_SIMULATOR_QUADROTOR_H__
+#ifndef MULTIROTOR_GENERIC_MODEL_H
+#define MULTIROTOR_GENERIC_MODEL_H
 
 #include <Eigen/Core>
 #include <boost/array.hpp>
@@ -24,7 +24,7 @@ typedef struct
 
   Eigen::Matrix3d J;
   Eigen::MatrixXd mixing_matrix;
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
 } ModelParams_t;
 
 class QuadrotorModel {
@@ -37,7 +37,6 @@ public:
     Eigen::Matrix3d R;
     Eigen::Vector3d omega;
     Eigen::VectorXd motor_rpm;
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   };
 
   QuadrotorModel();

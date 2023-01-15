@@ -4,7 +4,7 @@ project(mrs_multirotor_simulator)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_compile_options("-Og")
+# add_compile_options("-Og")
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -20,17 +20,21 @@ set(LIBRARIES
 
 catkin_package(
   LIBRARIES ${LIBRARIES}
-  INCLUDE_DIRS include
+  INCLUDE_DIRS include include/controllers
   CATKIN_DEPENDS std_msgs mrs_msgs mrs_lib roscpp std_srvs
   )
 
-include_directories(include
+include_directories(
+  include
+  include/controllers
   ${catkin_INCLUDE_DIRS}
   )
 
 add_library(MrsMultirotorSimulator
   src/multirotor_simulator.cpp
   src/quadrotor_model.cpp
+
+  src/controllers/rate_controller.cpp
   )
 
 add_dependencies(MrsMultirotorSimulator
@@ -40,6 +44,7 @@ add_dependencies(MrsMultirotorSimulator
 
 target_link_libraries(MrsMultirotorSimulator
   ${catkin_LIBRARIES}
+  ${Eigen_LIBRARIES}
   )
 
 ## --------------------------------------------------------------
