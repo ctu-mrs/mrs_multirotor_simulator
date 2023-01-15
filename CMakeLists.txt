@@ -12,6 +12,9 @@ find_package(catkin REQUIRED COMPONENTS
   mrs_lib
   nodelet
   std_msgs
+  sensor_msgs
+  nav_msgs
+  mrs_uav_hw_api
   )
 
 set(LIBRARIES
@@ -21,7 +24,7 @@ set(LIBRARIES
 catkin_package(
   LIBRARIES ${LIBRARIES}
   INCLUDE_DIRS include include/controllers
-  CATKIN_DEPENDS std_msgs mrs_msgs mrs_lib roscpp std_srvs
+  CATKIN_DEPENDS std_msgs mrs_msgs mrs_lib roscpp std_srvs mrs_uav_hw_api nav_msgs
   )
 
 include_directories(
@@ -29,6 +32,8 @@ include_directories(
   include/controllers
   ${catkin_INCLUDE_DIRS}
   )
+
+# Multirotor simulator
 
 add_library(MrsMultirotorSimulator
   src/multirotor_simulator.cpp
@@ -43,6 +48,22 @@ add_dependencies(MrsMultirotorSimulator
   )
 
 target_link_libraries(MrsMultirotorSimulator
+  ${catkin_LIBRARIES}
+  ${Eigen_LIBRARIES}
+  )
+
+# Hw API Plugin
+
+add_library(MrsSimulatorApiPlugin
+  src/hw_api_plugin.cpp
+  )
+
+add_dependencies(MrsSimulatorApiPlugin
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
+  )
+
+target_link_libraries(MrsSimulatorApiPlugin
   ${catkin_LIBRARIES}
   ${Eigen_LIBRARIES}
   )

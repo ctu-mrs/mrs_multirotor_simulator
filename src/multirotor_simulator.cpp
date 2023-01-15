@@ -8,7 +8,7 @@
 
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/Range.h>
-#include <geometry_msgs/Pose.h>
+#include <nav_msgs/Odometry.h>
 
 #include <mrs_msgs/HwApiAttitudeRateCmd.h>
 
@@ -51,9 +51,8 @@ private:
 
   // | ----------------------- publishers ----------------------- |
 
-  mrs_lib::PublisherHandler<sensor_msgs::Imu>    ph_imu_;
-  mrs_lib::PublisherHandler<sensor_msgs::Range>  ph_range_;
-  mrs_lib::PublisherHandler<geometry_msgs::Pose> ph_pose_;
+  mrs_lib::PublisherHandler<sensor_msgs::Imu>   ph_imu_;
+  mrs_lib::PublisherHandler<nav_msgs::Odometry> ph_odom_;
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -127,9 +126,8 @@ void MultirotorSimulator::onInit() {
 
   // | ----------------------- publishers ----------------------- |
 
-  ph_imu_   = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh_, "imu_out", 1, false);
-  ph_range_ = mrs_lib::PublisherHandler<sensor_msgs::Range>(nh_, "range_out", 1, false);
-  ph_pose_  = mrs_lib::PublisherHandler<geometry_msgs::Pose>(nh_, "pose_out", 1, false);
+  ph_imu_  = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh_, "imu_out", 1, false);
+  ph_odom_ = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh_, "odom_out", 1, false);
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -201,19 +199,36 @@ void MultirotorSimulator::timerMain(const ros::TimerEvent& event) {
 
   // | ---------------------- publish pose ---------------------- |
 
-  geometry_msgs::Pose pose;
+  nav_msgs::Odometry odom;
 
-  pose.orientation = mrs_lib::AttitudeConverter(state.R);
+  odom.header.stamp    = ros::Time::now();
+  odom.header.frame_id = "sim_world";
+  odom.child_frame_id  = "body";
 
-  pose.position.x = state.x[0];
-  pose.position.y = state.x[1];
-  pose.position.z = state.x[2];
+  odom.pose.pose.orientation = mrs_lib::AttitudeConverter(state.R);
 
-  ph_pose_.publish(pose);
+  odom.pose.pose.position.x = state.x[0];
+  odom.pose.pose.position.y = state.x[1];
+  odom.pose.pose.position.z = state.x[2];
+
+  Eigen::Vector3d vel_body = state.R.transpose() * state.v;
+
+  odom.twist.twist.linear.x = vel_body[0];
+  odom.twist.twist.linear.y = vel_body[1];
+  odom.twist.twist.linear.z = vel_body[2];
+
+  odom.twist.twist.angular.x = state.omega[0];
+  odom.twist.twist.angular.y = state.omega[1];
+  odom.twist.twist.angular.z = state.omega[2];
+
+  ph_odom_.publish(odom);
 
   // | ----------------------- publish IMU ---------------------- |
 
   sensor_msgs::Imu imu;
+
+  imu.header.stamp    = ros::Time::now();
+  imu.header.frame_id = "body";
 
   imu.angular_velocity.x = state.omega[0];
   imu.angular_velocity.y = state.omega[1];
@@ -232,6 +247,8 @@ void MultirotorSimulator::timerMain(const ros::TimerEvent& event) {
 
 // | ------------------------ callbacks ----------------------- |
 
+/* callbackRateCmd //{ */
+
 void MultirotorSimulator::callbackRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>& wrp) {
 
   if (!is_initialized_) {
@@ -240,6 +257,8 @@ void MultirotorSimulator::callbackRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::Hw
 
   ROS_INFO_ONCE("[MultirotorSimulator]: getting attitude rate command");
 }
+
+//}
 
 }  // namespace mrs_multirotor_simulator
 

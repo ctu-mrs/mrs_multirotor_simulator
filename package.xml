@@ -18,9 +18,13 @@
   <depend>mrs_msgs</depend>
   <depend>mrs_lib</depend>
   <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>mrs_uav_hw_api</depend>
 
   <export>
     <nodelet plugin="${prefix}/nodelets.xml" />
+    <mrs_uav_hw_api plugin="${prefix}/plugins.xml" />
   </export>
 
 </package>

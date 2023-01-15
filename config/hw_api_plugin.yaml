@@ -1,0 +1,7 @@
+hw_interface_plugin: "mrs_simulator_api_plugin/Api"
+
+topics:
+  simulator:
+    imu: "multirotor_simulator/imu"
+    odom: "multirotor_simulator/odom"
+    rate_cmd: "multirotor_simulator/rate_cmd"
