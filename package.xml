@@ -20,7 +20,9 @@
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>nav_msgs</depend>
+  <depend>rosgraph_msgs</depend>
   <depend>mrs_uav_hw_api</depend>
+  <depend>dynamic_reconfigure</depend>
 
   <export>
     <nodelet plugin="${prefix}/nodelets.xml" />

@@ -4,6 +4,7 @@
 
   <arg name="debug" default="false" />
   <arg name="standalone" default="true" />
+  <arg name="use_sim_time" default="true" />
 
   <arg     if="$(eval arg('standalone') or arg('debug'))" name="nodelet" value="standalone" />
   <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet" value="load" />
@@ -13,15 +14,21 @@
   <arg     if="$(arg debug)" name="launch_prefix" value="debug_roslaunch" />
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
 
+  <group if="$(arg use_sim_time)">
+    <param name="/use_sim_time" value="true" />
+  </group>
+
   <group ns="$(arg uav_name)">
 
     <node pkg="nodelet" type="nodelet" name="multirotor_simulator" args="$(arg nodelet) mrs_multirotor_simulator/MultirotorSimulator $(arg nodelet_manager)" output="screen" launch-prefix="$(arg launch_prefix)">
 
+      <rosparam file="$(find mrs_multirotor_simulator)/config/multirotor_simulator.yaml" />
       <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/rate_controller.yaml" />
       <rosparam file="$(find mrs_multirotor_simulator)/config/x500.yaml" />
 
       <remap from="~imu_out" to="~imu" />
       <remap from="~odom_out" to="~odom" />
+      <remap from="~clock_out" to="/clock" />
 
       <remap from="~rate_cmd_in" to="~rate_cmd" />
 

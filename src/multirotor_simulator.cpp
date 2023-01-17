@@ -9,6 +9,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/Range.h>
 #include <nav_msgs/Odometry.h>
+#include <rosgraph_msgs/Clock.h>
 
 #include <mrs_msgs/HwApiAttitudeRateCmd.h>
 
@@ -16,6 +17,9 @@
 #include <mrs_lib/publisher_handler.h>
 #include <mrs_lib/attitude_converter.h>
 #include <mrs_lib/subscribe_handler.h>
+
+#include <dynamic_reconfigure/server.h>
+#include <mrs_multirotor_simulator/multirotor_simulatorConfig.h>
 
 //}
 
@@ -39,20 +43,25 @@ private:
 
   Eigen::MatrixXd mixing_matrix;
 
+  double _simulation_rate_;
+
   // | --------------------- dynamics model --------------------- |
 
   std::unique_ptr<QuadrotorModel> quadrotor_model_;
   RateController                  rate_controller_;
 
+  ros::Time sim_time_;
+
   // | ------------------------- timers ------------------------- |
 
-  ros::Timer timer_main_;
-  void       timerMain(const ros::TimerEvent& event);
+  ros::WallTimer timer_main_;
+  void           timerMain(const ros::WallTimerEvent& event);
 
   // | ----------------------- publishers ----------------------- |
 
-  mrs_lib::PublisherHandler<sensor_msgs::Imu>   ph_imu_;
-  mrs_lib::PublisherHandler<nav_msgs::Odometry> ph_odom_;
+  mrs_lib::PublisherHandler<sensor_msgs::Imu>     ph_imu_;
+  mrs_lib::PublisherHandler<nav_msgs::Odometry>   ph_odom_;
+  mrs_lib::PublisherHandler<rosgraph_msgs::Clock> ph_clock_;
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -61,6 +70,16 @@ private:
   // | ----------------------- subscribers ---------------------- |
 
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd> sh_rate_cmd_;
+
+  // | --------------- dynamic reconfigure server --------------- |
+
+  boost::recursive_mutex                                       mutex_drs_;
+  typedef mrs_multirotor_simulator::multirotor_simulatorConfig DrsConfig_t;
+  typedef dynamic_reconfigure::Server<DrsConfig_t>             Drs_t;
+  boost::shared_ptr<Drs_t>                                     drs_;
+  void                                                         callbackDrs(mrs_multirotor_simulator::multirotor_simulatorConfig& config, uint32_t level);
+  DrsConfig_t                                                  drs_params_;
+  std::mutex                                                   mutex_drs_params_;
 };
 
 //}
@@ -69,11 +88,18 @@ private:
 
 void MultirotorSimulator::onInit() {
 
-  ros::NodeHandle nh_ = nodelet::Nodelet::getMTPrivateNodeHandle();
+  nh_ = nodelet::Nodelet::getMTPrivateNodeHandle();
 
-  ros::Time::waitForValid();
+  if (!(nh_.hasParam("/use_sim_time"))) {
+    nh_.setParam("/use_sim_time", true);
+  }
+
+  sim_time_ = ros::Time(0);
 
   mrs_lib::ParamLoader param_loader(nh_, "MultirotorSimulator");
+
+  param_loader.loadParam("simulation_rate", _simulation_rate_);
+  param_loader.loadParam("realtime_factor", drs_params_.realtime_factor);
 
   param_loader.loadParam("n_motors", model_params_.n_motors);
   param_loader.loadParam("mass", model_params_.mass);
@@ -107,6 +133,13 @@ void MultirotorSimulator::onInit() {
 
   quadrotor_model_ = std::make_unique<QuadrotorModel>(model_params_);
 
+  // | --------------- dynamic reconfigure server --------------- |
+
+  drs_.reset(new Drs_t(mutex_drs_, nh_));
+  drs_->updateConfig(drs_params_);
+  Drs_t::CallbackType f = boost::bind(&MultirotorSimulator::callbackDrs, this, _1, _2);
+  drs_->setCallback(f);
+
   // | --------------------- rate controller -------------------- |
 
   RateController::Params rate_controller_params;
@@ -126,8 +159,9 @@ void MultirotorSimulator::onInit() {
 
   // | ----------------------- publishers ----------------------- |
 
-  ph_imu_  = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh_, "imu_out", 1, false);
-  ph_odom_ = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh_, "odom_out", 1, false);
+  ph_imu_   = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh_, "imu_out", 1, false);
+  ph_odom_  = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh_, "odom_out", 1, false);
+  ph_clock_ = mrs_lib::PublisherHandler<rosgraph_msgs::Clock>(nh_, "clock_out", 10, false);
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -144,7 +178,7 @@ void MultirotorSimulator::onInit() {
 
   // | ------------------------- timers ------------------------- |
 
-  timer_main_ = nh_.createTimer(ros::Rate(100.0), &MultirotorSimulator::timerMain, this);
+  timer_main_ = nh_.createWallTimer(ros::WallDuration(1.0 / (_simulation_rate_ * drs_params_.realtime_factor)), &MultirotorSimulator::timerMain, this);
 
   is_initialized_ = true;
 
@@ -157,7 +191,7 @@ void MultirotorSimulator::onInit() {
 
 /* timerMain() //{ */
 
-void MultirotorSimulator::timerMain(const ros::TimerEvent& event) {
+void MultirotorSimulator::timerMain(const ros::WallTimerEvent& event) {
 
   if (!is_initialized_) {
     return;
@@ -188,16 +222,23 @@ void MultirotorSimulator::timerMain(const ros::TimerEvent& event) {
 
   quadrotor_model_->setInput(input);
 
-  quadrotor_model_->step(0.01);
+  const double step = 1.0 / _simulation_rate_;
+
+  quadrotor_model_->step(step);
 
   auto state = quadrotor_model_->getState();
 
-  ROS_INFO_STREAM("[MultirotorSimulator]: pos " << state.x.transpose());
-  ROS_INFO_STREAM("[MultirotorSimulator]: v " << state.v.transpose());
-  ROS_INFO_STREAM("[MultirotorSimulator]: omega " << state.omega.transpose());
-  ROS_INFO("[MultirotorSimulator]: ");
+  sim_time_ = sim_time_ + ros::Duration(step);
 
-  // | ---------------------- publish pose ---------------------- |
+  // | ---------------------- publish time ---------------------- |
+
+  rosgraph_msgs::Clock ros_time;
+
+  ros_time.clock.fromSec(sim_time_.toSec());
+
+  ph_clock_.publish(ros_time);
+
+  // | -------------------- publish odometry -------------------- |
 
   nav_msgs::Odometry odom;
 
@@ -247,7 +288,7 @@ void MultirotorSimulator::timerMain(const ros::TimerEvent& event) {
 
 // | ------------------------ callbacks ----------------------- |
 
-/* callbackRateCmd //{ */
+/* callbackRateCmd() //{ */
 
 void MultirotorSimulator::callbackRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>& wrp) {
 
@@ -256,6 +297,23 @@ void MultirotorSimulator::callbackRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::Hw
   }
 
   ROS_INFO_ONCE("[MultirotorSimulator]: getting attitude rate command");
+}
+
+//}
+
+/* callbackDrs() //{ */
+
+void MultirotorSimulator::callbackDrs(mrs_multirotor_simulator::multirotor_simulatorConfig& config, [[maybe_unused]] uint32_t level) {
+
+  {
+    std::scoped_lock lock(mutex_drs_params_);
+
+    drs_params_ = config;
+  }
+
+  timer_main_.setPeriod(ros::WallDuration(1.0 / (_simulation_rate_ * config.realtime_factor)), true);
+
+  ROS_INFO("[MultirotorSimulator]: DRS updated gains");
 }
 
 //}
