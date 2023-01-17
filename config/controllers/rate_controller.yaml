@@ -1,4 +1,4 @@
 rate_controller:
-  kp: 0.1
-  ki: 0.01
-  kd: 0.02
+  kp: 0.05
+  ki: 0.001
+  kd: 0.002

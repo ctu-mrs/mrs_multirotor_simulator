@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="uav_name" default="uav1"/>
+  <arg name="uav_name" default="$(env UAV_NAME)"/>
 
   <arg name="debug" default="false" />
   <arg name="standalone" default="true" />
