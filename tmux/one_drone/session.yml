@@ -1,0 +1,35 @@
+name: simulation
+root: ./
+pre_window: source /tmp/random_uav_numbers; export UAV_NAME=uav1; export RUN_TYPE=simulation; export UAV_TYPE=x500; export WORLD_NAME=simulation; export SENSORS="garmin_down"
+startup_window: status
+windows:
+  - roscore:
+      layout: tiled
+      panes:
+        - roscore
+  - simulator:
+      layout: tiled
+      panes:
+        - waitForRos; export UAV_NAME=uav1; roslaunch mrs_multirotor_simulator multirotor_simulator.launch
+  - hw_api:
+      layout: tiled
+      panes:
+        - waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=`rospack find mrs_multirotor_simulator`/config/hw_api_plugin.yaml
+  - status:
+      layout: tiled
+      panes:
+        - waitForRos; roslaunch mrs_uav_status status.launch
+  - control:
+      layout: tiled
+      panes:
+        - waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml
+  - takeoff:
+      layout: tiled
+      panes:
+        - export RUN_TYPE=uav; waitForControl; roslaunch mrs_uav_general automatic_start.launch
+  - rviz:
+      layout: tiled
+      panes:
+        - waitForControl; roslaunch mrs_uav_testing rviz_random_simulation.launch
+        - waitForControl; export UAV_TYPE=t650; roslaunch mrs_rviz_plugins load_robot.launch
+        - waitForControl; waitForControl; roslaunch mrs_rviz_plugins rviz_interface.launch
