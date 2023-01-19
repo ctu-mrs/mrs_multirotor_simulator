@@ -104,6 +104,7 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("n_motors", model_params_.n_motors);
   param_loader.loadParam("mass", model_params_.mass);
   param_loader.loadParam("arm_length", model_params_.arm_length);
+  param_loader.loadParam("body_height", model_params_.body_height);
   param_loader.loadParam("motor_time_constant", model_params_.motor_time_constant);
   param_loader.loadParam("propulsion/prop_radius", model_params_.prop_radius);
   param_loader.loadParam("propulsion/force_constant", model_params_.kf);
@@ -111,7 +112,15 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("rpm/min", model_params_.min_rpm);
   param_loader.loadParam("rpm/max", model_params_.max_rpm);
 
-  model_params_.J       = param_loader.loadMatrixStatic2<3, 3>("J");
+  model_params_.J = Eigen::Matrix3d::Zero();
+  model_params_.J(0, 0) =
+      model_params_.mass * (3 * model_params_.arm_length * model_params_.arm_length + model_params_.body_height * model_params_.body_height) / 12.0;
+  model_params_.J(1, 1) =
+      model_params_.mass * (3 * model_params_.arm_length * model_params_.arm_length + model_params_.body_height * model_params_.body_height) / 12.0;
+  model_params_.J(2, 2) = (model_params_.mass * model_params_.arm_length * model_params_.arm_length) / 2.0;
+
+  ROS_INFO_STREAM("[MultirotorSimulator]: J = \n" << model_params_.J);
+
   Eigen::MatrixXd mixer = param_loader.loadMatrixDynamic2("propulsion/mixing_matrix", 4, -1);
 
   model_params_.mixing_matrix = mixer;

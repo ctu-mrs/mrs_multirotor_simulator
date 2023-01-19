@@ -140,7 +140,7 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
   Eigen::Vector4d moments = params_.mixing_matrix * (params_.kf * motor_rpm_sq);
   double          thrust  = moments(3);
 
-  double resistance = 0.2 * 3.14159265 * (params_.arm_length) * (params_.arm_length) * cur_state.v.norm() * cur_state.v.norm();
+  double resistance = 0.3 * 3.14159265 * (params_.arm_length) * (params_.arm_length) * cur_state.v.norm() * cur_state.v.norm();
 
   Eigen::Vector3d vnorm = cur_state.v;
   if (vnorm.norm() != 0) {

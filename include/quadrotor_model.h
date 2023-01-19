@@ -16,6 +16,7 @@ typedef struct
   double kf;
   double prop_radius;
   double arm_length;
+  double body_height;
   double motor_time_constant;  // unit: sec
   double max_rpm;
   double min_rpm;
