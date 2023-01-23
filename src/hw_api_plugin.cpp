@@ -76,14 +76,20 @@ private:
   // | ----------------------- subscribers ---------------------- |
 
   mrs_lib::SubscribeHandler<nav_msgs::Odometry> sh_odom_;
-  void                                          callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry> &wrp);
+  mrs_lib::SubscribeHandler<sensor_msgs::Imu>   sh_imu_;
 
-  mrs_lib::SubscribeHandler<sensor_msgs::Imu> sh_imu_;
-  void                                        callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu> &wrp);
+  void callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry> &wrp);
+  void callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu> &wrp);
 
   // | ----------------------- publishers ----------------------- |
 
   mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd> ph_rate_cmd_;
+
+  // | ------------------------- timers ------------------------- |
+
+  ros::Timer timer_main_;
+
+  void timerMain(const ros::TimerEvent &event);
 
   // | ------------------------ variables ----------------------- |
 
@@ -92,6 +98,12 @@ private:
   std::atomic<bool> armed_     = true;
   std::atomic<bool> connected_ = false;
   std::mutex        mutex_diagnostics_;
+
+  // | ------------------------- methods ------------------------ |
+
+  void publishBatteryState(void);
+
+  void publishRC(void);
 };
 
 //}
@@ -140,6 +152,10 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
   // | ----------------------- publishers ----------------------- |
 
   ph_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd>(nh_, topic_prefix + "/" + _topic_simulator_rate_cmd_, 1);
+
+  // | ------------------------- timers ------------------------- |
+
+  timer_main_ = nh_.createTimer(ros::Rate(10.0), &Api::timerMain, this);
 
   // | ----------------------- finish init ---------------------- |
 
@@ -390,23 +406,6 @@ void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry> &wrp) {
   rng.range        = odom->pose.pose.position.z;
 
   common_handlers_->publishers.publishDistanceSensor(rng);
-
-  // | ----------------------- publish rc ----------------------- |
-
-  mrs_msgs::HwApiRcChannels rc;
-
-  rc.stamp = ros::Time::now();
-
-  rc.channels.push_back(0);
-  rc.channels.push_back(0);
-  rc.channels.push_back(0);
-  rc.channels.push_back(0);
-  rc.channels.push_back(0);
-  rc.channels.push_back(0);
-  rc.channels.push_back(0);
-  rc.channels.push_back(0);
-
-  common_handlers_->publishers.publishRcChannels(rc);
 }
 
 //}
@@ -424,6 +423,65 @@ void Api::callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu> &wrp) {
   sensor_msgs::ImuConstPtr imu = wrp.getMsg();
 
   common_handlers_->publishers.publishIMU(*imu);
+}
+
+//}
+
+// | ------------------------- timers ------------------------- |
+
+/* timerMain() //{ */
+
+void Api::timerMain(const ros::TimerEvent &event) {
+
+  if (!is_initialized_) {
+    return;
+  }
+
+  ROS_INFO_ONCE("[Api]: main timer spinning");
+
+  publishBatteryState();
+
+  publishRC();
+}
+
+//}
+
+// | ------------------------- methods ------------------------ |
+
+/* publishBatteryState() //{ */
+
+void Api::publishBatteryState(void) {
+
+  sensor_msgs::BatteryState msg;
+
+  msg.capacity = 100;
+  msg.current  = 10.0;
+  msg.voltage  = 15.8;
+  msg.charge   = 0.8;
+
+  common_handlers_->publishers.publishBatteryState(msg);
+}
+
+//}
+
+/* publishRC() //{ */
+
+void Api::publishRC(void) {
+
+  mrs_msgs::HwApiRcChannels rc;
+
+  rc.stamp = ros::Time::now();
+
+  rc.channels.push_back(0);
+  rc.channels.push_back(0);
+  rc.channels.push_back(0);
+  rc.channels.push_back(0);
+  rc.channels.push_back(0);
+  rc.channels.push_back(0);
+  rc.channels.push_back(0);
+  rc.channels.push_back(0);
+
+  common_handlers_->publishers.publishRcChannels(rc);
 }
 
 //}
