@@ -1,2 +1,2 @@
 publish_rate:
-  main: 40 # [Hz] main and aux odometry
+  main: 100.0 # [Hz] main and aux odometry
