@@ -173,10 +173,7 @@ void MultirotorSimulator::onInit() {
 
   RateController::Params rate_controller_params;
 
-  rate_controller_params.n_motors   = model_params_.n_motors;
-  rate_controller_params.force_coef = model_params_.kf;
-  rate_controller_params.max_rpm    = model_params_.max_rpm;
-  rate_controller_params.min_rpm    = model_params_.min_rpm;
+  rate_controller_params.mass = model_params_.mass;
 
   param_loader.loadParam("rate_controller/kp", rate_controller_params.kp);
   param_loader.loadParam("rate_controller/kd", rate_controller_params.kd);
@@ -252,11 +249,7 @@ void MultirotorSimulator::timerMain(const ros::WallTimerEvent& event) {
 
   reference::ControlGroup control_group = rate_controller_.getControlSignal(quadrotor_model_->getState(), reference, 0.01);
 
-  ROS_INFO("[MultirotorSimulator]: control group %.2f, %.2f, %.2f, %.2f", control_group.roll, control_group.pitch, control_group.yaw, control_group.throttle);
-
   reference::Motors motors_cmd = mixer_.getControlSignal(control_group);
-
-  ROS_INFO_STREAM("[MultirotorSimulator]: motors " << motors_cmd.motors.transpose());
 
   quadrotor_model_->setInput(motors_cmd);
 

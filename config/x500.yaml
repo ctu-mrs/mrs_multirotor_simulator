@@ -15,11 +15,22 @@ propulsion:
 
   prop_radius: 0.15 # [m]
 
+  # allocation motors -> moments
+
+  # # quadrotor + configuration
+  # allocation_matrix: [
+  #   0,  0, 1,  -1,
+  #   -1, 1, 0,  0,
+  #   1,  1, -1, -1,
+  #   1,  1, 1,  1,
+  # ]
+
+  # quadrotor X configuration
   allocation_matrix: [
-    0,  0, 1,  -1,
-    -1, 1, 0,  0,
-    1,  1, -1, -1,
-    1,  1, 1,  1,
+    -0.707, 0.707, 0.707,  -0.707,
+    -0.707, 0.707, -0.707, 0.707,
+    -1,     -1,    1,      1,
+    1,      1,     1,      1,
   ]
 
 rpm:

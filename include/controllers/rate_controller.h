@@ -14,13 +14,10 @@ class RateController {
 public:
   struct Params
   {
-    int             n_motors;
     double          kp;
     double          kd;
     double          ki;
-    double          force_coef;
-    double          max_rpm;
-    double          min_rpm;
+    double          mass;
     Eigen::MatrixXd allocation_matrix;
   };
 
