@@ -140,6 +140,8 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
   Eigen::Vector4d moments = params_.mixing_matrix * (params_.kf * motor_rpm_sq);
   double          thrust  = moments(3);
 
+  std::cout << "thrust " << thrust << std::endl;
+
   double resistance = 0.3 * 3.14159265 * (params_.arm_length) * (params_.arm_length) * cur_state.v.norm() * cur_state.v.norm();
 
   Eigen::Vector3d vnorm = cur_state.v;
@@ -205,11 +207,11 @@ void QuadrotorModel::updateInternalState(void) {
 
 /* setInput() //{ */
 
-void QuadrotorModel::setInput(const Eigen::VectorXd& input) {
+void QuadrotorModel::setInput(const reference::Motors& input) {
 
   for (int i = 0; i < params_.n_motors; i++) {
 
-    double val = input(i);
+    double val = input.motors(i);
 
     if (val < 0.0) {
       val = 0.0;
@@ -219,6 +221,8 @@ void QuadrotorModel::setInput(const Eigen::VectorXd& input) {
 
     input_(i) = params_.min_rpm + (params_.max_rpm - params_.min_rpm) * val;
   }
+
+  std::cout << "rmps " << input_.transpose() << std::endl;
 }
 
 //}

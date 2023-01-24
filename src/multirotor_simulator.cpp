@@ -5,6 +5,7 @@
 
 #include <quadrotor_model.h>
 #include <controllers/rate_controller.h>
+#include <controllers/mixer.h>
 
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/Range.h>
@@ -12,6 +13,7 @@
 #include <rosgraph_msgs/Clock.h>
 
 #include <mrs_msgs/HwApiAttitudeRateCmd.h>
+#include <mrs_msgs/HwApiAttitudeCmd.h>
 
 #include <mrs_lib/param_loader.h>
 #include <mrs_lib/publisher_handler.h>
@@ -20,6 +22,8 @@
 
 #include <dynamic_reconfigure/server.h>
 #include <mrs_multirotor_simulator/multirotor_simulatorConfig.h>
+
+#include <mrs_multirotor_simulator/Diagnostics.h>
 
 //}
 
@@ -45,12 +49,16 @@ private:
 
   double _simulation_rate_;
 
+  ros::Time sim_time_;
+
   // | --------------------- dynamics model --------------------- |
 
   std::unique_ptr<QuadrotorModel> quadrotor_model_;
-  RateController                  rate_controller_;
 
-  ros::Time sim_time_;
+  // | ----------------------- controllers ---------------------- |
+
+  RateController rate_controller_;
+  Mixer          mixer_;
 
   // | ------------------------- timers ------------------------- |
 
@@ -59,13 +67,15 @@ private:
 
   // | ----------------------- publishers ----------------------- |
 
-  mrs_lib::PublisherHandler<sensor_msgs::Imu>     ph_imu_;
-  mrs_lib::PublisherHandler<nav_msgs::Odometry>   ph_odom_;
-  mrs_lib::PublisherHandler<rosgraph_msgs::Clock> ph_clock_;
+  mrs_lib::PublisherHandler<sensor_msgs::Imu>                      ph_imu_;
+  mrs_lib::PublisherHandler<nav_msgs::Odometry>                    ph_odom_;
+  mrs_lib::PublisherHandler<rosgraph_msgs::Clock>                  ph_clock_;
+  mrs_lib::PublisherHandler<mrs_multirotor_simulator::Diagnostics> ph_diagnostics_;
 
   // | ----------------------- subscribers ---------------------- |
 
   void callbackRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>& wrp);
+  void callbackAttitudeCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>& wrp);
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -112,18 +122,17 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("rpm/min", model_params_.min_rpm);
   param_loader.loadParam("rpm/max", model_params_.max_rpm);
 
+  // create the inertia matrix
   model_params_.J = Eigen::Matrix3d::Zero();
   model_params_.J(0, 0) =
-      model_params_.mass * (3 * model_params_.arm_length * model_params_.arm_length + model_params_.body_height * model_params_.body_height) / 12.0;
+      model_params_.mass * (3.0 * model_params_.arm_length * model_params_.arm_length + model_params_.body_height * model_params_.body_height) / 12.0;
   model_params_.J(1, 1) =
-      model_params_.mass * (3 * model_params_.arm_length * model_params_.arm_length + model_params_.body_height * model_params_.body_height) / 12.0;
+      model_params_.mass * (3.0 * model_params_.arm_length * model_params_.arm_length + model_params_.body_height * model_params_.body_height) / 12.0;
   model_params_.J(2, 2) = (model_params_.mass * model_params_.arm_length * model_params_.arm_length) / 2.0;
 
-  ROS_INFO_STREAM("[MultirotorSimulator]: J = \n" << model_params_.J);
+  model_params_.allocation_matrix = param_loader.loadMatrixDynamic2("propulsion/allocation_matrix", 4, -1);
 
-  Eigen::MatrixXd mixer = param_loader.loadMatrixDynamic2("propulsion/mixing_matrix", 4, -1);
-
-  model_params_.mixing_matrix = mixer;
+  model_params_.mixing_matrix = model_params_.allocation_matrix;
 
   double moment_constant;
   param_loader.loadParam("propulsion/moment_constant", moment_constant);
@@ -149,6 +158,17 @@ void MultirotorSimulator::onInit() {
   Drs_t::CallbackType f = boost::bind(&MultirotorSimulator::callbackDrs, this, _1, _2);
   drs_->setCallback(f);
 
+  // | -------------------------- mixer ------------------------- |
+
+  Mixer::Params mixer_params;
+
+  mixer_params.n_motors = model_params_.n_motors;
+  param_loader.loadParam("mixer/desaturation", mixer_params.desaturation);
+
+  mixer_params.allocation_matrix = model_params_.allocation_matrix;
+
+  mixer_.setParams(mixer_params);
+
   // | --------------------- rate controller -------------------- |
 
   RateController::Params rate_controller_params;
@@ -162,15 +182,16 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("rate_controller/kd", rate_controller_params.kd);
   param_loader.loadParam("rate_controller/ki", rate_controller_params.ki);
 
-  rate_controller_params.allocation_matrix = model_params_.mixing_matrix;
+  rate_controller_params.allocation_matrix = model_params_.allocation_matrix;
 
   rate_controller_.setParams(rate_controller_params);
 
   // | ----------------------- publishers ----------------------- |
 
-  ph_imu_   = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh_, "imu_out", 1, false);
-  ph_odom_  = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh_, "odom_out", 1, false);
-  ph_clock_ = mrs_lib::PublisherHandler<rosgraph_msgs::Clock>(nh_, "clock_out", 10, false);
+  ph_imu_         = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh_, "imu_out", 1, false);
+  ph_odom_        = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh_, "odom_out", 1, false);
+  ph_clock_       = mrs_lib::PublisherHandler<rosgraph_msgs::Clock>(nh_, "clock_out", 10, false);
+  ph_diagnostics_ = mrs_lib::PublisherHandler<mrs_multirotor_simulator::Diagnostics>(nh_, "diagnostics_out", 10, true);
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -208,28 +229,36 @@ void MultirotorSimulator::timerMain(const ros::WallTimerEvent& event) {
 
   ROS_INFO_ONCE("[MultirotorSimulator]: main timer spinning");
 
-  RateController::RateController::Reference reference;
+  reference::AngularRate reference;
 
   if (sh_rate_cmd_.hasMsg() && (ros::Time::now() - sh_rate_cmd_.lastMsgTime()).toSec() < 0.25) {
 
     auto cmd = sh_rate_cmd_.getMsg();
 
-    reference.throttle        = cmd->throttle;
-    reference.angular_rate(0) = cmd->body_rate.x;
-    reference.angular_rate(1) = cmd->body_rate.y;
-    reference.angular_rate(2) = cmd->body_rate.z;
+    reference.throttle = cmd->throttle;
+    reference.rate_x   = cmd->body_rate.x;
+    reference.rate_y   = cmd->body_rate.y;
+    reference.rate_z   = cmd->body_rate.z;
 
   } else {
 
     ROS_WARN_THROTTLE(1.0, "[MultirotorSimulator]: not getting cmd");
 
     reference.throttle = 0;
-    reference.angular_rate << 0, 0, 0;
+    reference.rate_x   = 0;
+    reference.rate_y   = 0;
+    reference.rate_z   = 0;
   }
 
-  Eigen::VectorXd input = rate_controller_.getControlSignal(quadrotor_model_->getState(), reference, 0.01);
+  reference::ControlGroup control_group = rate_controller_.getControlSignal(quadrotor_model_->getState(), reference, 0.01);
 
-  quadrotor_model_->setInput(input);
+  ROS_INFO("[MultirotorSimulator]: control group %.2f, %.2f, %.2f, %.2f", control_group.roll, control_group.pitch, control_group.yaw, control_group.throttle);
+
+  reference::Motors motors_cmd = mixer_.getControlSignal(control_group);
+
+  ROS_INFO_STREAM("[MultirotorSimulator]: motors " << motors_cmd.motors.transpose());
+
+  quadrotor_model_->setInput(motors_cmd);
 
   const double step = 1.0 / _simulation_rate_;
 
@@ -306,6 +335,19 @@ void MultirotorSimulator::callbackRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::Hw
   }
 
   ROS_INFO_ONCE("[MultirotorSimulator]: getting attitude rate command");
+}
+
+//}
+
+/* callbackAttitudeCmd() //{ */
+
+void MultirotorSimulator::callbackAttitudeCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>& wrp) {
+
+  if (!is_initialized_) {
+    return;
+  }
+
+  ROS_INFO_ONCE("[MultirotorSimulator]: getting attitude command");
 }
 
 //}

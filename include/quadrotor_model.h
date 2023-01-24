@@ -1,6 +1,7 @@
 #ifndef MULTIROTOR_GENERIC_MODEL_H
 #define MULTIROTOR_GENERIC_MODEL_H
 
+#include <controllers/references.h>
 #include <Eigen/Core>
 #include <boost/array.hpp>
 
@@ -24,6 +25,7 @@ typedef struct
   double propulsion_moment_constant;
 
   Eigen::Matrix3d J;
+  Eigen::MatrixXd allocation_matrix;
   Eigen::MatrixXd mixing_matrix;
 
 } ModelParams_t;
@@ -62,7 +64,7 @@ public:
   const Eigen::Vector3d& getExternalMoment(void) const;
   void                   setExternalMoment(const Eigen::Vector3d& moment);
 
-  void setInput(const Eigen::VectorXd& input);
+  void setInput(const reference::Motors& input);
 
   // Runs the actual dynamics simulation with a time step of dt
   void step(const double& dt);

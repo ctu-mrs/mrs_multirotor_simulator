@@ -22,33 +22,21 @@ void RateController::setParams(const Params& params) {
   pid_z_.setParams(params.kp, params.kd, params.ki);
 }
 
-Eigen::VectorXd RateController::getControlSignal(const QuadrotorModel::State& state, const RateController::Reference& reference, const double& dt) {
+reference::ControlGroup RateController::getControlSignal(const QuadrotorModel::State& state, const reference::AngularRate& reference, const double& dt) {
 
-  Eigen::Vector3d wr = reference.angular_rate - state.omega;
+  Eigen::Vector3d ang_rate_ref = Eigen::Vector3d(reference.rate_x, reference.rate_y, reference.rate_z);
 
-  Eigen::Vector4d action;
+  // angular rate error
+  Eigen::Vector3d wr = ang_rate_ref - state.omega;
 
-  action(0) = pid_x_.update(wr(0), dt);
-  action(1) = pid_y_.update(wr(1), dt);
-  action(2) = pid_z_.update(wr(2), dt);
-  action(3) = reference.throttle * params_.n_motors * params_.force_coef * pow((params_.max_rpm - params_.min_rpm) + params_.min_rpm, 2.0);
+  reference::ControlGroup output;
 
-  Eigen::MatrixXd mixer = params_.allocation_matrix.inverse();
+  output.roll     = pid_x_.update(wr(0), dt);
+  output.pitch    = pid_x_.update(wr(1), dt);
+  output.yaw      = pid_z_.update(wr(2), dt);
+  output.throttle = reference.throttle;
 
-  Eigen::VectorXd motors = mixer * action;
-
-  for (int i = 0; i < params_.n_motors; i++) {
-
-    double arg = motors(i) / params_.force_coef;
-
-    if (arg > 0) {
-      motors(i) = (sqrt(arg) - params_.min_rpm) / (params_.max_rpm - params_.min_rpm);
-    } else {
-      motors(i) = 0;
-    }
-  }
-
-  return motors;
+  return output;
 }
 
 }  // namespace mrs_multirotor_simulator

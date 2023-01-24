@@ -1,5 +1,5 @@
 n_motors: 4               # [-]
-mass: 3.5                 # [kg]
+mass: 2.0                 # [kg]
 arm_length: 0.25          # [m]
 body_height: 0.1          # [m]
 motor_time_constant: 0.03 # [s]
@@ -15,11 +15,7 @@ propulsion:
 
   prop_radius: 0.15 # [m]
 
-  # [moment_x;
-  #  moment_y;
-  #  moment_z;    = mixing_matrix * [each_motor_force]
-  #  total_force]
-  mixing_matrix: [
+  allocation_matrix: [
     0,  0, 1,  -1,
     -1, 1, 0,  0,
     1,  1, -1, -1,
