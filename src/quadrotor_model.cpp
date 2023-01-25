@@ -26,11 +26,11 @@ QuadrotorModel::QuadrotorModel(const ModelParams_t& params) {
   state_.omega = Eigen::Vector3d::Zero();
 
   state_.motor_rpm = Eigen::VectorXd::Zero(params.n_motors);
+  input_           = Eigen::VectorXd::Zero(params.n_motors);
 
   external_force_.setZero();
   external_moment_.setZero();
 
-  input_ = Eigen::VectorXd::Zero(params.n_motors);
 
   updateInternalState();
 }
@@ -47,12 +47,12 @@ void QuadrotorModel::step(const double& dt) {
 
   odeint::integrate_n_steps(rk, boost::ref(*this), internal_state_, 0.0, dt, 1);
 
-  for (int i = 0; i < 22; ++i) {
+  for (int i = 0; i < 18; ++i) {
     if (std::isnan(internal_state_[i])) {
 
       std::cout << "dump " << i << " << pos ";
 
-      for (int j = 0; j < 22; ++j) {
+      for (int j = 0; j < 18; ++j) {
         std::cout << save[j] << " ";
       }
 
@@ -71,10 +71,9 @@ void QuadrotorModel::step(const double& dt) {
     state_.omega(i) = internal_state_[15 + i];
   }
 
-  state_.motor_rpm(0) = internal_state_[18];
-  state_.motor_rpm(1) = internal_state_[19];
-  state_.motor_rpm(2) = internal_state_[20];
-  state_.motor_rpm(3) = internal_state_[21];
+  double filter_conts = exp((-dt) / (params_.motor_time_constant));
+
+  state_.motor_rpm = filter_conts * state_.motor_rpm + (1 - filter_conts) * input_;
 
   // Re-orthonormalize R (polar decomposition)
   Eigen::LLT<Eigen::Matrix3d> llt(state_.R.transpose() * state_.R);
@@ -100,8 +99,6 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
 
   State cur_state;
 
-  cur_state.motor_rpm = Eigen::VectorXd::Zero(params_.n_motors);
-
   for (int i = 0; i < 3; i++) {
     cur_state.x(i)     = x[0 + i];
     cur_state.v(i)     = x[3 + i];
@@ -109,10 +106,6 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
     cur_state.R(i, 1)  = x[9 + i];
     cur_state.R(i, 2)  = x[12 + i];
     cur_state.omega(i) = x[15 + i];
-  }
-
-  for (int i = 0; i < params_.n_motors; i++) {
-    cur_state.motor_rpm(i) = x[18 + i];
   }
 
   Eigen::LLT<Eigen::Matrix3d> llt(cur_state.R.transpose() * cur_state.R);
@@ -124,7 +117,6 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
   Eigen::Vector3d omega_dot;
   Eigen::Matrix3d R_dot;
 
-  Eigen::VectorXd motor_rpm_dot;
   Eigen::VectorXd motor_rpm_sq;
   Eigen::Matrix3d omega_tensor(Eigen::Matrix3d::Zero());
 
@@ -135,7 +127,7 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
   omega_tensor(1, 0) = cur_state.omega(2);
   omega_tensor(0, 1) = -cur_state.omega(2);
 
-  motor_rpm_sq = cur_state.motor_rpm.array().square();
+  motor_rpm_sq = state_.motor_rpm.array().square();
 
   Eigen::Vector4d moments = params_.mixing_matrix * (params_.kf * motor_rpm_sq);
   double          thrust  = moments(3);
@@ -156,8 +148,6 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
 
   omega_dot = params_.J.inverse() * (moments.topRows(3) - cur_state.omega.cross(params_.J * cur_state.omega) + external_moment_);
 
-  motor_rpm_dot = (input_ - cur_state.motor_rpm) / params_.motor_time_constant;
-
   for (int i = 0; i < 3; i++) {
     dxdt[0 + i]  = x_dot(i);
     dxdt[3 + i]  = v_dot(i);
@@ -167,11 +157,7 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
     dxdt[15 + i] = omega_dot(i);
   }
 
-  for (int i = 0; i < 4; i++) {
-    dxdt[18 + i] = motor_rpm_dot(i);
-  }
-
-  for (int i = 0; i < 22; ++i) {
+  for (int i = 0; i < 18; ++i) {
     if (std::isnan(dxdt[i])) {
       dxdt[i] = 0;
     }
@@ -192,11 +178,6 @@ void QuadrotorModel::updateInternalState(void) {
     internal_state_[12 + i] = state_.R(i, 2);
     internal_state_[15 + i] = state_.omega(i);
   }
-
-  internal_state_[18] = state_.motor_rpm(0);
-  internal_state_[19] = state_.motor_rpm(1);
-  internal_state_[20] = state_.motor_rpm(2);
-  internal_state_[21] = state_.motor_rpm(3);
 }
 
 //}
@@ -219,8 +200,6 @@ void QuadrotorModel::setInput(const reference::Motors& input) {
 
     input_(i) = params_.min_rpm + (params_.max_rpm - params_.min_rpm) * val;
   }
-
-  std::cout << "rmps " << input_.transpose() << std::endl;
 }
 
 //}

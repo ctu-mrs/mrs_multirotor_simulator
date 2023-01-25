@@ -70,7 +70,7 @@ public:
   void step(const double& dt);
 
   // For internal use, but needs to be public for odeint
-  typedef boost::array<double, 22> InternalState;
+  typedef boost::array<double, 18> InternalState;
   void                             operator()(const QuadrotorModel::InternalState& x, QuadrotorModel::InternalState& dxdt, const double t);
 
   Eigen::Vector3d getAcc() const;

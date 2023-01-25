@@ -42,15 +42,15 @@ public:
   double update(double error, double dt) {
 
     // calculate the control error difference
-    double difference_ = (error - last_error_) / dt;
-    last_error_        = error;
+    double difference = (error - last_error_) / dt;
+    last_error_       = error;
 
     // add to the integral
     integral_ += error * dt;
 
-    double p_component = _kp_ * error;        // proportional feedback
-    double d_component = _kd_ * difference_;  // derivative feedback
-    double i_component = _ki_ * integral_;    // derivative feedback
+    double p_component = _kp_ * error;       // proportional feedback
+    double d_component = _kd_ * difference;  // derivative feedback
+    double i_component = _ki_ * integral_;   // derivative feedback
 
     // return the summ of the components
     return p_component + d_component + i_component;
