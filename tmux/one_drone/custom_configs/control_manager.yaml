@@ -1,0 +1,11 @@
+MpcTracker:
+  address: "mrs_uav_trackers/MpcTracker"
+  human_switchable: true
+
+LandoffTracker:
+  address: "mrs_uav_trackers/LandoffTracker"
+  human_switchable: true
+
+LineTracker:
+  address: "mrs_uav_trackers/LineTracker"
+  human_switchable: true

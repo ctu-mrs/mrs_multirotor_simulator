@@ -27,8 +27,6 @@ void Mixer::setParams(const Params& params) {
   }
 
   allocation_matrix_inv_ = allocation_tmp.inverse();
-
-  std::cout << "Mixer's allocation = " << std::endl << allocation_matrix_inv_ << std::endl;
 }
 
 reference::Motors Mixer::getControlSignal(const reference::ControlGroup& reference) {

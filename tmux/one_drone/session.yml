@@ -22,7 +22,7 @@ windows:
   - control:
       layout: tiled
       panes:
-        - waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml
+        - waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml
   - takeoff:
       layout: tiled
       panes:
