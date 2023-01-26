@@ -26,7 +26,7 @@ void Mixer::setParams(const Params& params) {
     allocation_tmp.row(i) = allocation_tmp.row(i) / sum_abs;
   }
 
-  allocation_matrix_inv_ = allocation_tmp.inverse();
+  allocation_matrix_inv_ = allocation_tmp.transpose()*(allocation_tmp*allocation_tmp.transpose()).inverse();
 }
 
 reference::Motors Mixer::getControlSignal(const reference::ControlGroup& reference) {

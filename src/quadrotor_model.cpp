@@ -31,7 +31,6 @@ QuadrotorModel::QuadrotorModel(const ModelParams_t& params) {
   external_force_.setZero();
   external_moment_.setZero();
 
-
   updateInternalState();
 }
 
@@ -71,9 +70,9 @@ void QuadrotorModel::step(const double& dt) {
     state_.omega(i) = internal_state_[15 + i];
   }
 
-  double filter_conts = exp((-dt) / (params_.motor_time_constant));
+  double filter_const = exp((-dt) / (params_.motor_time_constant));
 
-  state_.motor_rpm = filter_conts * state_.motor_rpm + (1 - filter_conts) * input_;
+  state_.motor_rpm = filter_const * state_.motor_rpm + (1 - filter_const) * input_;
 
   // Re-orthonormalize R (polar decomposition)
   Eigen::LLT<Eigen::Matrix3d> llt(state_.R.transpose() * state_.R);
@@ -117,7 +116,6 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
   Eigen::Vector3d omega_dot;
   Eigen::Matrix3d R_dot;
 
-  Eigen::VectorXd motor_rpm_sq;
   Eigen::Matrix3d omega_tensor(Eigen::Matrix3d::Zero());
 
   omega_tensor(2, 1) = cur_state.omega(0);
@@ -127,12 +125,12 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
   omega_tensor(1, 0) = cur_state.omega(2);
   omega_tensor(0, 1) = -cur_state.omega(2);
 
-  motor_rpm_sq = state_.motor_rpm.array().square();
+  Eigen::VectorXd motor_rpm_sq = state_.motor_rpm.array().square();
 
-  Eigen::Vector4d moments = params_.mixing_matrix * (params_.kf * motor_rpm_sq);
-  double          thrust  = moments(3);
+  Eigen::Vector4d torque_thrust = params_.mixing_matrix * (params_.kf * motor_rpm_sq);
+  double          thrust        = torque_thrust(3);
 
-  double resistance = 0.3 * 3.14159265 * (params_.arm_length) * (params_.arm_length) * cur_state.v.norm() * cur_state.v.norm();
+  double resistance = params_.air_resistance_coeff * M_PI * (params_.arm_length) * (params_.arm_length) * cur_state.v.norm() * cur_state.v.norm();
 
   Eigen::Vector3d vnorm = cur_state.v;
   if (vnorm.norm() != 0) {
@@ -146,7 +144,7 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
 
   R_dot = R * omega_tensor;
 
-  omega_dot = params_.J.inverse() * (moments.topRows(3) - cur_state.omega.cross(params_.J * cur_state.omega) + external_moment_);
+  omega_dot = params_.J.inverse() * (torque_thrust.topRows(3) - cur_state.omega.cross(params_.J * cur_state.omega) + external_moment_);
 
   for (int i = 0; i < 3; i++) {
     dxdt[0 + i]  = x_dot(i);
@@ -191,6 +189,11 @@ void QuadrotorModel::setInput(const reference::Motors& input) {
   for (int i = 0; i < params_.n_motors; i++) {
 
     double val = input.motors(i);
+
+    if (!std::isfinite(val)) {
+      ROS_ERROR("[QuadrotorModel] NaN detected in motor input!!!");
+      val = 0;
+    }
 
     if (val < 0.0) {
       val = 0.0;

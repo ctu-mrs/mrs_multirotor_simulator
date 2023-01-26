@@ -121,6 +121,7 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("g", model_params_.g);
   param_loader.loadParam("rpm/min", model_params_.min_rpm);
   param_loader.loadParam("rpm/max", model_params_.max_rpm);
+  param_loader.loadParam("air_resistance_coeff", model_params_.air_resistance_coeff);
 
   // create the inertia matrix
   model_params_.J = Eigen::Matrix3d::Zero();

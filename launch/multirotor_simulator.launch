@@ -1,5 +1,7 @@
 <launch>
 
+  <arg name="UAV_TYPE" default="$(env UAV_TYPE)"/>
+
   <arg name="uav_name" default="$(env UAV_NAME)"/>
 
   <arg name="debug" default="false" />
@@ -23,7 +25,7 @@
     <node pkg="nodelet" type="nodelet" name="multirotor_simulator" args="$(arg nodelet) mrs_multirotor_simulator/MultirotorSimulator $(arg nodelet_manager)" output="screen" launch-prefix="$(arg launch_prefix)">
 
       <rosparam file="$(find mrs_multirotor_simulator)/config/multirotor_simulator.yaml" />
-      <rosparam file="$(find mrs_multirotor_simulator)/config/x500.yaml" />
+      <rosparam file="$(find mrs_multirotor_simulator)/config/$(arg UAV_TYPE).yaml" />
 
       <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/mixer.yaml" />
       <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/rate_controller.yaml" />

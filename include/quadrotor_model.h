@@ -23,6 +23,7 @@ typedef struct
   double min_rpm;
   double propulsion_force_constant;
   double propulsion_moment_constant;
+  double air_resistance_coeff;
 
   Eigen::Matrix3d J;
   Eigen::MatrixXd allocation_matrix;
