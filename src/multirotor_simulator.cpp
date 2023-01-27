@@ -249,7 +249,7 @@ void MultirotorSimulator::onInit() {
 
 /* timerMain() //{ */
 
-void MultirotorSimulator::timerMain(const ros::WallTimerEvent& event) {
+void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& event) {
 
   if (!is_initialized_) {
     return;
@@ -350,7 +350,7 @@ void MultirotorSimulator::timerMain(const ros::WallTimerEvent& event) {
 
 /* timerDiagnostics() //{ */
 
-void MultirotorSimulator::timerDiagnostics(const ros::WallTimerEvent& event) {
+void MultirotorSimulator::timerDiagnostics([[maybe_unused]] const ros::WallTimerEvent& event) {
 
   if (!is_initialized_) {
     return;
@@ -371,7 +371,7 @@ void MultirotorSimulator::timerDiagnostics(const ros::WallTimerEvent& event) {
 
 /* callbackAttitudeRateCmd() //{ */
 
-void MultirotorSimulator::callbackAttitudeRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>& wrp) {
+void MultirotorSimulator::callbackAttitudeRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>& wrp) {
 
   if (!is_initialized_) {
     return;
@@ -388,7 +388,7 @@ void MultirotorSimulator::callbackAttitudeRateCmd(mrs_lib::SubscribeHandler<mrs_
 
 /* callbackAttitudeCmd() //{ */
 
-void MultirotorSimulator::callbackAttitudeCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>& wrp) {
+void MultirotorSimulator::callbackAttitudeCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>& wrp) {
 
   if (!is_initialized_) {
     return;

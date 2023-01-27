@@ -1,10 +1,4 @@
 #include <quadrotor_model.h>
-#include <ode/boost/numeric/odeint.hpp>
-#include <Eigen/Geometry>
-#include <boost/bind.hpp>
-#include <iostream>
-
-#include <ros/ros.h>
 
 namespace odeint = boost::numeric::odeint;
 
@@ -94,7 +88,7 @@ void QuadrotorModel::step(const double& dt) {
 
 /* operator() //{ */
 
-void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, QuadrotorModel::InternalState& dxdt, const double t) {
+void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, QuadrotorModel::InternalState& dxdt, [[maybe_unused]] const double t) {
 
   State cur_state;
 
@@ -191,7 +185,7 @@ void QuadrotorModel::setInput(const reference::Actuators& input) {
     double val = input.motors(i);
 
     if (!std::isfinite(val)) {
-      ROS_ERROR("[QuadrotorModel] NaN detected in motor input!!!");
+      std::cout << "[QuadrotorModel] Error: NaN detected in motor input!!!";
       val = 0;
     }
 

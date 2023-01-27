@@ -3,7 +3,11 @@
 
 #include <controllers/references.h>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <boost/array.hpp>
+#include <iostream>
+#include <boost/bind.hpp>
+#include <ode/boost/numeric/odeint.hpp>
 
 namespace mrs_multirotor_simulator
 {

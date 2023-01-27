@@ -437,7 +437,7 @@ void Api::callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu> &wrp) {
 
 /* timerMain() //{ */
 
-void Api::timerMain(const ros::TimerEvent &event) {
+void Api::timerMain([[maybe_unused]] const ros::TimerEvent &event) {
 
   if (!is_initialized_) {
     return;
