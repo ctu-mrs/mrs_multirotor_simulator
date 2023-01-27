@@ -64,6 +64,16 @@ typedef struct
   double throttle;
 } AngularRate;
 
+typedef struct
+{
+  Eigen::Matrix3d rotation;
+
+  /**
+   * @brief the collective throttle along body-Z normalized to [-1, 1]
+   */
+  double throttle;
+} Attitude;
+
 }  // namespace reference
 
 }  // namespace mrs_multirotor_simulator

@@ -180,8 +180,6 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("rate_controller/kd", rate_controller_params.kd);
   param_loader.loadParam("rate_controller/ki", rate_controller_params.ki);
 
-  rate_controller_params.allocation_matrix = model_params_.allocation_matrix;
-
   rate_controller_.setParams(rate_controller_params);
 
   // | ----------------------- publishers ----------------------- |

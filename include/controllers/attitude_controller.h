@@ -9,7 +9,7 @@
 namespace mrs_multirotor_simulator
 {
 
-class RateController {
+class AttitudeController {
 
 public:
   struct Params
@@ -20,11 +20,11 @@ public:
     double          mass;
   };
 
-  RateController();
+  AttitudeController();
 
   void setParams(const Params& params);
 
-  reference::ControlGroup getControlSignal(const QuadrotorModel::State& state, const reference::AngularRate& reference, const double& dt);
+  reference::AttitudeRate getControlSignal(const QuadrotorModel::State& state, const reference::AngularRate& reference, const double& dt);
 
 private:
   Params params_;
