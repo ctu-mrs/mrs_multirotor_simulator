@@ -14,6 +14,9 @@
 #include <mrs_lib/service_client_handler.h>
 
 #include <std_msgs/Float64.h>
+#include <std_srvs/SetBool.h>
+
+#include <mrs_multirotor_simulator/Diagnostics.h>
 
 #include <mrs_lib/gps_conversions.h>
 
@@ -70,22 +73,29 @@ private:
 
   std::string _topic_simulator_odom_;
   std::string _topic_simulator_imu_;
+  std::string _topic_simulator_diag_;
 
   std::string _topic_simulator_attitude_rate_cmd_;
   std::string _topic_simulator_attitude_cmd_;
 
   // | ----------------------- subscribers ---------------------- |
 
-  mrs_lib::SubscribeHandler<nav_msgs::Odometry> sh_odom_;
-  mrs_lib::SubscribeHandler<sensor_msgs::Imu>   sh_imu_;
+  mrs_lib::SubscribeHandler<nav_msgs::Odometry>                    sh_odom_;
+  mrs_lib::SubscribeHandler<sensor_msgs::Imu>                      sh_imu_;
+  mrs_lib::SubscribeHandler<mrs_multirotor_simulator::Diagnostics> sh_simulator_diag_;
 
   void callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry> &wrp);
   void callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu> &wrp);
+  void callbackSimulatorDiag(mrs_lib::SubscribeHandler<mrs_multirotor_simulator::Diagnostics> &wrp);
 
   // | ----------------------- publishers ----------------------- |
 
   mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd> ph_attitude_rate_cmd_;
   mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>     ph_attitude_cmd_;
+
+  // | --------------------- service clients -------------------- |
+
+  mrs_lib::ServiceClientHandler<std_srvs::SetBool> sch_arm_;
 
   // | ------------------------- timers ------------------------- |
 
@@ -129,6 +139,7 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
 
   param_loader.loadParam("topics/simulator/odom", _topic_simulator_odom_);
   param_loader.loadParam("topics/simulator/imu", _topic_simulator_imu_);
+  param_loader.loadParam("topics/simulator/diagnostics", _topic_simulator_diag_);
   param_loader.loadParam("topics/simulator/attitude_rate_cmd", _topic_simulator_attitude_rate_cmd_);
   param_loader.loadParam("topics/simulator/attitude_cmd", _topic_simulator_attitude_cmd_);
 
@@ -151,6 +162,13 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
   sh_odom_ = mrs_lib::SubscribeHandler<nav_msgs::Odometry>(shopts, topic_prefix + "/" + _topic_simulator_odom_, &Api::callbackOdom, this);
 
   sh_imu_ = mrs_lib::SubscribeHandler<sensor_msgs::Imu>(shopts, topic_prefix + "/" + _topic_simulator_imu_, &Api::callbackImu, this);
+
+  sh_simulator_diag_ =
+      mrs_lib::SubscribeHandler<mrs_multirotor_simulator::Diagnostics>(shopts, topic_prefix + "/" + _topic_simulator_diag_, &Api::callbackSimulatorDiag, this);
+
+  // | --------------------- service clients -------------------- |
+
+  sch_arm_ = mrs_lib::ServiceClientHandler<std_srvs::SetBool>(nh_, "arm_out");
 
   // | ----------------------- publishers ----------------------- |
 
@@ -312,7 +330,6 @@ std::tuple<bool, std::string> Api::callbackArming([[maybe_unused]] const bool &r
     return std::tuple(false, ss.str());
   }
 
-  armed_    = false;
   offboard_ = false;
 
   ss << "disarmed";
@@ -429,6 +446,19 @@ void Api::callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu> &wrp) {
   sensor_msgs::ImuConstPtr imu = wrp.getMsg();
 
   common_handlers_->publishers.publishIMU(*imu);
+}
+
+//}
+
+/* callbackSimulatorDiag() //{ */
+
+void Api::callbackSimulatorDiag(mrs_lib::SubscribeHandler<mrs_multirotor_simulator::Diagnostics> &wrp) {
+
+  if (!is_initialized_) {
+    return;
+  }
+
+  ROS_INFO_ONCE("[Api]: getting simulator diagnostics");
 }
 
 //}

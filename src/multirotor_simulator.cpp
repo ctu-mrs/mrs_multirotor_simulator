@@ -12,6 +12,7 @@
 #include <sensor_msgs/Range.h>
 #include <nav_msgs/Odometry.h>
 #include <rosgraph_msgs/Clock.h>
+#include <std_srvs/SetBool.h>
 
 #include <mrs_msgs/HwApiAttitudeRateCmd.h>
 #include <mrs_msgs/HwApiAttitudeCmd.h>
@@ -39,8 +40,8 @@ public:
   virtual void onInit();
 
 private:
-  ros::NodeHandle nh_;
-  bool            is_initialized_ = false;
+  ros::NodeHandle   nh_;
+  std::atomic<bool> is_initialized_ = false;
 
   // | ------------------------- params ------------------------- |
 
@@ -57,6 +58,8 @@ private:
   // | --------------------- dynamics model --------------------- |
 
   std::unique_ptr<QuadrotorModel> quadrotor_model_;
+
+  std::atomic<bool> armed_ = false;
 
   // | ----------------------- controllers ---------------------- |
 
@@ -84,10 +87,14 @@ private:
   void callbackAttitudeRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>& wrp);
   void callbackAttitudeCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>& wrp);
 
-  // | ----------------------- subscribers ---------------------- |
-
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd> sh_attitude_rate_cmd_;
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>     sh_attitude_cmd_;
+
+  // | --------------------- service clients -------------------- |
+
+  ros::ServiceServer ss_arm_;
+
+  bool callbackArm(std_srvs::SetBool::Request& req, std_srvs::SetBool::Response& res);
 
   // | --------------- dynamic reconfigure server --------------- |
 
@@ -232,11 +239,15 @@ void MultirotorSimulator::onInit() {
       mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>(shopts, "attitude_rate_cmd_in", &MultirotorSimulator::callbackAttitudeRateCmd, this);
   sh_attitude_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>(shopts, "attitude_cmd_in", &MultirotorSimulator::callbackAttitudeCmd, this);
 
+  // | --------------------- service servers -------------------- |
+
+  ss_arm_ = nh_.advertiseService("arm_in", &MultirotorSimulator::callbackArm, this);
+
   // | ------------------------- timers ------------------------- |
 
   timer_main_ = nh_.createWallTimer(ros::WallDuration(1.0 / (_simulation_rate_ * drs_params_.realtime_factor)), &MultirotorSimulator::timerMain, this);
 
-  timer_diagnostics_ = nh_.createWallTimer(ros::WallDuration(1.0), &MultirotorSimulator::timerDiagnostics, this);
+  timer_diagnostics_ = nh_.createWallTimer(ros::WallDuration(1.0 / 10.0), &MultirotorSimulator::timerDiagnostics, this);
 
   is_initialized_ = true;
 
@@ -276,6 +287,11 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
 
   if (input_mode_ > mrs_multirotor_simulator::Diagnostics::ACTUATOR_CMD) {
     actuators_cmd = mixer_.getControlSignal(control_group_cmd);
+  }
+
+  if (!armed_) {
+    ROS_INFO_THROTTLE(1.0, "[MultirotorSimulator]: UAV not armed");
+    actuators_cmd.motors = Eigen::VectorXd::Zero(model_params_.n_motors);
   }
 
   // | --------------------- model iteration -------------------- |
@@ -361,6 +377,7 @@ void MultirotorSimulator::timerDiagnostics([[maybe_unused]] const ros::WallTimer
   mrs_multirotor_simulator::Diagnostics msg;
 
   msg.input_type = input_mode_;
+  msg.armed      = armed_;
 
   ph_diagnostics_.publish(msg);
 }
@@ -416,6 +433,30 @@ void MultirotorSimulator::callbackDrs(mrs_multirotor_simulator::multirotor_simul
   timer_main_.setPeriod(ros::WallDuration(1.0 / (_simulation_rate_ * config.realtime_factor)), true);
 
   ROS_INFO("[MultirotorSimulator]: DRS updated gains");
+}
+
+//}
+
+/* callbackArm() //{ */
+
+bool MultirotorSimulator::callbackArm(std_srvs::SetBool::Request& req, std_srvs::SetBool::Response& res) {
+
+  if (!is_initialized_) {
+    return false;
+  }
+
+  armed_ = req.data;
+
+  std::stringstream ss;
+
+  ss << (req.data ? "armed" : "disarmed");
+
+  res.message = ss.str();
+  res.success = false;
+
+  ROS_INFO_STREAM("[MultirotorSimulator]: " << ss.str());
+
+  return true;
 }
 
 //}

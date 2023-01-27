@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   mrs_lib
   nodelet
   std_msgs
+  std_srvs
   sensor_msgs
   nav_msgs
   mrs_uav_hw_api

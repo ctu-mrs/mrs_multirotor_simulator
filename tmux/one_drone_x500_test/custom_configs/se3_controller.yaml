@@ -1,0 +1,1 @@
+output_mode: 0 # {0 = attitude_rate, 1 = orientation}

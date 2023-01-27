@@ -7,3 +7,5 @@ uint8 VELOCITY_CMD=5
 uint8 POSITION_CMD=6
 
 uint8 input_type
+
+bool armed

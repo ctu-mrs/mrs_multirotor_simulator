@@ -8,4 +8,4 @@ realtime_factor: 1.0 # [-]
 # ACCELERATION_CMD=4
 # VELOCITY_CMD=5
 # POSITION_CMD=6
-input_mode: 3
+input_mode: 2

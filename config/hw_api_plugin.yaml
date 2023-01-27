@@ -4,5 +4,6 @@ topics:
   simulator:
     imu: "multirotor_simulator/imu"
     odom: "multirotor_simulator/odom"
+    diagnostics: "multirotor_simulator/diagnostics"
     attitude_rate_cmd: "multirotor_simulator/attitude_rate_cmd"
     attitude_cmd: "multirotor_simulator/attitude_cmd"
