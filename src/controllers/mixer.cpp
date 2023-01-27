@@ -1,6 +1,4 @@
 #include <controllers/mixer.h>
-#include <math.h>
-#include <iostream>
 
 namespace mrs_multirotor_simulator
 {

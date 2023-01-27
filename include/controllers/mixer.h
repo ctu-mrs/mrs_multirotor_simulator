@@ -3,7 +3,6 @@
 
 #include <quadrotor_model.h>
 #include <controllers/references.h>
-#include <eigen3/Eigen/Eigen>
 
 namespace mrs_multirotor_simulator
 {
