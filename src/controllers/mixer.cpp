@@ -26,28 +26,28 @@ void Mixer::setParams(const Params& params) {
     allocation_tmp.row(i) = allocation_tmp.row(i) / sum_abs;
   }
 
-  allocation_matrix_inv_ = allocation_tmp.transpose()*(allocation_tmp*allocation_tmp.transpose()).inverse();
+  allocation_matrix_inv_ = allocation_tmp.transpose() * (allocation_tmp * allocation_tmp.transpose()).inverse();
 }
 
-reference::Motors Mixer::getControlSignal(const reference::ControlGroup& reference) {
+reference::Actuators Mixer::getControlSignal(const reference::ControlGroup& reference) {
 
   Eigen::Vector4d ctrl_group(reference.roll, reference.pitch, reference.yaw, reference.throttle);
 
-  reference::Motors motors;
-  motors.motors = Eigen::VectorXd::Zero(params_.n_motors);
+  reference::Actuators actuators;
+  actuators.motors = Eigen::VectorXd::Zero(params_.n_motors);
 
-  motors.motors = allocation_matrix_inv_ * ctrl_group;
+  actuators.motors = allocation_matrix_inv_ * ctrl_group;
 
   // TODO: implement desaturation
   for (int i = 0; i < params_.n_motors; i++) {
-    if (motors.motors[i] > 1.0) {
-      motors.motors[i] = 1.0;
-    } else if (motors.motors[i] < 0.0) {
-      motors.motors[i] = 0.0;
+    if (actuators.motors[i] > 1.0) {
+      actuators.motors[i] = 1.0;
+    } else if (actuators.motors[i] < 0.0) {
+      actuators.motors[i] = 0.0;
     }
   }
 
-  return motors;
+  return actuators;
 }
 
 }  // namespace mrs_multirotor_simulator

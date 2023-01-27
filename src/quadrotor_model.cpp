@@ -184,7 +184,7 @@ void QuadrotorModel::updateInternalState(void) {
 
 /* setInput() //{ */
 
-void QuadrotorModel::setInput(const reference::Motors& input) {
+void QuadrotorModel::setInput(const reference::Actuators& input) {
 
   for (int i = 0; i < params_.n_motors; i++) {
 

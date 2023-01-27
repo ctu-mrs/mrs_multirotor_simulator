@@ -71,7 +71,8 @@ private:
   std::string _topic_simulator_odom_;
   std::string _topic_simulator_imu_;
 
-  std::string _topic_simulator_rate_cmd_;
+  std::string _topic_simulator_attitude_rate_cmd_;
+  std::string _topic_simulator_attitude_cmd_;
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -83,7 +84,8 @@ private:
 
   // | ----------------------- publishers ----------------------- |
 
-  mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd> ph_rate_cmd_;
+  mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd> ph_attitude_rate_cmd_;
+  mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>     ph_attitude_cmd_;
 
   // | ------------------------- timers ------------------------- |
 
@@ -127,7 +129,8 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
 
   param_loader.loadParam("topics/simulator/odom", _topic_simulator_odom_);
   param_loader.loadParam("topics/simulator/imu", _topic_simulator_imu_);
-  param_loader.loadParam("topics/simulator/rate_cmd", _topic_simulator_rate_cmd_);
+  param_loader.loadParam("topics/simulator/attitude_rate_cmd", _topic_simulator_attitude_rate_cmd_);
+  param_loader.loadParam("topics/simulator/attitude_cmd", _topic_simulator_attitude_cmd_);
 
   if (!param_loader.loadedSuccessfully()) {
     ROS_ERROR("[MrsUavHwDummyApi]: Could not load all parameters!");
@@ -151,7 +154,8 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
 
   // | ----------------------- publishers ----------------------- |
 
-  ph_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd>(nh_, topic_prefix + "/" + _topic_simulator_rate_cmd_, 1);
+  ph_attitude_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd>(nh_, topic_prefix + "/" + _topic_simulator_attitude_rate_cmd_, 1);
+  ph_attitude_cmd_      = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>(nh_, topic_prefix + "/" + _topic_simulator_attitude_cmd_, 1);
 
   // | ------------------------- timers ------------------------- |
 
@@ -235,7 +239,7 @@ bool Api::callbackAttitudeRateCmd([[maybe_unused]] const mrs_msgs::HwApiAttitude
 
   ROS_INFO_ONCE("[Api]: getting attitude rate cmd");
 
-  ph_rate_cmd_.publish(msg);
+  ph_attitude_rate_cmd_.publish(msg);
 
   return true;
 }
@@ -248,7 +252,9 @@ bool Api::callbackAttitudeCmd([[maybe_unused]] const mrs_msgs::HwApiAttitudeCmd 
 
   ROS_INFO_ONCE("[Api]: getting attitude cmd");
 
-  return false;
+  ph_attitude_cmd_.publish(msg);
+
+  return true;
 }
 
 //}

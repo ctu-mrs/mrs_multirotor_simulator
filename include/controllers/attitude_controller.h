@@ -1,10 +1,9 @@
-#ifndef RATE_CONTROLLER_H
-#define RATE_CONTROLLER_H
+#ifndef ATTITUDE_CONTROLLER_H
+#define ATTITUDE_CONTROLLER_H
 
 #include <quadrotor_model.h>
 #include <controllers/pid.h>
 #include <controllers/references.h>
-#include <eigen3/Eigen/Eigen>
 
 namespace mrs_multirotor_simulator
 {
@@ -14,17 +13,17 @@ class AttitudeController {
 public:
   struct Params
   {
-    double          kp;
-    double          kd;
-    double          ki;
-    double          mass;
+    double kp;
+    double kd;
+    double ki;
+    double mass;
   };
 
   AttitudeController();
 
   void setParams(const Params& params);
 
-  reference::AttitudeRate getControlSignal(const QuadrotorModel::State& state, const reference::AngularRate& reference, const double& dt);
+  reference::AttitudeRate getControlSignal(const QuadrotorModel::State& state, const reference::Attitude& reference, const double& dt);
 
 private:
   Params params_;
@@ -36,4 +35,4 @@ private:
 
 }  // namespace mrs_multirotor_simulator
 
-#endif  // RATE_CONTROLLER_H
+#endif  // ATTITUDE_CONTROLLER_H

@@ -22,7 +22,7 @@ public:
 
   void setParams(const Params& params);
 
-  reference::Motors getControlSignal(const reference::ControlGroup& reference);
+  reference::Actuators getControlSignal(const reference::ControlGroup& reference);
 
 private:
   Params params_;

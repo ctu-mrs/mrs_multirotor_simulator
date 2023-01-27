@@ -16,7 +16,7 @@ typedef struct
    * @brief vector of motor throttles scaled as [0, 1]
    */
   Eigen::VectorXd motors;
-} Motors;
+} Actuators;
 
 typedef struct
 {
@@ -62,11 +62,11 @@ typedef struct
    * @brief the collective throttle along body-Z normalized to [-1, 1]
    */
   double throttle;
-} AngularRate;
+} AttitudeRate;
 
 typedef struct
 {
-  Eigen::Matrix3d rotation;
+  Eigen::Matrix3d orientation;
 
   /**
    * @brief the collective throttle along body-Z normalized to [-1, 1]

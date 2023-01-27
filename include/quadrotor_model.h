@@ -65,7 +65,7 @@ public:
   const Eigen::Vector3d& getExternalMoment(void) const;
   void                   setExternalMoment(const Eigen::Vector3d& moment);
 
-  void setInput(const reference::Motors& input);
+  void setInput(const reference::Actuators& input);
 
   // Runs the actual dynamics simulation with a time step of dt
   void step(const double& dt);

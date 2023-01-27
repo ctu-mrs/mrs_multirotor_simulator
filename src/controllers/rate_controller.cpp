@@ -1,6 +1,4 @@
 #include <controllers/rate_controller.h>
-#include <math.h>
-#include <iostream>
 
 namespace mrs_multirotor_simulator
 {
@@ -17,12 +15,12 @@ void RateController::setParams(const Params& params) {
   pid_y_.reset();
   pid_z_.reset();
 
-  pid_x_.setParams(params.kp*params.mass, params.kd*params.mass, params.ki*params.mass);
-  pid_y_.setParams(params.kp*params.mass, params.kd*params.mass, params.ki*params.mass);
-  pid_z_.setParams(params.kp*params.mass, params.kd*params.mass, params.ki*params.mass);
+  pid_x_.setParams(params.kp * params.mass, params.kd * params.mass, params.ki * params.mass);
+  pid_y_.setParams(params.kp * params.mass, params.kd * params.mass, params.ki * params.mass);
+  pid_z_.setParams(params.kp * params.mass, params.kd * params.mass, params.ki * params.mass);
 }
 
-reference::ControlGroup RateController::getControlSignal(const QuadrotorModel::State& state, const reference::AngularRate& reference, const double& dt) {
+reference::ControlGroup RateController::getControlSignal(const QuadrotorModel::State& state, const reference::AttitudeRate& reference, const double& dt) {
 
   Eigen::Vector3d ang_rate_ref = Eigen::Vector3d(reference.rate_x, reference.rate_y, reference.rate_z);
 

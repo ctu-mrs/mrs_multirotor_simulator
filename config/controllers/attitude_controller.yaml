@@ -1,0 +1,5 @@
+attitude_controller:
+  # PID gains
+  kp: 4.0
+  kd: 0.0
+  ki: 0.01
