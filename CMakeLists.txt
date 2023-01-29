@@ -20,23 +20,10 @@ find_package(catkin REQUIRED COMPONENTS
   mrs_uav_hw_api
   rosgraph_msgs
   dynamic_reconfigure
-  message_generation
-  )
-
-add_message_files(DIRECTORY msg FILES
-
-  Diagnostics.msg
   )
 
 generate_dynamic_reconfigure_options(
   cfg/multirotor_simulator.cfg
-  )
-
-generate_messages(DEPENDENCIES
-
-  std_msgs
-  geometry_msgs
-  sensor_msgs
   )
 
 set(LIBRARIES
@@ -46,7 +33,7 @@ set(LIBRARIES
 catkin_package(
   LIBRARIES ${LIBRARIES}
   INCLUDE_DIRS include include/controllers
-  CATKIN_DEPENDS std_msgs mrs_msgs mrs_lib roscpp std_srvs mrs_uav_hw_api nav_msgs dynamic_reconfigure rosgraph_msgs message_runtime
+  CATKIN_DEPENDS std_msgs mrs_msgs mrs_lib roscpp std_srvs mrs_uav_hw_api nav_msgs dynamic_reconfigure rosgraph_msgs
   )
 
 include_directories(

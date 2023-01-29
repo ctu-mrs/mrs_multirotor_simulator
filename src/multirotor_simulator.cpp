@@ -39,6 +39,18 @@ class MultirotorSimulator : public nodelet::Nodelet {
 public:
   virtual void onInit();
 
+  enum INPUT_MODE
+  {
+    INPUT_TIMEOUT     = 0,
+    ACTUATOR_CMD      = 1,
+    CONTROL_GROUP_CMD = 2,
+    ATTITUDE_RATE_CMD = 3,
+    ATTITUDE_CMD      = 4,
+    ACCELERATION_CMD  = 5,
+    VELOCITY_CMD      = 6,
+    POSITION_CMD      = 7,
+  };
+
 private:
   ros::NodeHandle   nh_;
   std::atomic<bool> is_initialized_ = false;
@@ -53,13 +65,13 @@ private:
 
   ros::Time sim_time_;
 
-  int input_mode_;
+  bool _iterate_without_input_;
+
+  double _input_timeout_;
 
   // | --------------------- dynamics model --------------------- |
 
   std::unique_ptr<QuadrotorModel> quadrotor_model_;
-
-  std::atomic<bool> armed_ = false;
 
   // | ----------------------- controllers ---------------------- |
 
@@ -90,12 +102,6 @@ private:
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd> sh_attitude_rate_cmd_;
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>     sh_attitude_cmd_;
 
-  // | --------------------- service clients -------------------- |
-
-  ros::ServiceServer ss_arm_;
-
-  bool callbackArm(std_srvs::SetBool::Request& req, std_srvs::SetBool::Response& res);
-
   // | --------------- dynamic reconfigure server --------------- |
 
   boost::recursive_mutex                                       mutex_drs_;
@@ -108,10 +114,11 @@ private:
 
   // | ------------------------- methods ------------------------ |
 
-  reference::Attitude     getLastAttitudeCmd(void);
-  reference::AttitudeRate getLastAttitudeRateCmd(void);
-  reference::ControlGroup getLastControlGroupCmd(void);
-  reference::Actuators    getLastActuatorCmd(void);
+  MultirotorSimulator::INPUT_MODE getInputMode(void);
+  reference::Attitude             getLastAttitudeCmd(void);
+  reference::AttitudeRate         getLastAttitudeRateCmd(void);
+  reference::ControlGroup         getLastControlGroupCmd(void);
+  reference::Actuators            getLastActuatorCmd(void);
 };
 
 //}
@@ -132,7 +139,8 @@ void MultirotorSimulator::onInit() {
 
   param_loader.loadParam("simulation_rate", _simulation_rate_);
   param_loader.loadParam("realtime_factor", drs_params_.realtime_factor);
-  param_loader.loadParam("input_mode", input_mode_);
+  param_loader.loadParam("iterate_without_input", _iterate_without_input_);
+  param_loader.loadParam("input_timeout", _input_timeout_);
 
   param_loader.loadParam("n_motors", model_params_.n_motors);
   param_loader.loadParam("mass", model_params_.mass);
@@ -145,6 +153,9 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("rpm/min", model_params_.min_rpm);
   param_loader.loadParam("rpm/max", model_params_.max_rpm);
   param_loader.loadParam("air_resistance_coeff", model_params_.air_resistance_coeff);
+
+  param_loader.loadParam("ground/enabled", model_params_.ground_enabled);
+  param_loader.loadParam("ground/z", model_params_.ground_z);
 
   // create the inertia matrix
   model_params_.J = Eigen::Matrix3d::Zero();
@@ -173,7 +184,7 @@ void MultirotorSimulator::onInit() {
     ros::shutdown();
   }
 
-  quadrotor_model_ = std::make_unique<QuadrotorModel>(model_params_);
+  quadrotor_model_ = std::make_unique<QuadrotorModel>(model_params_, Eigen::Vector3d(10, 20, 3));
 
   // | --------------- dynamic reconfigure server --------------- |
 
@@ -239,15 +250,29 @@ void MultirotorSimulator::onInit() {
       mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>(shopts, "attitude_rate_cmd_in", &MultirotorSimulator::callbackAttitudeRateCmd, this);
   sh_attitude_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>(shopts, "attitude_cmd_in", &MultirotorSimulator::callbackAttitudeCmd, this);
 
-  // | --------------------- service servers -------------------- |
-
-  ss_arm_ = nh_.advertiseService("arm_in", &MultirotorSimulator::callbackArm, this);
-
   // | ------------------------- timers ------------------------- |
 
   timer_main_ = nh_.createWallTimer(ros::WallDuration(1.0 / (_simulation_rate_ * drs_params_.realtime_factor)), &MultirotorSimulator::timerMain, this);
 
   timer_diagnostics_ = nh_.createWallTimer(ros::WallDuration(1.0 / 10.0), &MultirotorSimulator::timerDiagnostics, this);
+
+  // | ------------------ first model iteration ----------------- |
+
+  // * we need to iterate the model first to initialize its state
+  // * this needs to happen in order to publish the correct state
+  //   when using iterate_without_input == false
+
+  reference::Actuators actuators_cmd;
+
+  actuators_cmd.motors = Eigen::VectorXd::Zero(model_params_.n_motors);
+
+  // set the motor input for the model
+  quadrotor_model_->setInput(actuators_cmd);
+
+  // iterate the model
+  quadrotor_model_->step(1.0 / _simulation_rate_);
+
+  // | ----------------------- finish init ---------------------- |
 
   is_initialized_ = true;
 
@@ -272,35 +297,35 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
 
   // | -------------- prepare the control reference ------------- |
 
+  MultirotorSimulator::INPUT_MODE input_mode = getInputMode();
+
   reference::Attitude     attitude_cmd      = getLastAttitudeCmd();
   reference::AttitudeRate attitude_rate_cmd = getLastAttitudeRateCmd();
   reference::ControlGroup control_group_cmd = getLastControlGroupCmd();
   reference::Actuators    actuators_cmd     = getLastActuatorCmd();
 
-  if (input_mode_ > mrs_multirotor_simulator::Diagnostics::ATTITUDE_RATE_CMD) {
+  if (input_mode > MultirotorSimulator::ATTITUDE_RATE_CMD) {
     attitude_rate_cmd = attitude_controller_.getControlSignal(quadrotor_model_->getState(), attitude_cmd, simulation_step_size);
   }
 
-  if (input_mode_ > mrs_multirotor_simulator::Diagnostics::CONTROL_GROUP_CMD) {
+  if (input_mode > MultirotorSimulator::CONTROL_GROUP_CMD) {
     control_group_cmd = rate_controller_.getControlSignal(quadrotor_model_->getState(), attitude_rate_cmd, simulation_step_size);
   }
 
-  if (input_mode_ > mrs_multirotor_simulator::Diagnostics::ACTUATOR_CMD) {
+  if (input_mode > MultirotorSimulator::ACTUATOR_CMD) {
     actuators_cmd = mixer_.getControlSignal(control_group_cmd);
-  }
-
-  if (!armed_) {
-    ROS_INFO_THROTTLE(1.0, "[MultirotorSimulator]: UAV not armed");
-    actuators_cmd.motors = Eigen::VectorXd::Zero(model_params_.n_motors);
   }
 
   // | --------------------- model iteration -------------------- |
 
-  // set the motor input for the model
-  quadrotor_model_->setInput(actuators_cmd);
+  if (_iterate_without_input_ || input_mode != MultirotorSimulator::INPUT_TIMEOUT) {
 
-  // iterate the model
-  quadrotor_model_->step(simulation_step_size);
+    // set the motor input for the model
+    quadrotor_model_->setInput(actuators_cmd);
+
+    // iterate the model
+    quadrotor_model_->step(simulation_step_size);
+  }
 
   // extract the current state
   auto state = quadrotor_model_->getState();
@@ -376,9 +401,6 @@ void MultirotorSimulator::timerDiagnostics([[maybe_unused]] const ros::WallTimer
 
   mrs_multirotor_simulator::Diagnostics msg;
 
-  msg.input_type = input_mode_;
-  msg.armed      = armed_;
-
   ph_diagnostics_.publish(msg);
 }
 
@@ -395,10 +417,6 @@ void MultirotorSimulator::callbackAttitudeRateCmd([[maybe_unused]] mrs_lib::Subs
   }
 
   ROS_INFO_ONCE("[MultirotorSimulator]: getting attitude rate command");
-
-  if (input_mode_ != mrs_multirotor_simulator::Diagnostics::ATTITUDE_RATE_CMD) {
-    ROS_ERROR_THROTTLE(1.0, "[MultirotorSimulator]: the attitude rate command is not enabled");
-  }
 }
 
 //}
@@ -412,10 +430,6 @@ void MultirotorSimulator::callbackAttitudeCmd([[maybe_unused]] mrs_lib::Subscrib
   }
 
   ROS_INFO_ONCE("[MultirotorSimulator]: getting attitude command");
-
-  if (input_mode_ != mrs_multirotor_simulator::Diagnostics::ATTITUDE_CMD) {
-    ROS_ERROR_THROTTLE(1.0, "[MultirotorSimulator]: the attitude command is not enabled");
-  }
 }
 
 //}
@@ -437,30 +451,6 @@ void MultirotorSimulator::callbackDrs(mrs_multirotor_simulator::multirotor_simul
 
 //}
 
-/* callbackArm() //{ */
-
-bool MultirotorSimulator::callbackArm(std_srvs::SetBool::Request& req, std_srvs::SetBool::Response& res) {
-
-  if (!is_initialized_) {
-    return false;
-  }
-
-  armed_ = req.data;
-
-  std::stringstream ss;
-
-  ss << (req.data ? "armed" : "disarmed");
-
-  res.message = ss.str();
-  res.success = false;
-
-  ROS_INFO_STREAM("[MultirotorSimulator]: " << ss.str());
-
-  return true;
-}
-
-//}
-
 // | ------------------------- methods ------------------------ |
 
 /* getLastAttitudeCmd() //{ */
@@ -472,10 +462,6 @@ reference::Attitude MultirotorSimulator::getLastAttitudeCmd(void) {
   // default values
   cmd.throttle    = 0.0;
   cmd.orientation = mrs_lib::AttitudeConverter(0, 0, 0);
-
-  if (input_mode_ != mrs_multirotor_simulator::Diagnostics::ATTITUDE_CMD) {
-    return cmd;
-  }
 
   if (!sh_attitude_cmd_.hasMsg()) {
     return cmd;
@@ -509,10 +495,6 @@ reference::AttitudeRate MultirotorSimulator::getLastAttitudeRateCmd(void) {
   cmd.rate_x   = 0;
   cmd.rate_x   = 0;
   cmd.rate_x   = 0;
-
-  if (input_mode_ != mrs_multirotor_simulator::Diagnostics::ATTITUDE_RATE_CMD) {
-    return cmd;
-  }
 
   if (!sh_attitude_rate_cmd_.hasMsg()) {
     return cmd;
@@ -549,10 +531,6 @@ reference::ControlGroup MultirotorSimulator::getLastControlGroupCmd(void) {
   cmd.yaw      = 0;
   cmd.throttle = 0;
 
-  if (input_mode_ != mrs_multirotor_simulator::Diagnostics::CONTROL_GROUP_CMD) {
-    return cmd;
-  }
-
   return cmd;
 }
 
@@ -566,11 +544,27 @@ reference::Actuators MultirotorSimulator::getLastActuatorCmd(void) {
 
   cmd.motors = Eigen::VectorXd::Zero(model_params_.n_motors);
 
-  if (input_mode_ != mrs_multirotor_simulator::Diagnostics::ACTUATOR_CMD) {
-    return cmd;
-  }
-
   return cmd;
+}
+
+//}
+
+/* getInputType() //{ */
+
+MultirotorSimulator::INPUT_MODE MultirotorSimulator::getInputMode(void) {
+
+  const ros::Time now = ros::Time::now();
+
+  const bool getting_attitude_rate = sh_attitude_rate_cmd_.hasMsg() && (now - sh_attitude_rate_cmd_.lastMsgTime()).toSec() <= _input_timeout_;
+  const bool getting_attitude      = sh_attitude_cmd_.hasMsg() && (now - sh_attitude_cmd_.lastMsgTime()).toSec() <= _input_timeout_;
+
+  if (getting_attitude_rate) {
+    return MultirotorSimulator::ATTITUDE_RATE_CMD;
+  } else if (getting_attitude) {
+    return MultirotorSimulator::ATTITUDE_CMD;
+  } else {
+    return MultirotorSimulator::INPUT_TIMEOUT;
+  }
 }
 
 //}

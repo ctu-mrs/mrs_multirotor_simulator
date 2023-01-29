@@ -1,11 +1,10 @@
 simulation_rate: 100.0 # Hz
 realtime_factor: 1.0 # [-]
 
-# ACTUATOR_CMD=0
-# CONTROL_GROUP_CMD=1
-# ATTITUDE_RATE_CMD=2
-# ATTITUDE_CMD=3
-# ACCELERATION_CMD=4
-# VELOCITY_CMD=5
-# POSITION_CMD=6
-input_mode: 2
+iterate_without_input: true
+
+input_timeout: 0.25 # [s]
+
+ground:
+  enabled: true
+  z: 0.0 # [m]

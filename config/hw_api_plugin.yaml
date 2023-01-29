@@ -1,5 +1,14 @@
 hw_interface_plugin: "mrs_simulator_api_plugin/Api"
 
+input_mode:
+  actuators: false
+  control_group: false
+  attitude_rate: false
+  attitude: true
+  acceleration: false
+  velocity: false
+  position: false
+
 topics:
   simulator:
     imu: "multirotor_simulator/imu"

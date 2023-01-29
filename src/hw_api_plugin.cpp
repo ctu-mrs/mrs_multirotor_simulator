@@ -16,8 +16,6 @@
 #include <std_msgs/Float64.h>
 #include <std_srvs/SetBool.h>
 
-#include <mrs_multirotor_simulator/Diagnostics.h>
-
 #include <mrs_lib/gps_conversions.h>
 
 //}
@@ -45,6 +43,16 @@ public:
   void initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_hw_api::CommonHandlers_t> common_handlers, const std::string &topic_prefix,
                   const std::string &uav_name);
 
+  // | ------------------------- params ------------------------- |
+
+  bool _input_mode_actuators_     = false;
+  bool _input_mode_control_group_ = false;
+  bool _input_mode_attitude_rate_ = false;
+  bool _input_mode_attitude_      = false;
+  bool _input_mode_acceleration_  = false;
+  bool _input_mode_velocity_      = false;
+  bool _input_mode_position_      = false;
+
   // | --------------------- status methods --------------------- |
 
   mrs_msgs::HwApiDiagnostics getDiagnostics();
@@ -52,12 +60,13 @@ public:
 
   // | --------------------- topic callbacks -------------------- |
 
-  bool callbackControlGroupCmd(const mrs_msgs::HwApiControlGroupCmd &msg);
-  bool callbackAttitudeRateCmd(const mrs_msgs::HwApiAttitudeRateCmd &msg);
-  bool callbackAttitudeCmd(const mrs_msgs::HwApiAttitudeCmd &msg);
-  bool callbackAccelerationCmd(const mrs_msgs::HwApiAccelerationCmd &msg);
-  bool callbackVelocityCmd(const mrs_msgs::HwApiVelocityCmd &msg);
-  bool callbackPositionCmd(const mrs_msgs::HwApiPositionCmd &msg);
+  bool callbackActuatorCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiActuatorCmd> &wrp);
+  bool callbackControlGroupCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiControlGroupCmd> &wrp);
+  bool callbackAttitudeRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd> &wrp);
+  bool callbackAttitudeCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd> &wrp);
+  bool callbackAccelerationCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd> &wrp);
+  bool callbackVelocityCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityCmd> &wrp);
+  bool callbackPositionCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd> &wrp);
 
   // | -------------------- service callbacks ------------------- |
 
@@ -80,22 +89,16 @@ private:
 
   // | ----------------------- subscribers ---------------------- |
 
-  mrs_lib::SubscribeHandler<nav_msgs::Odometry>                    sh_odom_;
-  mrs_lib::SubscribeHandler<sensor_msgs::Imu>                      sh_imu_;
-  mrs_lib::SubscribeHandler<mrs_multirotor_simulator::Diagnostics> sh_simulator_diag_;
+  mrs_lib::SubscribeHandler<nav_msgs::Odometry> sh_odom_;
+  mrs_lib::SubscribeHandler<sensor_msgs::Imu>   sh_imu_;
 
   void callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry> &wrp);
   void callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu> &wrp);
-  void callbackSimulatorDiag(mrs_lib::SubscribeHandler<mrs_multirotor_simulator::Diagnostics> &wrp);
 
   // | ----------------------- publishers ----------------------- |
 
   mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd> ph_attitude_rate_cmd_;
   mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>     ph_attitude_cmd_;
-
-  // | --------------------- service clients -------------------- |
-
-  mrs_lib::ServiceClientHandler<std_srvs::SetBool> sch_arm_;
 
   // | ------------------------- timers ------------------------- |
 
@@ -116,6 +119,8 @@ private:
   void publishBatteryState(void);
 
   void publishRC(void);
+
+  void timeoutInputs(void);
 };
 
 //}
@@ -137,6 +142,14 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
 
   mrs_lib::ParamLoader param_loader(nh_, "MrsUavHwApi");
 
+  param_loader.loadParam("input_mode/actuators", _input_mode_actuators_);
+  param_loader.loadParam("input_mode/control_group", _input_mode_control_group_);
+  param_loader.loadParam("input_mode/attitude_rate", _input_mode_attitude_rate_);
+  param_loader.loadParam("input_mode/attitude", _input_mode_attitude_);
+  param_loader.loadParam("input_mode/acceleration", _input_mode_acceleration_);
+  param_loader.loadParam("input_mode/velocity", _input_mode_velocity_);
+  param_loader.loadParam("input_mode/position", _input_mode_position_);
+
   param_loader.loadParam("topics/simulator/odom", _topic_simulator_odom_);
   param_loader.loadParam("topics/simulator/imu", _topic_simulator_imu_);
   param_loader.loadParam("topics/simulator/diagnostics", _topic_simulator_diag_);
@@ -152,7 +165,7 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
 
   mrs_lib::SubscribeHandlerOptions shopts;
   shopts.nh                 = nh_;
-  shopts.node_name          = "MrsHwPixhawkApi";
+  shopts.node_name          = "MrsSimulatorHwApi";
   shopts.no_message_timeout = mrs_lib::no_timeout;
   shopts.threadsafe         = true;
   shopts.autostart          = true;
@@ -162,13 +175,6 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
   sh_odom_ = mrs_lib::SubscribeHandler<nav_msgs::Odometry>(shopts, topic_prefix + "/" + _topic_simulator_odom_, &Api::callbackOdom, this);
 
   sh_imu_ = mrs_lib::SubscribeHandler<sensor_msgs::Imu>(shopts, topic_prefix + "/" + _topic_simulator_imu_, &Api::callbackImu, this);
-
-  sh_simulator_diag_ =
-      mrs_lib::SubscribeHandler<mrs_multirotor_simulator::Diagnostics>(shopts, topic_prefix + "/" + _topic_simulator_diag_, &Api::callbackSimulatorDiag, this);
-
-  // | --------------------- service clients -------------------- |
-
-  sch_arm_ = mrs_lib::ServiceClientHandler<std_srvs::SetBool>(nh_, "arm_out");
 
   // | ----------------------- publishers ----------------------- |
 
@@ -216,7 +222,7 @@ mrs_msgs::HwApiMode Api::getMode() {
 
   mrs_msgs::HwApiMode mode;
 
-  mode.api_name = "PixhawkApi";
+  mode.api_name = "MrsSimulator";
   mode.stamp    = ros::Time::now();
 
   mode.accepts_control_group_cmd = false;
@@ -240,76 +246,6 @@ mrs_msgs::HwApiMode Api::getMode() {
 
 //}
 
-/* callbackControlGroupCmd() //{ */
-
-bool Api::callbackControlGroupCmd([[maybe_unused]] const mrs_msgs::HwApiControlGroupCmd &msg) {
-
-  ROS_INFO_ONCE("[Api]: getting control group cmd");
-
-  return false;
-}
-
-//}
-
-/* callbackAttitudeRateCmd() //{ */
-
-bool Api::callbackAttitudeRateCmd([[maybe_unused]] const mrs_msgs::HwApiAttitudeRateCmd &msg) {
-
-  ROS_INFO_ONCE("[Api]: getting attitude rate cmd");
-
-  ph_attitude_rate_cmd_.publish(msg);
-
-  return true;
-}
-
-//}
-
-/* callbackAttitudeCmd() //{ */
-
-bool Api::callbackAttitudeCmd([[maybe_unused]] const mrs_msgs::HwApiAttitudeCmd &msg) {
-
-  ROS_INFO_ONCE("[Api]: getting attitude cmd");
-
-  ph_attitude_cmd_.publish(msg);
-
-  return true;
-}
-
-//}
-
-/* callbackAccelerationCmd() //{ */
-
-bool Api::callbackAccelerationCmd([[maybe_unused]] const mrs_msgs::HwApiAccelerationCmd &msg) {
-
-  ROS_INFO_ONCE("[Api]: getting acceleration cmd");
-
-  return false;
-}
-
-//}
-
-/* callbackVelocityCmd() //{ */
-
-bool Api::callbackVelocityCmd([[maybe_unused]] const mrs_msgs::HwApiVelocityCmd &msg) {
-
-  ROS_INFO_ONCE("[Api]: getting velocity cmd");
-
-  return false;
-}
-
-//}
-
-/* callbackPositionCmd() //{ */
-
-bool Api::callbackPositionCmd([[maybe_unused]] const mrs_msgs::HwApiPositionCmd &msg) {
-
-  ROS_INFO_ONCE("[Api]: getting position cmd");
-
-  return false;
-}
-
-//}
-
 /* callbackArming() //{ */
 
 std::tuple<bool, std::string> Api::callbackArming([[maybe_unused]] const bool &request) {
@@ -319,21 +255,21 @@ std::tuple<bool, std::string> Api::callbackArming([[maybe_unused]] const bool &r
   if (request) {
 
     ss << "Arming is not allowed using the companion computer.";
-    ROS_WARN_STREAM_THROTTLE(1.0, "[PixhawkApi]: " << ss.str());
+    ROS_WARN_STREAM_THROTTLE(1.0, "[MrsSimulatorHwApi]: " << ss.str());
     return std::tuple(false, ss.str());
   }
 
   if (!offboard_) {
 
     ss << "can not disarm, not in OFFBOARD mode";
-    ROS_WARN_STREAM_THROTTLE(1.0, "[PixhawkApi]: " << ss.str());
+    ROS_WARN_STREAM_THROTTLE(1.0, "[MrsSimulatorHwApi]: " << ss.str());
     return std::tuple(false, ss.str());
   }
 
   offboard_ = false;
 
   ss << "disarmed";
-  ROS_INFO_STREAM_THROTTLE(1.0, "[PixhawkApi]: " << ss.str());
+  ROS_INFO_STREAM_THROTTLE(1.0, "[MrsSimulatorHwApi]: " << ss.str());
   return std::tuple(false, ss.str());
 }
 
@@ -347,8 +283,136 @@ std::tuple<bool, std::string> Api::callbackOffboard(void) {
 
   std::stringstream ss;
   ss << "Offboard set";
-  ROS_INFO_THROTTLE(1.0, "[PixhawkApi]: %s", ss.str().c_str());
+  ROS_INFO_THROTTLE(1.0, "[MrsSimulatorHwApi]: %s", ss.str().c_str());
   return {true, ss.str()};
+}
+
+//}
+
+// | --------------------- input callbacks -------------------- |
+
+/* callbackActuatorCmd() //{ */
+
+bool Api::callbackActuatorCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiActuatorCmd> &wrp) {
+
+  if (!_input_mode_actuators_) {
+
+    return false;
+  }
+
+  ROS_INFO_ONCE("[Api]: getting actuator cmd");
+
+  // place for data processing
+
+  return false;
+}
+
+//}
+
+/* callbackControlGroupCmd() //{ */
+
+bool Api::callbackControlGroupCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiControlGroupCmd> &wrp) {
+
+  if (!_input_mode_control_group_) {
+
+    return false;
+  }
+
+  ROS_INFO_ONCE("[Api]: getting control group cmd");
+
+  // place for data processing
+
+  return false;
+}
+
+//}
+
+/* callbackAttitudeRateCmd() //{ */
+
+bool Api::callbackAttitudeRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd> &wrp) {
+
+  if (!_input_mode_attitude_rate_) {
+
+    return false;
+  }
+
+  ROS_INFO_ONCE("[Api]: getting attitude rate cmd");
+
+  ph_attitude_rate_cmd_.publish(wrp.getMsg());
+
+  return true;
+}
+
+//}
+
+/* callbackAttitudeCmd() //{ */
+
+bool Api::callbackAttitudeCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd> &wrp) {
+
+  if (!_input_mode_attitude_) {
+
+    return false;
+  }
+
+  ROS_INFO_ONCE("[Api]: getting attitude cmd");
+
+  ph_attitude_cmd_.publish(wrp.getMsg());
+
+  return true;
+}
+
+//}
+
+/* callbackAccelerationCmd() //{ */
+
+bool Api::callbackAccelerationCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd> &wrp) {
+
+  if (!_input_mode_acceleration_) {
+
+    return false;
+  }
+
+  ROS_INFO_ONCE("[Api]: getting acceleration cmd");
+
+  // place for data processing
+
+  return false;
+}
+
+//}
+
+/* callbackVelocityCmd() //{ */
+
+bool Api::callbackVelocityCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityCmd> &wrp) {
+
+  if (!_input_mode_velocity_) {
+
+    return false;
+  }
+
+  ROS_INFO_ONCE("[Api]: getting velocity cmd");
+
+  // place for data processing
+
+  return false;
+}
+
+//}
+
+/* callbackPositionCmd() //{ */
+
+bool Api::callbackPositionCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd> &wrp) {
+
+  if (!_input_mode_position_) {
+
+    return false;
+  }
+
+  ROS_INFO_ONCE("[Api]: getting position cmd");
+
+  // place for data processing
+
+  return false;
 }
 
 //}
@@ -450,19 +514,6 @@ void Api::callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu> &wrp) {
 
 //}
 
-/* callbackSimulatorDiag() //{ */
-
-void Api::callbackSimulatorDiag(mrs_lib::SubscribeHandler<mrs_multirotor_simulator::Diagnostics> &wrp) {
-
-  if (!is_initialized_) {
-    return;
-  }
-
-  ROS_INFO_ONCE("[Api]: getting simulator diagnostics");
-}
-
-//}
-
 // | ------------------------- timers ------------------------- |
 
 /* timerMain() //{ */
@@ -518,6 +569,13 @@ void Api::publishRC(void) {
   rc.channels.push_back(0);
 
   common_handlers_->publishers.publishRcChannels(rc);
+}
+
+//}
+
+/* MrsUavHwApi() //{ */
+
+void Api::timeoutInputs(void) {
 }
 
 //}

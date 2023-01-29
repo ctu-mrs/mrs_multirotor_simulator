@@ -1,3 +1,9 @@
+/**
+ * @brief Dynamic simulation of a multirotor helicopter.
+ *
+ * Acknowledgement:
+ * * https://github.com/HKUST-Aerial-Robotics/Fast-Planner
+ */
 #ifndef MULTIROTOR_GENERIC_MODEL_H
 #define MULTIROTOR_GENERIC_MODEL_H
 
@@ -33,6 +39,9 @@ typedef struct
   Eigen::MatrixXd allocation_matrix;
   Eigen::MatrixXd mixing_matrix;
 
+  bool   ground_enabled;
+  double ground_z;
+
 } ModelParams_t;
 
 class QuadrotorModel {
@@ -49,7 +58,7 @@ public:
 
   QuadrotorModel();
 
-  QuadrotorModel(const ModelParams_t& params);
+  QuadrotorModel(const ModelParams_t& params, const Eigen::Vector3d& initial_pos);
 
   const QuadrotorModel::State& getState(void) const;
 
@@ -71,10 +80,10 @@ public:
 
   void setInput(const reference::Actuators& input);
 
-  // Runs the actual dynamics simulation with a time step of dt
+  // runs the actual dynamics simulation with a time step of dt
   void step(const double& dt);
 
-  // For internal use, but needs to be public for odeint
+  // for internal use, but needs to be public for odeint
   typedef boost::array<double, 18> InternalState;
   void                             operator()(const QuadrotorModel::InternalState& x, QuadrotorModel::InternalState& dxdt, const double t);
 

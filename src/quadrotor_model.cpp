@@ -1,3 +1,9 @@
+/**
+ * @brief Dynamic simulation of a multirotor helicopter.
+ *
+ * Acknowledgement:
+ * * https://github.com/HKUST-Aerial-Robotics/Fast-Planner
+ */
 #include <quadrotor_model.h>
 
 namespace odeint = boost::numeric::odeint;
@@ -10,11 +16,11 @@ namespace mrs_multirotor_simulator
 QuadrotorModel::QuadrotorModel(void) {
 }
 
-QuadrotorModel::QuadrotorModel(const ModelParams_t& params) {
+QuadrotorModel::QuadrotorModel(const ModelParams_t& params, const Eigen::Vector3d& initial_pos) {
 
   params_ = params;
 
-  state_.x     = Eigen::Vector3d::Zero();
+  state_.x     = initial_pos;
   state_.v     = Eigen::Vector3d::Zero();
   state_.R     = Eigen::Matrix3d::Identity();
   state_.omega = Eigen::Vector3d::Zero();
@@ -75,11 +81,15 @@ void QuadrotorModel::step(const double& dt) {
   Eigen::Matrix3d R = state_.R * P.inverse();
   state_.R          = R;
 
-  // Don't go below zero, simulate floor
-  if (state_.x(2) < 0.0 && state_.v(2) < 0) {
-    state_.x(2) = 0;
-    state_.v(2) = 0;
+  // simulate the ground
+  if (params_.ground_enabled) {
+    if (state_.x(2) < params_.ground_z && state_.v(2) < 0) {
+      state_.x(2) = params_.ground_z;
+      state_.v(2) = 0;
+    }
   }
+
+  // simulate the takeoff patch
 
   updateInternalState();
 }
