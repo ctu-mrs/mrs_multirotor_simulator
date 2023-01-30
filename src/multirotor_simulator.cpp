@@ -7,6 +7,7 @@
 #include <controllers/mixer.h>
 #include <controllers/rate_controller.h>
 #include <controllers/attitude_controller.h>
+#include <controllers/acceleration_controller.h>
 
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/Range.h>
@@ -16,6 +17,7 @@
 
 #include <mrs_msgs/HwApiAttitudeRateCmd.h>
 #include <mrs_msgs/HwApiAttitudeCmd.h>
+#include <mrs_msgs/HwApiAccelerationCmd.h>
 
 #include <mrs_lib/param_loader.h>
 #include <mrs_lib/publisher_handler.h>
@@ -75,9 +77,10 @@ private:
 
   // | ----------------------- controllers ---------------------- |
 
-  RateController     rate_controller_;
-  AttitudeController attitude_controller_;
-  Mixer              mixer_;
+  RateController         rate_controller_;
+  AttitudeController     attitude_controller_;
+  AccelerationController acceleration_controller_;
+  Mixer                  mixer_;
 
   // | ------------------------- timers ------------------------- |
 
@@ -98,9 +101,11 @@ private:
 
   void callbackAttitudeRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>& wrp);
   void callbackAttitudeCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>& wrp);
+  void callbackAccelerationCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd>& wrp);
 
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd> sh_attitude_rate_cmd_;
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>     sh_attitude_cmd_;
+  mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd> sh_acceleration_cmd_;
 
   // | --------------- dynamic reconfigure server --------------- |
 
@@ -115,10 +120,12 @@ private:
   // | ------------------------- methods ------------------------ |
 
   MultirotorSimulator::INPUT_MODE getInputMode(void);
-  reference::Attitude             getLastAttitudeCmd(void);
-  reference::AttitudeRate         getLastAttitudeRateCmd(void);
-  reference::ControlGroup         getLastControlGroupCmd(void);
-  reference::Actuators            getLastActuatorCmd(void);
+
+  reference::Actuators    getLastActuatorCmd(void);
+  reference::ControlGroup getLastControlGroupCmd(void);
+  reference::AttitudeRate getLastAttitudeRateCmd(void);
+  reference::Attitude     getLastAttitudeCmd(void);
+  reference::Acceleration getLastAccelerationCmd(void);
 };
 
 //}
@@ -228,6 +235,19 @@ void MultirotorSimulator::onInit() {
 
   attitude_controller_.setParams(attitude_controller_params);
 
+  // | ----------------- acceleration controller ---------------- |
+
+  AccelerationController::Params acceleration_controller_params;
+
+  acceleration_controller_params.mass     = model_params_.mass;
+  acceleration_controller_params.g        = model_params_.g;
+  acceleration_controller_params.kf       = model_params_.kf;
+  acceleration_controller_params.max_rpm  = model_params_.max_rpm;
+  acceleration_controller_params.min_rpm  = model_params_.min_rpm;
+  acceleration_controller_params.n_motors = model_params_.n_motors;
+
+  acceleration_controller_.setParams(acceleration_controller_params);
+
   // | ----------------------- publishers ----------------------- |
 
   ph_imu_         = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh_, "imu_out", 1, false);
@@ -248,7 +268,11 @@ void MultirotorSimulator::onInit() {
 
   sh_attitude_rate_cmd_ =
       mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>(shopts, "attitude_rate_cmd_in", &MultirotorSimulator::callbackAttitudeRateCmd, this);
+
   sh_attitude_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>(shopts, "attitude_cmd_in", &MultirotorSimulator::callbackAttitudeCmd, this);
+
+  sh_acceleration_cmd_ =
+      mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd>(shopts, "acceleration_cmd_in", &MultirotorSimulator::callbackAccelerationCmd, this);
 
   // | ------------------------- timers ------------------------- |
 
@@ -299,20 +323,25 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
 
   MultirotorSimulator::INPUT_MODE input_mode = getInputMode();
 
+  reference::Acceleration acceleration_cmd  = getLastAccelerationCmd();
   reference::Attitude     attitude_cmd      = getLastAttitudeCmd();
   reference::AttitudeRate attitude_rate_cmd = getLastAttitudeRateCmd();
   reference::ControlGroup control_group_cmd = getLastControlGroupCmd();
   reference::Actuators    actuators_cmd     = getLastActuatorCmd();
 
-  if (input_mode > MultirotorSimulator::ATTITUDE_RATE_CMD) {
+  if (input_mode >= MultirotorSimulator::ACCELERATION_CMD) {
+    attitude_cmd = acceleration_controller_.getControlSignal(quadrotor_model_->getState(), acceleration_cmd, simulation_step_size);
+  }
+
+  if (input_mode >= MultirotorSimulator::ATTITUDE_CMD) {
     attitude_rate_cmd = attitude_controller_.getControlSignal(quadrotor_model_->getState(), attitude_cmd, simulation_step_size);
   }
 
-  if (input_mode > MultirotorSimulator::CONTROL_GROUP_CMD) {
+  if (input_mode >= MultirotorSimulator::ATTITUDE_RATE_CMD) {
     control_group_cmd = rate_controller_.getControlSignal(quadrotor_model_->getState(), attitude_rate_cmd, simulation_step_size);
   }
 
-  if (input_mode > MultirotorSimulator::ACTUATOR_CMD) {
+  if (input_mode >= MultirotorSimulator::CONTROL_GROUP_CMD) {
     actuators_cmd = mixer_.getControlSignal(control_group_cmd);
   }
 
@@ -434,6 +463,19 @@ void MultirotorSimulator::callbackAttitudeCmd([[maybe_unused]] mrs_lib::Subscrib
 
 //}
 
+/* callbackAccelerationCmd() //{ */
+
+void MultirotorSimulator::callbackAccelerationCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd>& wrp) {
+
+  if (!is_initialized_) {
+    return;
+  }
+
+  ROS_INFO_ONCE("[MultirotorSimulator]: getting acceleration command");
+}
+
+//}
+
 /* callbackDrs() //{ */
 
 void MultirotorSimulator::callbackDrs(mrs_multirotor_simulator::multirotor_simulatorConfig& config, [[maybe_unused]] uint32_t level) {
@@ -453,31 +495,30 @@ void MultirotorSimulator::callbackDrs(mrs_multirotor_simulator::multirotor_simul
 
 // | ------------------------- methods ------------------------ |
 
-/* getLastAttitudeCmd() //{ */
+/* getLastActuatorCmd() //{ */
 
-reference::Attitude MultirotorSimulator::getLastAttitudeCmd(void) {
+reference::Actuators MultirotorSimulator::getLastActuatorCmd(void) {
 
-  reference::Attitude cmd;
+  reference::Actuators cmd;
+
+  cmd.motors = Eigen::VectorXd::Zero(model_params_.n_motors);
+
+  return cmd;
+}
+
+//}
+
+/* getLastControlGroupCmd() //{ */
+
+reference::ControlGroup MultirotorSimulator::getLastControlGroupCmd(void) {
+
+  reference::ControlGroup cmd;
 
   // default values
-  cmd.throttle    = 0.0;
-  cmd.orientation = mrs_lib::AttitudeConverter(0, 0, 0);
-
-  if (!sh_attitude_cmd_.hasMsg()) {
-    return cmd;
-  }
-
-  if ((sh_attitude_cmd_.lastMsgTime() - ros::Time::now()).toSec() > 0.25) {
-
-    ROS_ERROR_THROTTLE(1.0, "[MultirotorSimulator]: attitude cmd timeouted");
-
-    return cmd;
-  }
-
-  mrs_msgs::HwApiAttitudeCmd::ConstPtr msg = sh_attitude_cmd_.getMsg();
-
-  cmd.throttle    = msg->throttle;
-  cmd.orientation = mrs_lib::AttitudeConverter(msg->orientation);
+  cmd.roll     = 0;
+  cmd.pitch    = 0;
+  cmd.yaw      = 0;
+  cmd.throttle = 0;
 
   return cmd;
 }
@@ -519,30 +560,65 @@ reference::AttitudeRate MultirotorSimulator::getLastAttitudeRateCmd(void) {
 
 //}
 
-/* getLastControlGroupCmd() //{ */
+/* getLastAttitudeCmd() //{ */
 
-reference::ControlGroup MultirotorSimulator::getLastControlGroupCmd(void) {
+reference::Attitude MultirotorSimulator::getLastAttitudeCmd(void) {
 
-  reference::ControlGroup cmd;
+  reference::Attitude cmd;
 
   // default values
-  cmd.roll     = 0;
-  cmd.pitch    = 0;
-  cmd.yaw      = 0;
-  cmd.throttle = 0;
+  cmd.throttle    = 0.0;
+  cmd.orientation = mrs_lib::AttitudeConverter(0, 0, 0);
+
+  if (!sh_attitude_cmd_.hasMsg()) {
+    return cmd;
+  }
+
+  if ((sh_attitude_cmd_.lastMsgTime() - ros::Time::now()).toSec() > 0.25) {
+
+    ROS_ERROR_THROTTLE(1.0, "[MultirotorSimulator]: attitude cmd timeouted");
+
+    return cmd;
+  }
+
+  mrs_msgs::HwApiAttitudeCmd::ConstPtr msg = sh_attitude_cmd_.getMsg();
+
+  cmd.throttle    = msg->throttle;
+  cmd.orientation = mrs_lib::AttitudeConverter(msg->orientation);
 
   return cmd;
 }
 
 //}
 
-/* getLastActuatorCmd() //{ */
+/* getLastAccelerationCmd() //{ */
 
-reference::Actuators MultirotorSimulator::getLastActuatorCmd(void) {
+reference::Acceleration MultirotorSimulator::getLastAccelerationCmd(void) {
 
-  reference::Actuators cmd;
+  reference::Acceleration cmd;
 
-  cmd.motors = Eigen::VectorXd::Zero(model_params_.n_motors);
+  // default values
+  cmd.heading      = 0.0;
+  cmd.acceleration = Eigen::Vector3d::Zero();
+
+  if (!sh_acceleration_cmd_.hasMsg()) {
+    return cmd;
+  }
+
+  if ((sh_acceleration_cmd_.lastMsgTime() - ros::Time::now()).toSec() > 0.25) {
+
+    ROS_ERROR_THROTTLE(1.0, "[MultirotorSimulator]: acceleration cmd timeouted");
+
+    return cmd;
+  }
+
+  mrs_msgs::HwApiAccelerationCmd::ConstPtr msg = sh_acceleration_cmd_.getMsg();
+
+  cmd.heading = msg->heading;
+
+  cmd.acceleration[0] = msg->acceleration.x;
+  cmd.acceleration[1] = msg->acceleration.y;
+  cmd.acceleration[2] = msg->acceleration.z;
 
   return cmd;
 }
@@ -557,12 +633,22 @@ MultirotorSimulator::INPUT_MODE MultirotorSimulator::getInputMode(void) {
 
   const bool getting_attitude_rate = sh_attitude_rate_cmd_.hasMsg() && (now - sh_attitude_rate_cmd_.lastMsgTime()).toSec() <= _input_timeout_;
   const bool getting_attitude      = sh_attitude_cmd_.hasMsg() && (now - sh_attitude_cmd_.lastMsgTime()).toSec() <= _input_timeout_;
+  const bool getting_acceleration  = sh_acceleration_cmd_.hasMsg() && (now - sh_acceleration_cmd_.lastMsgTime()).toSec() <= _input_timeout_;
 
   if (getting_attitude_rate) {
+
     return MultirotorSimulator::ATTITUDE_RATE_CMD;
+
   } else if (getting_attitude) {
+
     return MultirotorSimulator::ATTITUDE_CMD;
+
+  } else if (getting_acceleration) {
+
+    return MultirotorSimulator::ACCELERATION_CMD;
+
   } else {
+
     return MultirotorSimulator::INPUT_TIMEOUT;
   }
 }

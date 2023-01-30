@@ -20,10 +20,13 @@ QuadrotorModel::QuadrotorModel(const ModelParams_t& params, const Eigen::Vector3
 
   params_ = params;
 
-  state_.x     = initial_pos;
-  state_.v     = Eigen::Vector3d::Zero();
-  state_.R     = Eigen::Matrix3d::Identity();
-  state_.omega = Eigen::Vector3d::Zero();
+  state_.x      = initial_pos;
+  state_.v      = Eigen::Vector3d::Zero();
+  state_.v_prev = Eigen::Vector3d::Zero();
+  state_.R      = Eigen::Matrix3d::Identity();
+  state_.omega  = Eigen::Vector3d::Zero();
+
+  imu_acceleration_ = Eigen::Vector3d::Zero();
 
   state_.motor_rpm = Eigen::VectorXd::Zero(params.n_motors);
   input_           = Eigen::VectorXd::Zero(params.n_motors);
@@ -89,6 +92,10 @@ void QuadrotorModel::step(const double& dt) {
     }
   }
 
+  imu_acceleration_ = state_.R.inverse() * (state_.v - state_.v_prev) / dt + Eigen::Vector3d(0, 0, params_.g);
+
+  state_.v_prev = state_.v;
+
   // simulate the takeoff patch
 
   updateInternalState();
@@ -143,8 +150,6 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
 
   x_dot = cur_state.v;
   v_dot = -Eigen::Vector3d(0, 0, params_.g) + thrust * R.col(2) / params_.mass + external_force_ / params_.mass - resistance * vnorm / params_.mass;
-
-  acc_ = v_dot;
 
   R_dot = R * omega_tensor;
 
@@ -280,7 +285,7 @@ void QuadrotorModel::setExternalMoment(const Eigen::Vector3d& moment) {
 /* getAcc() //{ */
 
 Eigen::Vector3d QuadrotorModel::getAcc() const {
-  return acc_;
+  return imu_acceleration_;
 }
 
 //}

@@ -51,6 +51,7 @@ public:
   {
     Eigen::Vector3d x;
     Eigen::Vector3d v;
+    Eigen::Vector3d v_prev;
     Eigen::Matrix3d R;
     Eigen::Vector3d omega;
     Eigen::VectorXd motor_rpm;
@@ -94,7 +95,7 @@ private:
 
   QuadrotorModel::State state_;
 
-  Eigen::Vector3d acc_;
+  Eigen::Vector3d imu_acceleration_;
 
   Eigen::VectorXd input_;
   Eigen::Vector3d external_force_;

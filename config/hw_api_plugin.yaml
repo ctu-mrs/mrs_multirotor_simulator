@@ -3,9 +3,9 @@ hw_interface_plugin: "mrs_simulator_api_plugin/Api"
 input_mode:
   actuators: false
   control_group: false
-  attitude_rate: false
+  attitude_rate: true
   attitude: true
-  acceleration: false
+  acceleration: true
   velocity: false
   position: false
 
@@ -16,3 +16,4 @@ topics:
     diagnostics: "multirotor_simulator/diagnostics"
     attitude_rate_cmd: "multirotor_simulator/attitude_rate_cmd"
     attitude_cmd: "multirotor_simulator/attitude_cmd"
+    acceleration_cmd: "multirotor_simulator/acceleration_cmd"

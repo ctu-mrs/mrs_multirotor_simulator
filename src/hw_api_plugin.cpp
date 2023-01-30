@@ -86,6 +86,7 @@ private:
 
   std::string _topic_simulator_attitude_rate_cmd_;
   std::string _topic_simulator_attitude_cmd_;
+  std::string _topic_simulator_acceleration_cmd_;
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -99,6 +100,7 @@ private:
 
   mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd> ph_attitude_rate_cmd_;
   mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>     ph_attitude_cmd_;
+  mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationCmd> ph_acceleration_cmd_;
 
   // | ------------------------- timers ------------------------- |
 
@@ -155,6 +157,7 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
   param_loader.loadParam("topics/simulator/diagnostics", _topic_simulator_diag_);
   param_loader.loadParam("topics/simulator/attitude_rate_cmd", _topic_simulator_attitude_rate_cmd_);
   param_loader.loadParam("topics/simulator/attitude_cmd", _topic_simulator_attitude_cmd_);
+  param_loader.loadParam("topics/simulator/acceleration_cmd", _topic_simulator_acceleration_cmd_);
 
   if (!param_loader.loadedSuccessfully()) {
     ROS_ERROR("[MrsUavHwDummyApi]: Could not load all parameters!");
@@ -180,6 +183,7 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
 
   ph_attitude_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd>(nh_, topic_prefix + "/" + _topic_simulator_attitude_rate_cmd_, 1);
   ph_attitude_cmd_      = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>(nh_, topic_prefix + "/" + _topic_simulator_attitude_cmd_, 1);
+  ph_acceleration_cmd_  = mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationCmd>(nh_, topic_prefix + "/" + _topic_simulator_acceleration_cmd_, 1);
 
   // | ------------------------- timers ------------------------- |
 
@@ -374,9 +378,9 @@ bool Api::callbackAccelerationCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs
 
   ROS_INFO_ONCE("[Api]: getting acceleration cmd");
 
-  // place for data processing
+  ph_acceleration_cmd_.publish(wrp.getMsg());
 
-  return false;
+  return true;
 }
 
 //}

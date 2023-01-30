@@ -9,6 +9,8 @@ namespace mrs_multirotor_simulator
 namespace reference
 {
 
+/* Actuators //{ */
+
 typedef struct
 {
 
@@ -17,6 +19,10 @@ typedef struct
    */
   Eigen::VectorXd motors;
 } Actuators;
+
+//}
+
+/* ControlGroup //{ */
 
 typedef struct
 {
@@ -41,6 +47,10 @@ typedef struct
   double throttle;
 } ControlGroup;
 
+//}
+
+/* AttitudeRate //{ */
+
 typedef struct
 {
   /**
@@ -64,6 +74,10 @@ typedef struct
   double throttle;
 } AttitudeRate;
 
+//}
+
+/* Attitude //{ */
+
 typedef struct
 {
   Eigen::Matrix3d orientation;
@@ -73,6 +87,50 @@ typedef struct
    */
   double throttle;
 } Attitude;
+
+//}
+
+/* Acceleration //{ */
+
+typedef struct
+{
+  Eigen::Vector3d acceleration;
+
+  /**
+   * @brief atan2 of body-x axis projected to the ground plane
+   */
+  double heading;
+} Acceleration;
+
+//}
+
+/* Velocity //{ */
+
+typedef struct
+{
+  Eigen::Vector3d velocity;
+
+  /**
+   * @brief atan2 of body-x axis projected to the ground plane
+   */
+  double heading;
+} Velocity;
+
+//}
+
+/* Position //{ */
+
+typedef struct
+{
+  Eigen::Vector3d position;
+
+  /**
+   * @brief atan2 of body-x axis projected to the ground plane
+   */
+  double heading;
+} Position;
+
+//}
 
 }  // namespace reference
 
