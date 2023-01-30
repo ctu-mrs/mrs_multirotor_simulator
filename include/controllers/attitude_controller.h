@@ -17,6 +17,8 @@ public:
     double kd;
     double ki;
     double mass;
+    double max_rate_roll_pitch;
+    double max_rate_yaw;
   };
 
   AttitudeController();

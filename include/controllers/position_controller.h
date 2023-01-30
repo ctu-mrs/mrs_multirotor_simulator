@@ -16,6 +16,7 @@ public:
     double kp;
     double kd;
     double ki;
+    double max_velocity;
   };
 
   PositionController();

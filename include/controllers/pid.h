@@ -20,17 +20,20 @@ private:
   double last_error_ = 0;
   double integral_   = 0;
 
+  double saturation = -1;
+
 public:
   PIDController() {
 
     this->reset();
   }
 
-  void setParams(const double kp, const double kd, const double ki) {
+  void setParams(const double kp, const double kd, const double ki, const double saturation = -1) {
 
-    this->_kp_ = kp;
-    this->_kd_ = kd;
-    this->_ki_ = ki;
+    this->_kp_       = kp;
+    this->_kd_       = kd;
+    this->_ki_       = ki;
+    this->saturation = saturation;
   }
 
   void reset(void) {
@@ -45,15 +48,30 @@ public:
     double difference = (error - last_error_) / dt;
     last_error_       = error;
 
-    // add to the integral
-    integral_ += error * dt;
-
     double p_component = _kp_ * error;       // proportional feedback
     double d_component = _kd_ * difference;  // derivative feedback
     double i_component = _ki_ * integral_;   // derivative feedback
 
+    double sum = p_component + d_component + i_component;
+
+    if (saturation > 0) {
+
+      if (sum > saturation) {
+        sum = saturation;
+      } else if (sum < -saturation) {
+        sum = -saturation;
+      } else {
+        integral_ += error * dt;
+      }
+
+    } else {
+
+      // add to the integral
+      integral_ += error * dt;
+    }
+
     // return the summ of the components
-    return p_component + d_component + i_component;
+    return sum;
   }
 };
 

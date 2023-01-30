@@ -208,11 +208,6 @@ void MultirotorSimulator::onInit() {
 
   model_params_.mixing_matrix.row(2) = model_params_.mixing_matrix.row(2) * km;
 
-  if (!param_loader.loadedSuccessfully()) {
-    ROS_ERROR("[ControlManager]: could not load all parameters!");
-    ros::shutdown();
-  }
-
   quadrotor_model_ = std::make_unique<QuadrotorModel>(model_params_, Eigen::Vector3d(_spawn_x_, _spawn_y_, _spawn_z_));
 
   // | --------------- dynamic reconfigure server --------------- |
@@ -254,6 +249,8 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("attitude_controller/kp", attitude_controller_params.kp);
   param_loader.loadParam("attitude_controller/kd", attitude_controller_params.kd);
   param_loader.loadParam("attitude_controller/ki", attitude_controller_params.ki);
+  param_loader.loadParam("attitude_controller/max_rate_roll_pitch", attitude_controller_params.max_rate_roll_pitch);
+  param_loader.loadParam("attitude_controller/max_rate_yaw", attitude_controller_params.max_rate_yaw);
 
   attitude_controller_.setParams(attitude_controller_params);
 
@@ -277,6 +274,7 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("velocity_controller/kp", velocity_controller_params.kp);
   param_loader.loadParam("velocity_controller/kd", velocity_controller_params.kd);
   param_loader.loadParam("velocity_controller/ki", velocity_controller_params.ki);
+  param_loader.loadParam("velocity_controller/max_acceleration", velocity_controller_params.max_acceleration);
 
   velocity_controller_.setParams(velocity_controller_params);
 
@@ -287,8 +285,14 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("position_controller/kp", position_controller_params.kp);
   param_loader.loadParam("position_controller/kd", position_controller_params.kd);
   param_loader.loadParam("position_controller/ki", position_controller_params.ki);
+  param_loader.loadParam("position_controller/max_velocity", position_controller_params.max_velocity);
 
   position_controller_.setParams(position_controller_params);
+
+  if (!param_loader.loadedSuccessfully()) {
+    ROS_ERROR("[MultirotorSimulator]: could not load all parameters!");
+    ros::shutdown();
+  }
 
   // | ----------------------- publishers ----------------------- |
 

@@ -15,9 +15,9 @@ void VelocityController::setParams(const Params& params) {
   pid_y_.reset();
   pid_z_.reset();
 
-  pid_x_.setParams(params.kp, params.kd, params.ki);
-  pid_y_.setParams(params.kp, params.kd, params.ki);
-  pid_z_.setParams(params.kp, params.kd, params.ki);
+  pid_x_.setParams(params.kp, params.kd, params.ki, params.max_acceleration);
+  pid_y_.setParams(params.kp, params.kd, params.ki, params.max_acceleration);
+  pid_z_.setParams(params.kp, params.kd, params.ki, params.max_acceleration);
 }
 
 reference::Acceleration VelocityController::getControlSignal(const QuadrotorModel::State& state, const reference::Velocity& reference, const double& dt) {
@@ -30,25 +30,7 @@ reference::Acceleration VelocityController::getControlSignal(const QuadrotorMode
   output.acceleration[1] = pid_y_.update(vel_error[1], dt);
   output.acceleration[2] = pid_z_.update(vel_error[2], dt);
 
-  const double max_acc = 3.0;
-
-  if (output.acceleration[0] > max_acc) {
-    output.acceleration[0] = max_acc;
-  } else if (output.acceleration[0] < -max_acc) {
-    output.acceleration[0] = -max_acc;
-  }
-
-  if (output.acceleration[1] > max_acc) {
-    output.acceleration[1] = max_acc;
-  } else if (output.acceleration[1] < -max_acc) {
-    output.acceleration[1] = -max_acc;
-  }
-
-  if (output.acceleration[2] > max_acc) {
-    output.acceleration[2] = max_acc;
-  } else if (output.acceleration[2] < -max_acc) {
-    output.acceleration[2] = -max_acc;
-  }
+  std::cout << "[velo] " << output.acceleration[2] << std::endl;
 
   output.heading = reference.heading;
 
