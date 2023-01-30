@@ -7,8 +7,10 @@ Panels:
         - /Global Options1
         - /TF1/Frames1
         - /TF1/Tree1
+        - /ControlManager1/cmd_odom1
         - /Odometry1/odom_main1
         - /Odometry1/odom_main1/Shape1
+        - /MpcTracker1/MpcInnerReference1
       Splitter Ratio: 0.6081632375717163
     Tree Height: 810
   - Class: rviz/Selection
@@ -247,7 +249,7 @@ Visualization Manager:
             Shaft Radius: 0.05000000074505806
             Value: Axes
           Topic: /uav1/control_manager/cmd_odom
-          Unreliable: false
+          Unreliable: true
           Value: true
         - Class: rviz/Group
           Displays:
@@ -441,7 +443,7 @@ Visualization Manager:
           Shaft Radius: 0.009999999776482582
           Shape: Axes
           Topic: /uav1/control_manager/mpc_tracker/mpc_reference_debugging
-          Unreliable: false
+          Unreliable: true
           Value: true
         - Class: rviz/Group
           Displays:
@@ -522,7 +524,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 20.684858322143555
+      Distance: 8.453396797180176
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -538,9 +540,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.07479730248451233
+      Pitch: 0.24479740858078003
       Target Frame: uav1/fcu
-      Yaw: 2.5622129440307617
+      Yaw: 2.7572267055511475
     Saved: ~
 Window Geometry:
   Displays:
