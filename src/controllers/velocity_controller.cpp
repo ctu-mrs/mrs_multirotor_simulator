@@ -22,9 +22,15 @@ void VelocityController::setParams(const Params& params) {
 
 reference::Acceleration VelocityController::getControlSignal(const QuadrotorModel::State& state, const reference::Velocity& reference, const double& dt) {
 
-  // TODO
+  Eigen::Vector3d vel_error = reference.velocity - state.v;
 
   reference::Acceleration output;
+
+  output.acceleration[0] = pid_x_.update(vel_error[0], dt);
+  output.acceleration[1] = pid_x_.update(vel_error[1], dt);
+  output.acceleration[2] = pid_x_.update(vel_error[2], dt);
+
+  output.heading = reference.heading;
 
   return output;
 }

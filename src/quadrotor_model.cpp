@@ -89,7 +89,7 @@ void QuadrotorModel::step(const double& dt) {
   if (params_.ground_enabled) {
     if (state_.x(2) < params_.ground_z && state_.v(2) < 0) {
       state_.x(2) = params_.ground_z;
-      state_.v(2) = 0;
+      state_.v    = Eigen::Vector3d::Zero();
     }
   }
 
@@ -97,7 +97,7 @@ void QuadrotorModel::step(const double& dt) {
     if ((state_.x - _initial_pos_).norm() < 0.5) {
       if (state_.x(2) < _initial_pos_[2] && state_.v(2) < 0) {
         state_.x(2) = _initial_pos_[2];
-        state_.v(2) = 0;
+        state_.v    = Eigen::Vector3d::Zero();
       }
     } else {
       std::cout << "disabling takeoff patch" << std::endl;

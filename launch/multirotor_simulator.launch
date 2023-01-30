@@ -30,6 +30,7 @@
       <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/mixer.yaml" />
       <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/rate_controller.yaml" />
       <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/attitude_controller.yaml" />
+      <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/velocity_controller.yaml" />
 
       <remap from="~diagnostics_out" to="~diagnostics" />
       <remap from="~imu_out" to="~imu" />
