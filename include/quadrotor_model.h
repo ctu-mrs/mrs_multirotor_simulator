@@ -42,6 +42,8 @@ typedef struct
   bool   ground_enabled;
   double ground_z;
 
+  bool takeoff_patch_enabled;
+
 } ModelParams_t;
 
 class QuadrotorModel {
@@ -100,6 +102,8 @@ private:
   Eigen::VectorXd input_;
   Eigen::Vector3d external_force_;
   Eigen::Vector3d external_moment_;
+
+  Eigen::Vector3d _initial_pos_;
 
   ModelParams_t params_;
 

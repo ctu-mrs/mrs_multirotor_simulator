@@ -18,7 +18,8 @@ QuadrotorModel::QuadrotorModel(void) {
 
 QuadrotorModel::QuadrotorModel(const ModelParams_t& params, const Eigen::Vector3d& initial_pos) {
 
-  params_ = params;
+  params_       = params;
+  _initial_pos_ = initial_pos;
 
   state_.x      = initial_pos;
   state_.v      = Eigen::Vector3d::Zero();
@@ -92,9 +93,21 @@ void QuadrotorModel::step(const double& dt) {
     }
   }
 
-  imu_acceleration_ = state_.R.inverse() * (state_.v - state_.v_prev) / dt + Eigen::Vector3d(0, 0, params_.g);
+  if (params_.takeoff_patch_enabled) {
+    if ((state_.x - _initial_pos_).norm() < 0.5) {
+      if (state_.x(2) < _initial_pos_[2] && state_.v(2) < 0) {
+        state_.x(2) = _initial_pos_[2];
+        state_.v(2) = 0;
+      }
+    } else {
+      std::cout << "disabling takeoff patch" << std::endl;
+      params_.takeoff_patch_enabled = false;
+    }
+  }
 
-  state_.v_prev = state_.v;
+  // fabricate what the onboard accelerometer would feel
+  imu_acceleration_ = state_.R.inverse() * (state_.v - state_.v_prev) / dt + Eigen::Vector3d(0, 0, params_.g);
+  state_.v_prev     = state_.v;
 
   // simulate the takeoff patch
 

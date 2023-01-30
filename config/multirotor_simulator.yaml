@@ -8,3 +8,13 @@ input_timeout: 0.25 # [s]
 ground:
   enabled: true
   z: 0.0 # [m]
+
+# * when enabled, this will place a temporary patch of ground just under the spawn location
+# * this patch will disappear after the liftoff
+takeoff_patch:
+  enabled: true
+
+spawn_location:
+  x: 10.0
+  y: 20.0
+  z: 5.0

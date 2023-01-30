@@ -71,6 +71,10 @@ private:
 
   double _input_timeout_;
 
+  double _spawn_x_;
+  double _spawn_y_;
+  double _spawn_z_;
+
   // | --------------------- dynamics model --------------------- |
 
   std::unique_ptr<QuadrotorModel> quadrotor_model_;
@@ -149,6 +153,10 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("iterate_without_input", _iterate_without_input_);
   param_loader.loadParam("input_timeout", _input_timeout_);
 
+  param_loader.loadParam("spawn_location/x", _spawn_x_);
+  param_loader.loadParam("spawn_location/y", _spawn_y_);
+  param_loader.loadParam("spawn_location/z", _spawn_z_);
+
   param_loader.loadParam("n_motors", model_params_.n_motors);
   param_loader.loadParam("mass", model_params_.mass);
   param_loader.loadParam("arm_length", model_params_.arm_length);
@@ -163,6 +171,8 @@ void MultirotorSimulator::onInit() {
 
   param_loader.loadParam("ground/enabled", model_params_.ground_enabled);
   param_loader.loadParam("ground/z", model_params_.ground_z);
+
+  param_loader.loadParam("takeoff_patch/enabled", model_params_.takeoff_patch_enabled);
 
   // create the inertia matrix
   model_params_.J = Eigen::Matrix3d::Zero();
@@ -191,7 +201,7 @@ void MultirotorSimulator::onInit() {
     ros::shutdown();
   }
 
-  quadrotor_model_ = std::make_unique<QuadrotorModel>(model_params_, Eigen::Vector3d(10, 20, 3));
+  quadrotor_model_ = std::make_unique<QuadrotorModel>(model_params_, Eigen::Vector3d(_spawn_x_, _spawn_y_, _spawn_z_));
 
   // | --------------- dynamic reconfigure server --------------- |
 
@@ -293,7 +303,8 @@ void MultirotorSimulator::onInit() {
   // set the motor input for the model
   quadrotor_model_->setInput(actuators_cmd);
 
-  // iterate the model
+  // iterate the model twise to initialize all the states
+  quadrotor_model_->step(1.0 / _simulation_rate_);
   quadrotor_model_->step(1.0 / _simulation_rate_);
 
   // | ----------------------- finish init ---------------------- |
