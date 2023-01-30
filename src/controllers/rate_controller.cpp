@@ -30,7 +30,7 @@ reference::ControlGroup RateController::getControlSignal(const QuadrotorModel::S
   reference::ControlGroup output;
 
   output.roll     = pid_x_.update(wr(0), dt);
-  output.pitch    = pid_x_.update(wr(1), dt);
+  output.pitch    = pid_y_.update(wr(1), dt);
   output.yaw      = pid_z_.update(wr(2), dt);
   output.throttle = reference.throttle;
 

@@ -9,6 +9,7 @@
 #include <controllers/attitude_controller.h>
 #include <controllers/acceleration_controller.h>
 #include <controllers/velocity_controller.h>
+#include <controllers/position_controller.h>
 
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/Range.h>
@@ -20,6 +21,7 @@
 #include <mrs_msgs/HwApiAttitudeCmd.h>
 #include <mrs_msgs/HwApiAccelerationCmd.h>
 #include <mrs_msgs/HwApiVelocityCmd.h>
+#include <mrs_msgs/HwApiPositionCmd.h>
 
 #include <mrs_lib/param_loader.h>
 #include <mrs_lib/publisher_handler.h>
@@ -88,6 +90,7 @@ private:
   AttitudeController     attitude_controller_;
   AccelerationController acceleration_controller_;
   VelocityController     velocity_controller_;
+  PositionController     position_controller_;
 
   // | ------------------------- timers ------------------------- |
 
@@ -110,11 +113,13 @@ private:
   void callbackAttitudeCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>& wrp);
   void callbackAccelerationCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd>& wrp);
   void callbackVelocityCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityCmd>& wrp);
+  void callbackPositionCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>& wrp);
 
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd> sh_attitude_rate_cmd_;
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>     sh_attitude_cmd_;
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd> sh_acceleration_cmd_;
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityCmd>     sh_velocity_cmd_;
+  mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>     sh_position_cmd_;
 
   // | --------------- dynamic reconfigure server --------------- |
 
@@ -136,6 +141,7 @@ private:
   reference::Attitude     getLastAttitudeCmd(void);
   reference::Acceleration getLastAccelerationCmd(void);
   reference::Velocity     getLastVelocityCmd(void);
+  reference::Position     getLastPositionCmd(void);
 };
 
 //}
@@ -274,6 +280,16 @@ void MultirotorSimulator::onInit() {
 
   velocity_controller_.setParams(velocity_controller_params);
 
+  // | ------------------- position controller ------------------ |
+
+  PositionController::Params position_controller_params;
+
+  param_loader.loadParam("position_controller/kp", position_controller_params.kp);
+  param_loader.loadParam("position_controller/kd", position_controller_params.kd);
+  param_loader.loadParam("position_controller/ki", position_controller_params.ki);
+
+  position_controller_.setParams(position_controller_params);
+
   // | ----------------------- publishers ----------------------- |
 
   ph_imu_         = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh_, "imu_out", 1, false);
@@ -301,6 +317,8 @@ void MultirotorSimulator::onInit() {
       mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd>(shopts, "acceleration_cmd_in", &MultirotorSimulator::callbackAccelerationCmd, this);
 
   sh_velocity_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityCmd>(shopts, "velocity_cmd_in", &MultirotorSimulator::callbackVelocityCmd, this);
+
+  sh_position_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>(shopts, "position_cmd_in", &MultirotorSimulator::callbackPositionCmd, this);
 
   // | ------------------------- timers ------------------------- |
 
@@ -352,12 +370,17 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
 
   MultirotorSimulator::INPUT_MODE input_mode = getInputMode();
 
+  reference::Position     position_cmd      = getLastPositionCmd();
   reference::Velocity     velocity_cmd      = getLastVelocityCmd();
   reference::Acceleration acceleration_cmd  = getLastAccelerationCmd();
   reference::Attitude     attitude_cmd      = getLastAttitudeCmd();
   reference::AttitudeRate attitude_rate_cmd = getLastAttitudeRateCmd();
   reference::ControlGroup control_group_cmd = getLastControlGroupCmd();
   reference::Actuators    actuators_cmd     = getLastActuatorCmd();
+
+  if (input_mode >= MultirotorSimulator::POSITION_CMD) {
+    velocity_cmd = position_controller_.getControlSignal(quadrotor_model_->getState(), position_cmd, simulation_step_size);
+  }
 
   if (input_mode >= MultirotorSimulator::VELOCITY_CMD) {
     acceleration_cmd = velocity_controller_.getControlSignal(quadrotor_model_->getState(), velocity_cmd, simulation_step_size);
@@ -470,6 +493,19 @@ void MultirotorSimulator::timerDiagnostics([[maybe_unused]] const ros::WallTimer
 //}
 
 // | ------------------------ callbacks ----------------------- |
+
+/* callbackPositionCmd() //{ */
+
+void MultirotorSimulator::callbackPositionCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>& wrp) {
+
+  if (!is_initialized_) {
+    return;
+  }
+
+  ROS_INFO_ONCE("[MultirotorSimulator]: getting position command");
+}
+
+//}
 
 /* callbackVelocityCmd() //{ */
 
@@ -706,6 +742,40 @@ reference::Velocity MultirotorSimulator::getLastVelocityCmd(void) {
 
 //}
 
+/* getLastPositionCmd() //{ */
+
+reference::Position MultirotorSimulator::getLastPositionCmd(void) {
+
+  reference::Position cmd;
+
+  // default values
+  cmd.heading  = 0.0;
+  cmd.position = Eigen::Vector3d::Zero();
+
+  if (!sh_position_cmd_.hasMsg()) {
+    return cmd;
+  }
+
+  if ((sh_position_cmd_.lastMsgTime() - ros::Time::now()).toSec() > 0.25) {
+
+    ROS_ERROR_THROTTLE(1.0, "[MultirotorSimulator]: position cmd timeouted");
+
+    return cmd;
+  }
+
+  mrs_msgs::HwApiPositionCmd::ConstPtr msg = sh_position_cmd_.getMsg();
+
+  cmd.heading = msg->heading;
+
+  cmd.position[0] = msg->position.x;
+  cmd.position[1] = msg->position.y;
+  cmd.position[2] = msg->position.z;
+
+  return cmd;
+}
+
+//}
+
 /* getInputType() //{ */
 
 MultirotorSimulator::INPUT_MODE MultirotorSimulator::getInputMode(void) {
@@ -716,6 +786,7 @@ MultirotorSimulator::INPUT_MODE MultirotorSimulator::getInputMode(void) {
   const bool getting_attitude      = sh_attitude_cmd_.hasMsg() && (now - sh_attitude_cmd_.lastMsgTime()).toSec() <= _input_timeout_;
   const bool getting_acceleration  = sh_acceleration_cmd_.hasMsg() && (now - sh_acceleration_cmd_.lastMsgTime()).toSec() <= _input_timeout_;
   const bool getting_velocity      = sh_velocity_cmd_.hasMsg() && (now - sh_velocity_cmd_.lastMsgTime()).toSec() <= _input_timeout_;
+  const bool getting_position      = sh_position_cmd_.hasMsg() && (now - sh_position_cmd_.lastMsgTime()).toSec() <= _input_timeout_;
 
   if (getting_attitude_rate) {
 
@@ -732,6 +803,10 @@ MultirotorSimulator::INPUT_MODE MultirotorSimulator::getInputMode(void) {
   } else if (getting_velocity) {
 
     return MultirotorSimulator::VELOCITY_CMD;
+
+  } else if (getting_position) {
+
+    return MultirotorSimulator::POSITION_CMD;
 
   } else {
 

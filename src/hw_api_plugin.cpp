@@ -88,6 +88,7 @@ private:
   std::string _topic_simulator_attitude_cmd_;
   std::string _topic_simulator_acceleration_cmd_;
   std::string _topic_simulator_velocity_cmd_;
+  std::string _topic_simulator_position_cmd_;
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -103,6 +104,7 @@ private:
   mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>     ph_attitude_cmd_;
   mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationCmd> ph_acceleration_cmd_;
   mrs_lib::PublisherHandler<mrs_msgs::HwApiVelocityCmd>     ph_velocity_cmd_;
+  mrs_lib::PublisherHandler<mrs_msgs::HwApiPositionCmd>     ph_position_cmd_;
 
   // | ------------------------- timers ------------------------- |
 
@@ -161,6 +163,7 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
   param_loader.loadParam("topics/simulator/attitude_cmd", _topic_simulator_attitude_cmd_);
   param_loader.loadParam("topics/simulator/acceleration_cmd", _topic_simulator_acceleration_cmd_);
   param_loader.loadParam("topics/simulator/velocity_cmd", _topic_simulator_velocity_cmd_);
+  param_loader.loadParam("topics/simulator/position_cmd", _topic_simulator_position_cmd_);
 
   if (!param_loader.loadedSuccessfully()) {
     ROS_ERROR("[MrsUavHwDummyApi]: Could not load all parameters!");
@@ -188,6 +191,7 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
   ph_attitude_cmd_      = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>(nh_, topic_prefix + "/" + _topic_simulator_attitude_cmd_, 1);
   ph_acceleration_cmd_  = mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationCmd>(nh_, topic_prefix + "/" + _topic_simulator_acceleration_cmd_, 1);
   ph_velocity_cmd_      = mrs_lib::PublisherHandler<mrs_msgs::HwApiVelocityCmd>(nh_, topic_prefix + "/" + _topic_simulator_velocity_cmd_, 1);
+  ph_position_cmd_      = mrs_lib::PublisherHandler<mrs_msgs::HwApiPositionCmd>(nh_, topic_prefix + "/" + _topic_simulator_position_cmd_, 1);
 
   // | ------------------------- timers ------------------------- |
 
@@ -418,9 +422,9 @@ bool Api::callbackPositionCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msg
 
   ROS_INFO_ONCE("[Api]: getting position cmd");
 
-  // place for data processing
+  ph_position_cmd_.publish(wrp.getMsg());
 
-  return false;
+  return true;
 }
 
 //}

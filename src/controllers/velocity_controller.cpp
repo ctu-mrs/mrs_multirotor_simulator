@@ -27,8 +27,28 @@ reference::Acceleration VelocityController::getControlSignal(const QuadrotorMode
   reference::Acceleration output;
 
   output.acceleration[0] = pid_x_.update(vel_error[0], dt);
-  output.acceleration[1] = pid_x_.update(vel_error[1], dt);
-  output.acceleration[2] = pid_x_.update(vel_error[2], dt);
+  output.acceleration[1] = pid_y_.update(vel_error[1], dt);
+  output.acceleration[2] = pid_z_.update(vel_error[2], dt);
+
+  const double max_acc = 3.0;
+
+  if (output.acceleration[0] > max_acc) {
+    output.acceleration[0] = max_acc;
+  } else if (output.acceleration[0] < -max_acc) {
+    output.acceleration[0] = -max_acc;
+  }
+
+  if (output.acceleration[1] > max_acc) {
+    output.acceleration[1] = max_acc;
+  } else if (output.acceleration[1] < -max_acc) {
+    output.acceleration[1] = -max_acc;
+  }
+
+  if (output.acceleration[2] > max_acc) {
+    output.acceleration[2] = max_acc;
+  } else if (output.acceleration[2] < -max_acc) {
+    output.acceleration[2] = -max_acc;
+  }
 
   output.heading = reference.heading;
 

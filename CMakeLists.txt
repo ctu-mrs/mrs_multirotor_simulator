@@ -54,6 +54,7 @@ add_library(MrsMultirotorSimulator
   src/controllers/attitude_controller.cpp
   src/controllers/acceleration_controller.cpp
   src/controllers/velocity_controller.cpp
+  src/controllers/position_controller.cpp
   )
 
 add_dependencies(MrsMultirotorSimulator

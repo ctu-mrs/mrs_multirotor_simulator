@@ -7,7 +7,7 @@ input_mode:
   attitude: true
   acceleration: true
   velocity: true
-  position: false
+  position: true
 
 topics:
   simulator:
@@ -18,3 +18,4 @@ topics:
     attitude_cmd: "multirotor_simulator/attitude_cmd"
     acceleration_cmd: "multirotor_simulator/acceleration_cmd"
     velocity_cmd: "multirotor_simulator/velocity_cmd"
+    position_cmd: "multirotor_simulator/position_cmd"
