@@ -4,7 +4,7 @@ arm_length: 0.25           # [m]
 body_height: 0.1           # [m]
 motor_time_constant: 0.03  # [s]
 g: 9.81                    # [ms^-2]
-air_resistance_coeff: 0.25 # [-]
+air_resistance_coeff: 0.30 # [-]
 
 propulsion:
 
