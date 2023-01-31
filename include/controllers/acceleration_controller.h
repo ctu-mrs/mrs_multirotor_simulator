@@ -24,7 +24,7 @@ public:
 
   void setParams(const Params& params);
 
-  reference::Attitude getControlSignal(const QuadrotorModel::State& state, const reference::Acceleration& reference, const double& dt);
+  reference::Attitude getControlSignal(const QuadrotorModel::State& state, const reference::Acceleration& reference, const double dt);
 
 private:
   Params params_;

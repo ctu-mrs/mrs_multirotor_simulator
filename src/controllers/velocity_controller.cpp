@@ -30,8 +30,6 @@ reference::Acceleration VelocityController::getControlSignal(const QuadrotorMode
   output.acceleration[1] = pid_y_.update(vel_error[1], dt);
   output.acceleration[2] = pid_z_.update(vel_error[2], dt);
 
-  std::cout << "[velo] " << output.acceleration[2] << std::endl;
-
   output.heading = reference.heading;
 
   return output;

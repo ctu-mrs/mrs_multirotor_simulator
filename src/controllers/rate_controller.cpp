@@ -24,14 +24,13 @@ reference::ControlGroup RateController::getControlSignal(const QuadrotorModel::S
 
   Eigen::Vector3d ang_rate_ref = Eigen::Vector3d(reference.rate_x, reference.rate_y, reference.rate_z);
 
-  // angular rate error
-  Eigen::Vector3d wr = ang_rate_ref - state.omega;
+  Eigen::Vector3d ang_rate_error = ang_rate_ref - state.omega;
 
   reference::ControlGroup output;
 
-  output.roll     = pid_x_.update(wr(0), dt);
-  output.pitch    = pid_y_.update(wr(1), dt);
-  output.yaw      = pid_z_.update(wr(2), dt);
+  output.roll     = pid_x_.update(ang_rate_error(0), dt);
+  output.pitch    = pid_y_.update(ang_rate_error(1), dt);
+  output.yaw      = pid_z_.update(ang_rate_error(2), dt);
   output.throttle = reference.throttle;
 
   return output;

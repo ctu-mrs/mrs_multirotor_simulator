@@ -12,7 +12,8 @@ void AccelerationController::setParams(const Params& params) {
   params_ = params;
 }
 
-reference::Attitude AccelerationController::getControlSignal(const QuadrotorModel::State& state, const reference::Acceleration& reference, const double& dt) {
+reference::Attitude AccelerationController::getControlSignal(const QuadrotorModel::State& state, const reference::Acceleration& reference,
+                                                             [[maybe_unused]] const double dt) {
 
   const Eigen::Vector3d fd      = (reference.acceleration + Eigen::Vector3d(0, 0, params_.g)) * params_.mass;
   const Eigen::Vector3d fd_norm = fd.normalized();
