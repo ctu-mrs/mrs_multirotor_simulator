@@ -201,12 +201,18 @@ void MultirotorSimulator::onInit() {
   double moment_constant;
   param_loader.loadParam("propulsion/moment_constant", moment_constant);
 
-  model_params_.mixing_matrix.row(0) = model_params_.mixing_matrix.row(0) * model_params_.arm_length;
-  model_params_.mixing_matrix.row(1) = model_params_.mixing_matrix.row(1) * model_params_.arm_length;
+  // roll
+  model_params_.mixing_matrix.row(0) *= model_params_.arm_length * model_params_.kf;
 
+  // pitch
+  model_params_.mixing_matrix.row(1) *= model_params_.arm_length * model_params_.kf;
+
+  // yaw
   const double km = moment_constant * (3.0 * model_params_.prop_radius);
+  model_params_.mixing_matrix.row(2) *= km * model_params_.kf;
 
-  model_params_.mixing_matrix.row(2) = model_params_.mixing_matrix.row(2) * km;
+  // thrust
+  model_params_.mixing_matrix.row(3) *= model_params_.kf;
 
   quadrotor_model_ = std::make_unique<QuadrotorModel>(model_params_, Eigen::Vector3d(_spawn_x_, _spawn_y_, _spawn_z_));
 

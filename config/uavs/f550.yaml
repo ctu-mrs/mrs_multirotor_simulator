@@ -19,11 +19,15 @@ propulsion:
   # allocation motors -> moments
 
   # hexarotor X configuration
+  # [roll torque,      [            [RPM_1^2,
+  #  pitch torque,  =    Alloc    *  RPM_2^2,
+  #  yaw torque,         Matrix       ...
+  #  thrust force]              ]    RPM_n_motors^2]
   allocation_matrix: [
-    1, -1, -0.5,  0.5,  0.5,   -0.5,
-    0, 0,  -0.87, 0.87, -0.87, 0.87,
-    1, -1, 1,     -1,   -1,    1,
-    1, 1,  1,     1,    1,     1
+    1, -1, -0.5,  0.5,  0.5,   -0.5, # *= force_constant*arm_length
+    0, 0,  -0.87, 0.87, -0.87, 0.87, # *= force_constant*arm_length
+    1, -1, 1,     -1,   -1,    1,    # *= moment_constant
+    1, 1,  1,     1,    1,     1     # *= force_constant
   ]
 
 rpm:

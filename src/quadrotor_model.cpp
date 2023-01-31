@@ -153,7 +153,7 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
 
   Eigen::VectorXd motor_rpm_sq = state_.motor_rpm.array().square();
 
-  Eigen::Vector4d torque_thrust = params_.mixing_matrix * (params_.kf * motor_rpm_sq);
+  Eigen::Vector4d torque_thrust = params_.mixing_matrix * motor_rpm_sq;
   double          thrust        = torque_thrust(3);
 
   double resistance = params_.air_resistance_coeff * M_PI * (params_.arm_length) * (params_.arm_length) * cur_state.v.norm() * cur_state.v.norm();
