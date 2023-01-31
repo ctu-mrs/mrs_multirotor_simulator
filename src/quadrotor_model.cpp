@@ -50,12 +50,12 @@ void QuadrotorModel::step(const double& dt) {
 
   odeint::integrate_n_steps(rk, boost::ref(*this), internal_state_, 0.0, dt, 1);
 
-  for (int i = 0; i < 18; ++i) {
+  for (int i = 0; i < N_INTERNAL_STATES; ++i) {
     if (std::isnan(internal_state_[i])) {
 
       std::cout << "dump " << i << " << pos ";
 
-      for (int j = 0; j < 18; ++j) {
+      for (int j = 0; j < N_INTERNAL_STATES; ++j) {
         std::cout << save[j] << " ";
       }
 
@@ -76,7 +76,7 @@ void QuadrotorModel::step(const double& dt) {
 
   double filter_const = exp((-dt) / (params_.motor_time_constant));
 
-  state_.motor_rpm = filter_const * state_.motor_rpm + (1 - filter_const) * input_;
+  state_.motor_rpm = filter_const * state_.motor_rpm + (1.0 - filter_const) * input_;
 
   // Re-orthonormalize R (polar decomposition)
   Eigen::LLT<Eigen::Matrix3d> llt(state_.R.transpose() * state_.R);
@@ -108,7 +108,7 @@ void QuadrotorModel::step(const double& dt) {
   }
 
   // fabricate what the onboard accelerometer would feel
-  imu_acceleration_ = state_.R.inverse() * (state_.v - state_.v_prev) / dt + Eigen::Vector3d(0, 0, params_.g);
+  imu_acceleration_ = state_.R.transpose() * (state_.v - state_.v_prev) / dt + Eigen::Vector3d(0, 0, params_.g);
   state_.v_prev     = state_.v;
 
   // simulate the takeoff patch
@@ -179,7 +179,7 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
     dxdt[15 + i] = omega_dot(i);
   }
 
-  for (int i = 0; i < 18; ++i) {
+  for (int i = 0; i < N_INTERNAL_STATES; ++i) {
     if (std::isnan(dxdt[i])) {
       dxdt[i] = 0;
     }
@@ -297,9 +297,9 @@ void QuadrotorModel::setExternalMoment(const Eigen::Vector3d& moment) {
 
 //}
 
-/* getAcc() //{ */
+/* getImuAcceleration() //{ */
 
-Eigen::Vector3d QuadrotorModel::getAcc() const {
+Eigen::Vector3d QuadrotorModel::getImuAcceleration() const {
   return imu_acceleration_;
 }
 

@@ -69,6 +69,8 @@ private:
 
   double _simulation_rate_;
 
+  double _diagnostics_rate_;
+
   ros::Time sim_time_;
 
   bool _iterate_without_input_;
@@ -164,6 +166,7 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("realtime_factor", drs_params_.realtime_factor);
   param_loader.loadParam("iterate_without_input", _iterate_without_input_);
   param_loader.loadParam("input_timeout", _input_timeout_);
+  param_loader.loadParam("diagnostics_rate", _diagnostics_rate_);
 
   param_loader.loadParam("spawn_location/x", _spawn_x_);
   param_loader.loadParam("spawn_location/y", _spawn_y_);
@@ -334,7 +337,7 @@ void MultirotorSimulator::onInit() {
 
   timer_main_ = nh_.createWallTimer(ros::WallDuration(1.0 / (_simulation_rate_ * drs_params_.realtime_factor)), &MultirotorSimulator::timerMain, this);
 
-  timer_diagnostics_ = nh_.createWallTimer(ros::WallDuration(1.0 / 10.0), &MultirotorSimulator::timerDiagnostics, this);
+  timer_diagnostics_ = nh_.createWallTimer(ros::WallDuration(1.0 / _diagnostics_rate_), &MultirotorSimulator::timerDiagnostics, this);
 
   // | ------------------ first model iteration ----------------- |
 
@@ -474,7 +477,7 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
   imu.angular_velocity.y = state.omega[1];
   imu.angular_velocity.z = state.omega[2];
 
-  auto acc = quadrotor_model_->getAcc();
+  auto acc = quadrotor_model_->getImuAcceleration();
 
   imu.linear_acceleration.x = acc[0];
   imu.linear_acceleration.y = acc[1];

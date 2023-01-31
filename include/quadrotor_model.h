@@ -7,6 +7,8 @@
 #ifndef MULTIROTOR_GENERIC_MODEL_H
 #define MULTIROTOR_GENERIC_MODEL_H
 
+#define N_INTERNAL_STATES 18
+
 #include <controllers/references.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -22,13 +24,13 @@ typedef struct
 {
 
   int    n_motors;
-  double g;  // gravity acceleration
+  double g;
   double mass;
   double kf;
   double prop_radius;
   double arm_length;
   double body_height;
-  double motor_time_constant;  // unit: sec
+  double motor_time_constant;
   double max_rpm;
   double min_rpm;
   double propulsion_force_constant;
@@ -69,12 +71,6 @@ public:
 
   void setStatePos(const Eigen::Vector3d& Pos);
 
-  double getMass(void) const;
-  void   setMass(double mass);
-
-  double getGravity(void) const;
-  void   setGravity(double g);
-
   const Eigen::Vector3d& getExternalForce(void) const;
   void                   setExternalForce(const Eigen::Vector3d& force);
 
@@ -83,14 +79,13 @@ public:
 
   void setInput(const reference::Actuators& input);
 
-  // runs the actual dynamics simulation with a time step of dt
   void step(const double& dt);
 
-  // for internal use, but needs to be public for odeint
-  typedef boost::array<double, 18> InternalState;
-  void                             operator()(const QuadrotorModel::InternalState& x, QuadrotorModel::InternalState& dxdt, const double t);
+  typedef boost::array<double, N_INTERNAL_STATES> InternalState;
 
-  Eigen::Vector3d getAcc() const;
+  void operator()(const QuadrotorModel::InternalState& x, QuadrotorModel::InternalState& dxdt, const double t);
+
+  Eigen::Vector3d getImuAcceleration() const;
 
 private:
   void updateInternalState(void);
