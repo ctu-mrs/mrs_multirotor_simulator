@@ -27,7 +27,7 @@ propulsion:
   # allocation_matrix: [
   #   0,  0, 1,  -1, # *= force_constant*arm_length
   #   -1, 1, 0,  0,  # *= force_constant*arm_length
-  #   1,  1, -1, -1, # *= moment_constant
+  #   1,  1, -1, -1, # *= moment_constant*force_constant
   #   1,  1, 1,  1,  # *= force_constant
   # ]
 
@@ -40,7 +40,7 @@ propulsion:
   allocation_matrix: [
     -0.707, 0.707, 0.707,  -0.707, # *= force_constant*arm_length
     -0.707, 0.707, -0.707, 0.707,  # *= force_constant*arm_length
-    -1,     -1,    1,      1,      # *= moment_constant
+    -1,     -1,    1,      1,      # *= moment_constant*force_constant
     1,      1,     1,      1,      # *= force_constant
   ]
 
