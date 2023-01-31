@@ -2,7 +2,7 @@ position_controller:
 
   # PID gains
   kp: 1.0
-  kd: 0.25
+  kd: 0.5
   ki: 0.01
 
   # output limit
