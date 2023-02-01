@@ -4,19 +4,19 @@
  * Acknowledgement:
  * * https://github.com/HKUST-Aerial-Robotics/Fast-Planner
  */
-#include <quadrotor_model.h>
+#include <multirotor_model.h>
 
 namespace odeint = boost::numeric::odeint;
 
 namespace mrs_multirotor_simulator
 {
 
-/* constructor QuadrotorModel //{ */
+/* constructor MultirotorModel //{ */
 
-QuadrotorModel::QuadrotorModel(void) {
+MultirotorModel::MultirotorModel(void) {
 }
 
-QuadrotorModel::QuadrotorModel(const ModelParams_t& params, const Eigen::Vector3d& initial_pos) {
+MultirotorModel::MultirotorModel(const ModelParams_t& params, const Eigen::Vector3d& initial_pos) {
 
   params_       = params;
   _initial_pos_ = initial_pos;
@@ -42,7 +42,7 @@ QuadrotorModel::QuadrotorModel(const ModelParams_t& params, const Eigen::Vector3
 
 /* step() //{ */
 
-void QuadrotorModel::step(const double& dt) {
+void MultirotorModel::step(const double& dt) {
 
   auto save = internal_state_;
 
@@ -120,7 +120,7 @@ void QuadrotorModel::step(const double& dt) {
 
 /* operator() //{ */
 
-void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, QuadrotorModel::InternalState& dxdt, [[maybe_unused]] const double t) {
+void MultirotorModel::operator()(const MultirotorModel::InternalState& x, MultirotorModel::InternalState& dxdt, [[maybe_unused]] const double t) {
 
   State cur_state;
 
@@ -190,7 +190,7 @@ void QuadrotorModel::operator()(const QuadrotorModel::InternalState& x, Quadroto
 
 /* updatedInternalState() //{ */
 
-void QuadrotorModel::updateInternalState(void) {
+void MultirotorModel::updateInternalState(void) {
 
   for (int i = 0; i < 3; i++) {
     internal_state_[0 + i]  = state_.x(i);
@@ -208,14 +208,14 @@ void QuadrotorModel::updateInternalState(void) {
 
 /* setInput() //{ */
 
-void QuadrotorModel::setInput(const reference::Actuators& input) {
+void MultirotorModel::setInput(const reference::Actuators& input) {
 
   for (int i = 0; i < params_.n_motors; i++) {
 
     double val = input.motors(i);
 
     if (!std::isfinite(val)) {
-      std::cout << "[QuadrotorModel] Error: NaN detected in motor input!!!";
+      std::cout << "[MultirotorModel] Error: NaN detected in motor input!!!";
       val = 0;
     }
 
@@ -233,7 +233,7 @@ void QuadrotorModel::setInput(const reference::Actuators& input) {
 
 /* getState() //{ */
 
-const QuadrotorModel::State& QuadrotorModel::getState(void) const {
+const MultirotorModel::State& MultirotorModel::getState(void) const {
   return state_;
 }
 
@@ -241,7 +241,7 @@ const QuadrotorModel::State& QuadrotorModel::getState(void) const {
 
 /* setState() //{ */
 
-void QuadrotorModel::setState(const QuadrotorModel::State& state) {
+void MultirotorModel::setState(const MultirotorModel::State& state) {
 
   state_.x         = state.x;
   state_.v         = state.v;
@@ -256,7 +256,7 @@ void QuadrotorModel::setState(const QuadrotorModel::State& state) {
 
 /* setStatePos() //{ */
 
-void QuadrotorModel::setStatePos(const Eigen::Vector3d& Pos) {
+void MultirotorModel::setStatePos(const Eigen::Vector3d& Pos) {
 
   state_.x = Pos;
 
@@ -267,7 +267,7 @@ void QuadrotorModel::setStatePos(const Eigen::Vector3d& Pos) {
 
 /* getExternalForce() //{ */
 
-const Eigen::Vector3d& QuadrotorModel::getExternalForce(void) const {
+const Eigen::Vector3d& MultirotorModel::getExternalForce(void) const {
   return external_force_;
 }
 
@@ -275,7 +275,7 @@ const Eigen::Vector3d& QuadrotorModel::getExternalForce(void) const {
 
 /* setExternalForce() //{ */
 
-void QuadrotorModel::setExternalForce(const Eigen::Vector3d& force) {
+void MultirotorModel::setExternalForce(const Eigen::Vector3d& force) {
   external_force_ = force;
 }
 
@@ -283,7 +283,7 @@ void QuadrotorModel::setExternalForce(const Eigen::Vector3d& force) {
 
 /* getExternalMoment() //{ */
 
-const Eigen::Vector3d& QuadrotorModel::getExternalMoment(void) const {
+const Eigen::Vector3d& MultirotorModel::getExternalMoment(void) const {
   return external_moment_;
 }
 
@@ -291,7 +291,7 @@ const Eigen::Vector3d& QuadrotorModel::getExternalMoment(void) const {
 
 /* setExternalMoment() //{ */
 
-void QuadrotorModel::setExternalMoment(const Eigen::Vector3d& moment) {
+void MultirotorModel::setExternalMoment(const Eigen::Vector3d& moment) {
   external_moment_ = moment;
 }
 
@@ -299,7 +299,7 @@ void QuadrotorModel::setExternalMoment(const Eigen::Vector3d& moment) {
 
 /* getImuAcceleration() //{ */
 
-Eigen::Vector3d QuadrotorModel::getImuAcceleration() const {
+Eigen::Vector3d MultirotorModel::getImuAcceleration() const {
   return imu_acceleration_;
 }
 

@@ -4,8 +4,8 @@
  * Acknowledgement:
  * * https://github.com/HKUST-Aerial-Robotics/Fast-Planner
  */
-#ifndef MULTIROTOR_GENERIC_MODEL_H
-#define MULTIROTOR_GENERIC_MODEL_H
+#ifndef MULTIROTOR_DYNAMICS_H
+#define MULTIROTOR_DYNAMICS_H
 
 #define N_INTERNAL_STATES 18
 
@@ -48,7 +48,7 @@ typedef struct
 
 } ModelParams_t;
 
-class QuadrotorModel {
+class MultirotorModel {
 
 public:
   struct State
@@ -61,13 +61,13 @@ public:
     Eigen::VectorXd motor_rpm;
   };
 
-  QuadrotorModel();
+  MultirotorModel();
 
-  QuadrotorModel(const ModelParams_t& params, const Eigen::Vector3d& initial_pos);
+  MultirotorModel(const ModelParams_t& params, const Eigen::Vector3d& initial_pos);
 
-  const QuadrotorModel::State& getState(void) const;
+  const MultirotorModel::State& getState(void) const;
 
-  void setState(const QuadrotorModel::State& state);
+  void setState(const MultirotorModel::State& state);
 
   void setStatePos(const Eigen::Vector3d& Pos);
 
@@ -83,14 +83,14 @@ public:
 
   typedef boost::array<double, N_INTERNAL_STATES> InternalState;
 
-  void operator()(const QuadrotorModel::InternalState& x, QuadrotorModel::InternalState& dxdt, const double t);
+  void operator()(const MultirotorModel::InternalState& x, MultirotorModel::InternalState& dxdt, const double t);
 
   Eigen::Vector3d getImuAcceleration() const;
 
 private:
   void updateInternalState(void);
 
-  QuadrotorModel::State state_;
+  MultirotorModel::State state_;
 
   Eigen::Vector3d imu_acceleration_;
 

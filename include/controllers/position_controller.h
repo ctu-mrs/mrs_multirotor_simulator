@@ -1,7 +1,7 @@
 #ifndef POSITION_CONTROLLER_H
 #define POSITION_CONTROLLER_H
 
-#include <quadrotor_model.h>
+#include <multirotor_model.h>
 #include <controllers/pid.h>
 #include <controllers/references.h>
 
@@ -23,7 +23,7 @@ public:
 
   void setParams(const Params& params);
 
-  reference::Velocity getControlSignal(const QuadrotorModel::State& state, const reference::Position& reference, const double& dt);
+  reference::Velocity getControlSignal(const MultirotorModel::State& state, const reference::Position& reference, const double& dt);
 
 private:
   Params params_;

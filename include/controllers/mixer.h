@@ -1,7 +1,6 @@
 #ifndef MIXER_H
 #define MIXER_H
 
-#include <quadrotor_model.h>
 #include <controllers/references.h>
 
 namespace mrs_multirotor_simulator

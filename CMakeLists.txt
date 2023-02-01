@@ -47,7 +47,8 @@ include_directories(
 
 add_library(MrsMultirotorSimulator
   src/multirotor_simulator.cpp
-  src/quadrotor_model.cpp
+  src/uav_system.cpp
+  src/multirotor_model.cpp
 
   src/controllers/mixer.cpp
   src/controllers/rate_controller.cpp

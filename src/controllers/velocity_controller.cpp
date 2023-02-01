@@ -20,7 +20,7 @@ void VelocityController::setParams(const Params& params) {
   pid_z_.setParams(params.kp, params.kd, params.ki, params.max_acceleration);
 }
 
-reference::Acceleration VelocityController::getControlSignal(const QuadrotorModel::State& state, const reference::Velocity& reference, const double& dt) {
+reference::Acceleration VelocityController::getControlSignal(const MultirotorModel::State& state, const reference::Velocity& reference, const double& dt) {
 
   Eigen::Vector3d vel_error = reference.velocity - state.v;
 

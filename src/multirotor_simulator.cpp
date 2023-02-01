@@ -3,7 +3,7 @@
 #include <ros/ros.h>
 #include <nodelet/nodelet.h>
 
-#include <quadrotor_model.h>
+#include <multirotor_model.h>
 #include <controllers/mixer.h>
 #include <controllers/rate_controller.h>
 #include <controllers/attitude_controller.h>
@@ -83,7 +83,7 @@ private:
 
   // | --------------------- dynamics model --------------------- |
 
-  std::unique_ptr<QuadrotorModel> quadrotor_model_;
+  std::unique_ptr<MultirotorModel> quadrotor_model_;
 
   // | ----------------------- controllers ---------------------- |
 
@@ -217,7 +217,7 @@ void MultirotorSimulator::onInit() {
   // thrust
   model_params_.mixing_matrix.row(3) *= model_params_.kf;
 
-  quadrotor_model_ = std::make_unique<QuadrotorModel>(model_params_, Eigen::Vector3d(_spawn_x_, _spawn_y_, _spawn_z_));
+  quadrotor_model_ = std::make_unique<MultirotorModel>(model_params_, Eigen::Vector3d(_spawn_x_, _spawn_y_, _spawn_z_));
 
   // | --------------- dynamic reconfigure server --------------- |
 

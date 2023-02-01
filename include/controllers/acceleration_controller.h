@@ -1,7 +1,7 @@
 #ifndef ACCELERATION_CONTROLLER_H
 #define ACCELERATION_CONTROLLER_H
 
-#include <quadrotor_model.h>
+#include <multirotor_model.h>
 #include <controllers/references.h>
 
 namespace mrs_multirotor_simulator
@@ -24,7 +24,7 @@ public:
 
   void setParams(const Params& params);
 
-  reference::Attitude getControlSignal(const QuadrotorModel::State& state, const reference::Acceleration& reference, const double dt);
+  reference::Attitude getControlSignal(const MultirotorModel::State& state, const reference::Acceleration& reference, const double dt);
 
 private:
   Params params_;

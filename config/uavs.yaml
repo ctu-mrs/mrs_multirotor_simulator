@@ -1,0 +1,28 @@
+n_uavs: 3
+
+uav_names: [
+  "uav1",
+  "uav2",
+  "uav3",
+]
+
+uav1:
+  spawn:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    heading: 0.0
+
+uav2:
+  spawn:
+    x: 5.0
+    y: 0.0
+    z: 0.0
+    heading: 1.0
+
+uav3:
+  spawn:
+    x: 0.0
+    y: 5.0
+    z: 0.0
+    heading: -1.0

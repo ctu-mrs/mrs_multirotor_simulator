@@ -1,6 +1,6 @@
 rate_controller:
 
   # PID gains
-  kp: 0.10
-  kd: 0.00
+  kp: 0.07
+  kd: 0.007
   ki: 0.00

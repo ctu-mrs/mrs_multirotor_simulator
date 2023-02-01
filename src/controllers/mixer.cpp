@@ -1,4 +1,5 @@
 #include <controllers/mixer.h>
+#include <iostream>
 
 namespace mrs_multirotor_simulator
 {
@@ -18,29 +19,33 @@ void Mixer::setParams(const Params& params) {
 
   Eigen::MatrixXd allocation_tmp = params.allocation_matrix;
 
-  // | ------------ normalize the third row - yaw mix ----------- |
-
-  {
-    double sum_abs = 0;
-    for (int j = 0; j < allocation_tmp.cols(); j++) {
-      sum_abs += abs(params.allocation_matrix(2, j));
-    }
-
-    allocation_tmp.row(2) = allocation_tmp.row(2) / (0.5 * sum_abs * allocation_tmp.cols());
-  }
-
-  // | --------- normalize the forth row - throttle mix --------- |
-
-  {
-    double sum_abs = 0;
-    for (int j = 0; j < allocation_tmp.cols(); j++) {
-      sum_abs += abs(params.allocation_matrix(3, j));
-    }
-
-    allocation_tmp.row(3) = allocation_tmp.row(3) / (sum_abs);
-  }
-
   allocation_matrix_inv_ = allocation_tmp.transpose() * (allocation_tmp * allocation_tmp.transpose()).inverse();
+
+  // | ------------- normalize the allocation matrix ------------ |
+  // this will make it match the PX4 control group mixing
+
+  // the first two columns (roll, pitch)
+  for (int i = 0; i < params.n_motors; i++) {
+    allocation_matrix_inv_.block(i, 0, 1, 2).normalize();
+  }
+
+  // the 3rd column (yaw)
+  for (int i = 0; i < params.n_motors; i++) {
+    if (allocation_matrix_inv_(i, 2) > 1e-2) {
+      allocation_matrix_inv_(i, 2) = 1.0;
+    } else if (allocation_matrix_inv_(i, 2) < -1e-2) {
+      allocation_matrix_inv_(i, 2) = -1.0;
+    } else {
+      allocation_matrix_inv_(i, 2) = 0.0;
+    }
+  }
+
+  // the 4th column (throttle)
+  for (int i = 0; i < params.n_motors; i++) {
+    allocation_matrix_inv_(i, 3) = 1.0;
+  }
+
+  std::cout << "control group mixer= " << std::endl << allocation_matrix_inv_ << std::endl;
 }
 
 //}

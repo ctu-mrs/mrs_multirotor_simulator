@@ -20,7 +20,7 @@ void PositionController::setParams(const Params& params) {
   pid_z_.setParams(params.kp, params.kd, params.ki, params.max_velocity);
 }
 
-reference::Velocity PositionController::getControlSignal(const QuadrotorModel::State& state, const reference::Position& reference, const double& dt) {
+reference::Velocity PositionController::getControlSignal(const MultirotorModel::State& state, const reference::Position& reference, const double& dt) {
 
   Eigen::Vector3d pos_error = reference.position - state.x;
 

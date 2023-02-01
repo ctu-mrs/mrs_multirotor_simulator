@@ -20,7 +20,7 @@ void AttitudeController::setParams(const Params& params) {
   pid_z_.setParams(params.kp * params.mass, params.kd * params.mass, params.ki * params.mass, params.max_rate_yaw);
 }
 
-reference::AttitudeRate AttitudeController::getControlSignal(const QuadrotorModel::State& state, const reference::Attitude& reference, const double& dt) {
+reference::AttitudeRate AttitudeController::getControlSignal(const MultirotorModel::State& state, const reference::Attitude& reference, const double& dt) {
 
   // orientation error
   Eigen::Matrix3d R_error = 0.5 * (reference.orientation.transpose() * state.R - state.R.transpose() * reference.orientation);

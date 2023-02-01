@@ -1,7 +1,7 @@
 #ifndef RATE_CONTROLLER_H
 #define RATE_CONTROLLER_H
 
-#include <quadrotor_model.h>
+#include <multirotor_model.h>
 #include <controllers/pid.h>
 #include <controllers/references.h>
 #include <eigen3/Eigen/Eigen>
@@ -24,7 +24,7 @@ public:
 
   void setParams(const Params& params);
 
-  reference::ControlGroup getControlSignal(const QuadrotorModel::State& state, const reference::AttitudeRate& reference, const double& dt);
+  reference::ControlGroup getControlSignal(const MultirotorModel::State& state, const reference::AttitudeRate& reference, const double& dt);
 
 private:
   Params params_;

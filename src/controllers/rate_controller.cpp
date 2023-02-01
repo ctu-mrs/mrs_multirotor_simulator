@@ -20,7 +20,7 @@ void RateController::setParams(const Params& params) {
   pid_z_.setParams(params.kp * params.mass, params.kd * params.mass, params.ki * params.mass, 1.0);
 }
 
-reference::ControlGroup RateController::getControlSignal(const QuadrotorModel::State& state, const reference::AttitudeRate& reference, const double& dt) {
+reference::ControlGroup RateController::getControlSignal(const MultirotorModel::State& state, const reference::AttitudeRate& reference, const double& dt) {
 
   Eigen::Vector3d ang_rate_ref = Eigen::Vector3d(reference.rate_x, reference.rate_y, reference.rate_z);
 
