@@ -34,13 +34,14 @@ set(LIBRARIES
 
 catkin_package(
   LIBRARIES ${LIBRARIES}
-  INCLUDE_DIRS include include/controllers
+  INCLUDE_DIRS include include/mrs_multirotor_simulator include/mrs_multirotor_simulator/controllers
   CATKIN_DEPENDS std_msgs mrs_msgs mrs_lib roscpp std_srvs mrs_uav_hw_api nav_msgs dynamic_reconfigure rosgraph_msgs
   )
 
 include_directories(
   include
-  include/controllers
+  include/mrs_multirotor_simulator
+  include/mrs_multirotor_simulator/controllers
   ${catkin_INCLUDE_DIRS}
   ${dynamic_reconfigure_PACKAGE_PATH}/cmake/cfgbuild.cmake
   )

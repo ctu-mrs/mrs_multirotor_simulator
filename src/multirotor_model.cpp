@@ -4,7 +4,7 @@
  * Acknowledgement:
  * * https://github.com/HKUST-Aerial-Robotics/Fast-Planner
  */
-#include <multirotor_model.h>
+#include <mrs_multirotor_simulator/multirotor_model.h>
 
 namespace odeint = boost::numeric::odeint;
 

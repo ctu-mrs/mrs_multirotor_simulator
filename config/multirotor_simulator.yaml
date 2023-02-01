@@ -1,8 +1,6 @@
 simulation_rate: 100.0 # Hz
 realtime_factor: 1.0 # [-]
 
-diagnostics_rate: 10.0 # [Hz]
-
 iterate_without_input: false
 
 input_timeout: 0.25 # [s]

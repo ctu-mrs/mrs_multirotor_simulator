@@ -9,13 +9,14 @@
 
 #define N_INTERNAL_STATES 18
 
-#include <controllers/references.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <boost/array.hpp>
 #include <iostream>
 #include <boost/bind.hpp>
 #include <ode/boost/numeric/odeint.hpp>
+
+#include <mrs_multirotor_simulator/controllers/references.h>
 
 namespace mrs_multirotor_simulator
 {

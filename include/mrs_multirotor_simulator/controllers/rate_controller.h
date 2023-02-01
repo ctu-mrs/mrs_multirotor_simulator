@@ -1,10 +1,11 @@
 #ifndef RATE_CONTROLLER_H
 #define RATE_CONTROLLER_H
 
-#include <multirotor_model.h>
-#include <controllers/pid.h>
-#include <controllers/references.h>
 #include <eigen3/Eigen/Eigen>
+
+#include <mrs_multirotor_simulator/multirotor_model.h>
+#include <mrs_multirotor_simulator/controllers/pid.h>
+#include <mrs_multirotor_simulator/controllers/references.h>
 
 namespace mrs_multirotor_simulator
 {

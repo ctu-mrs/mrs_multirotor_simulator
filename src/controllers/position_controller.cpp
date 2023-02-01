@@ -1,4 +1,4 @@
-#include <controllers/position_controller.h>
+#include <mrs_multirotor_simulator/controllers/position_controller.h>
 
 namespace mrs_multirotor_simulator
 {

@@ -1,9 +1,9 @@
 #ifndef ATTITUDE_CONTROLLER_H
 #define ATTITUDE_CONTROLLER_H
 
-#include <multirotor_model.h>
-#include <controllers/pid.h>
-#include <controllers/references.h>
+#include <mrs_multirotor_simulator/multirotor_model.h>
+#include <mrs_multirotor_simulator/controllers/pid.h>
+#include <mrs_multirotor_simulator/controllers/references.h>
 
 namespace mrs_multirotor_simulator
 {

@@ -1,4 +1,4 @@
-#include <controllers/velocity_controller.h>
+#include <mrs_multirotor_simulator/controllers/velocity_controller.h>
 
 namespace mrs_multirotor_simulator
 {

@@ -1,5 +1,4 @@
-#include <controllers/mixer.h>
-#include <iostream>
+#include <mrs_multirotor_simulator/controllers/mixer.h>
 
 namespace mrs_multirotor_simulator
 {
@@ -44,8 +43,6 @@ void Mixer::setParams(const Params& params) {
   for (int i = 0; i < params.n_motors; i++) {
     allocation_matrix_inv_(i, 3) = 1.0;
   }
-
-  std::cout << "control group mixer= " << std::endl << allocation_matrix_inv_ << std::endl;
 }
 
 //}

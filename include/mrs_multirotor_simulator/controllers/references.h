@@ -11,124 +11,140 @@ namespace reference
 
 /* Actuators //{ */
 
-typedef struct
-{
+class Actuators {
 
+public:
   /**
    * @brief vector of motor throttles scaled as [0, 1]
    */
   Eigen::VectorXd motors;
-} Actuators;
+};
 
 //}
 
 /* ControlGroup //{ */
 
-typedef struct
-{
+class ControlGroup {
+public:
   /**
    * @brief the applied roll (around body-X) torque normalized to [-1, 1]
    */
-  double roll;
+  double roll = 0;
 
   /**
    * @brief the applied pitch (around body-Y) torque normalized to [-1, 1]
    */
-  double pitch;
+  double pitch = 0;
 
   /**
    * @brief the applied yaw (around body-Z) torque normalized to [-1, 1]
    */
-  double yaw;
+  double yaw = 0;
 
   /**
    * @brief the collective throttle along body-Z normalized to [-1, 1]
    */
-  double throttle;
-} ControlGroup;
+  double throttle = 0;
+};
 
 //}
 
 /* AttitudeRate //{ */
 
-typedef struct
-{
+class AttitudeRate {
+public:
   /**
    * @brief angular rate around body-x in [rad]
    */
-  double rate_x;
+  double rate_x = 0;
 
   /**
    * @brief angular rate around body-y in [rad]
    */
-  double rate_y;
+  double rate_y = 0;
 
   /**
    * @brief angular rate around body-z in [rad]
    */
-  double rate_z;
+  double rate_z = 0;
 
   /**
    * @brief the collective throttle along body-Z normalized to [-1, 1]
    */
-  double throttle;
-} AttitudeRate;
+  double throttle = 0;
+};
 
 //}
 
 /* Attitude //{ */
 
-typedef struct
-{
+class Attitude {
+public:
+  Attitude() {
+    this->orientation = Eigen::Matrix3d::Identity();
+  }
+
   Eigen::Matrix3d orientation;
 
   /**
    * @brief the collective throttle along body-Z normalized to [-1, 1]
    */
-  double throttle;
-} Attitude;
+  double throttle = 0;
+};
 
 //}
 
 /* Acceleration //{ */
 
-typedef struct
-{
+class Acceleration {
+public:
+  Acceleration() {
+    this->acceleration = Eigen::Vector3d::Zero();
+  }
+
   Eigen::Vector3d acceleration;
 
   /**
    * @brief atan2 of body-x axis projected to the ground plane
    */
-  double heading;
-} Acceleration;
+  double heading = 0;
+};
 
 //}
 
 /* Velocity //{ */
 
-typedef struct
-{
+class Velocity {
+public:
+  Velocity() {
+    this->velocity = Eigen::Vector3d::Zero();
+  }
+
   Eigen::Vector3d velocity;
 
   /**
    * @brief atan2 of body-x axis projected to the ground plane
    */
-  double heading;
-} Velocity;
+  double heading = 0;
+};
 
 //}
 
 /* Position //{ */
 
-typedef struct
-{
+class Position {
+public:
+  Position() {
+    this->position = Eigen::Vector3d::Zero();
+  }
+
   Eigen::Vector3d position;
 
   /**
    * @brief atan2 of body-x axis projected to the ground plane
    */
-  double heading;
-} Position;
+  double heading = 0;
+};
 
 //}
 

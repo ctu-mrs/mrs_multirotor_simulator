@@ -1,4 +1,4 @@
-#include <controllers/attitude_controller.h>
+#include <mrs_multirotor_simulator/controllers/attitude_controller.h>
 
 namespace mrs_multirotor_simulator
 {

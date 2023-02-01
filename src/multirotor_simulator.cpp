@@ -3,13 +3,7 @@
 #include <ros/ros.h>
 #include <nodelet/nodelet.h>
 
-#include <multirotor_model.h>
-#include <controllers/mixer.h>
-#include <controllers/rate_controller.h>
-#include <controllers/attitude_controller.h>
-#include <controllers/acceleration_controller.h>
-#include <controllers/velocity_controller.h>
-#include <controllers/position_controller.h>
+#include <mrs_multirotor_simulator/uav_system.h>
 
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/Range.h>
@@ -31,8 +25,6 @@
 #include <dynamic_reconfigure/server.h>
 #include <mrs_multirotor_simulator/multirotor_simulatorConfig.h>
 
-#include <mrs_multirotor_simulator/Diagnostics.h>
-
 //}
 
 namespace mrs_multirotor_simulator
@@ -45,21 +37,13 @@ class MultirotorSimulator : public nodelet::Nodelet {
 public:
   virtual void onInit();
 
-  enum INPUT_MODE
-  {
-    INPUT_TIMEOUT     = 0,
-    ACTUATOR_CMD      = 1,
-    CONTROL_GROUP_CMD = 2,
-    ATTITUDE_RATE_CMD = 3,
-    ATTITUDE_CMD      = 4,
-    ACCELERATION_CMD  = 5,
-    VELOCITY_CMD      = 6,
-    POSITION_CMD      = 7,
-  };
-
 private:
   ros::NodeHandle   nh_;
   std::atomic<bool> is_initialized_ = false;
+
+  // | ------------------------ UavSystem ----------------------- |
+
+  UavSystem uav_system_;
 
   // | ------------------------- params ------------------------- |
 
@@ -68,8 +52,6 @@ private:
   Eigen::MatrixXd mixing_matrix;
 
   double _simulation_rate_;
-
-  double _diagnostics_rate_;
 
   ros::Time sim_time_;
 
@@ -81,33 +63,16 @@ private:
   double _spawn_y_;
   double _spawn_z_;
 
-  // | --------------------- dynamics model --------------------- |
-
-  std::unique_ptr<MultirotorModel> quadrotor_model_;
-
-  // | ----------------------- controllers ---------------------- |
-
-  Mixer                  mixer_;
-  RateController         rate_controller_;
-  AttitudeController     attitude_controller_;
-  AccelerationController acceleration_controller_;
-  VelocityController     velocity_controller_;
-  PositionController     position_controller_;
-
   // | ------------------------- timers ------------------------- |
 
   ros::WallTimer timer_main_;
   void           timerMain(const ros::WallTimerEvent& event);
-
-  ros::WallTimer timer_diagnostics_;
-  void           timerDiagnostics(const ros::WallTimerEvent& event);
 
   // | ----------------------- publishers ----------------------- |
 
   mrs_lib::PublisherHandler<sensor_msgs::Imu>                      ph_imu_;
   mrs_lib::PublisherHandler<nav_msgs::Odometry>                    ph_odom_;
   mrs_lib::PublisherHandler<rosgraph_msgs::Clock>                  ph_clock_;
-  mrs_lib::PublisherHandler<mrs_multirotor_simulator::Diagnostics> ph_diagnostics_;
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -135,7 +100,7 @@ private:
 
   // | ------------------------- methods ------------------------ |
 
-  MultirotorSimulator::INPUT_MODE getInputMode(void);
+  UavSystem::INPUT_MODE getInputMode(void);
 
   reference::Actuators    getLastActuatorCmd(void);
   reference::ControlGroup getLastControlGroupCmd(void);
@@ -166,7 +131,6 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("realtime_factor", drs_params_.realtime_factor);
   param_loader.loadParam("iterate_without_input", _iterate_without_input_);
   param_loader.loadParam("input_timeout", _input_timeout_);
-  param_loader.loadParam("diagnostics_rate", _diagnostics_rate_);
 
   param_loader.loadParam("spawn_location/x", _spawn_x_);
   param_loader.loadParam("spawn_location/y", _spawn_y_);
@@ -217,7 +181,7 @@ void MultirotorSimulator::onInit() {
   // thrust
   model_params_.mixing_matrix.row(3) *= model_params_.kf;
 
-  quadrotor_model_ = std::make_unique<MultirotorModel>(model_params_, Eigen::Vector3d(_spawn_x_, _spawn_y_, _spawn_z_));
+  uav_system_ = UavSystem(model_params_, Eigen::Vector3d(_spawn_x_, _spawn_y_, _spawn_z_));
 
   // | --------------- dynamic reconfigure server --------------- |
 
@@ -235,7 +199,7 @@ void MultirotorSimulator::onInit() {
 
   mixer_params.allocation_matrix = model_params_.allocation_matrix;
 
-  mixer_.setParams(mixer_params);
+  /* mixer_.setParams(mixer_params); */
 
   // | --------------------- rate controller -------------------- |
 
@@ -247,7 +211,7 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("rate_controller/kd", rate_controller_params.kd);
   param_loader.loadParam("rate_controller/ki", rate_controller_params.ki);
 
-  rate_controller_.setParams(rate_controller_params);
+  /* rate_controller_.setParams(rate_controller_params); */
 
   // | --------------------- attitude controller -------------------- |
 
@@ -261,7 +225,7 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("attitude_controller/max_rate_roll_pitch", attitude_controller_params.max_rate_roll_pitch);
   param_loader.loadParam("attitude_controller/max_rate_yaw", attitude_controller_params.max_rate_yaw);
 
-  attitude_controller_.setParams(attitude_controller_params);
+  /* attitude_controller_.setParams(attitude_controller_params); */
 
   // | ----------------- acceleration controller ---------------- |
 
@@ -274,7 +238,7 @@ void MultirotorSimulator::onInit() {
   acceleration_controller_params.min_rpm  = model_params_.min_rpm;
   acceleration_controller_params.n_motors = model_params_.n_motors;
 
-  acceleration_controller_.setParams(acceleration_controller_params);
+  /* acceleration_controller_.setParams(acceleration_controller_params); */
 
   // | ------------------- velocity controller ------------------ |
 
@@ -285,7 +249,7 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("velocity_controller/ki", velocity_controller_params.ki);
   param_loader.loadParam("velocity_controller/max_acceleration", velocity_controller_params.max_acceleration);
 
-  velocity_controller_.setParams(velocity_controller_params);
+  /* velocity_controller_.setParams(velocity_controller_params); */
 
   // | ------------------- position controller ------------------ |
 
@@ -296,7 +260,7 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("position_controller/ki", position_controller_params.ki);
   param_loader.loadParam("position_controller/max_velocity", position_controller_params.max_velocity);
 
-  position_controller_.setParams(position_controller_params);
+  /* position_controller_.setParams(position_controller_params); */
 
   if (!param_loader.loadedSuccessfully()) {
     ROS_ERROR("[MultirotorSimulator]: could not load all parameters!");
@@ -308,7 +272,6 @@ void MultirotorSimulator::onInit() {
   ph_imu_         = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh_, "imu_out", 1, false);
   ph_odom_        = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh_, "odom_out", 1, false);
   ph_clock_       = mrs_lib::PublisherHandler<rosgraph_msgs::Clock>(nh_, "clock_out", 10, false);
-  ph_diagnostics_ = mrs_lib::PublisherHandler<mrs_multirotor_simulator::Diagnostics>(nh_, "diagnostics_out", 10, true);
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -337,8 +300,6 @@ void MultirotorSimulator::onInit() {
 
   timer_main_ = nh_.createWallTimer(ros::WallDuration(1.0 / (_simulation_rate_ * drs_params_.realtime_factor)), &MultirotorSimulator::timerMain, this);
 
-  timer_diagnostics_ = nh_.createWallTimer(ros::WallDuration(1.0 / _diagnostics_rate_), &MultirotorSimulator::timerDiagnostics, this);
-
   // | ------------------ first model iteration ----------------- |
 
   // * we need to iterate the model first to initialize its state
@@ -350,11 +311,11 @@ void MultirotorSimulator::onInit() {
   actuators_cmd.motors = Eigen::VectorXd::Zero(model_params_.n_motors);
 
   // set the motor input for the model
-  quadrotor_model_->setInput(actuators_cmd);
+  /* quadrotor_model_->setInput(actuators_cmd); */
 
   // iterate the model twise to initialize all the states
-  quadrotor_model_->step(1.0 / _simulation_rate_);
-  quadrotor_model_->step(1.0 / _simulation_rate_);
+  /* quadrotor_model_->step(1.0 / _simulation_rate_); */
+  /* quadrotor_model_->step(1.0 / _simulation_rate_); */
 
   // | ----------------------- finish init ---------------------- |
 
@@ -381,7 +342,7 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
 
   // | -------------- prepare the control reference ------------- |
 
-  MultirotorSimulator::INPUT_MODE input_mode = getInputMode();
+  UavSystem::INPUT_MODE input_mode = getInputMode();
 
   reference::Position     position_cmd      = getLastPositionCmd();
   reference::Velocity     velocity_cmd      = getLastVelocityCmd();
@@ -391,43 +352,43 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
   reference::ControlGroup control_group_cmd = getLastControlGroupCmd();
   reference::Actuators    actuators_cmd     = getLastActuatorCmd();
 
-  if (input_mode >= MultirotorSimulator::POSITION_CMD) {
-    velocity_cmd = position_controller_.getControlSignal(quadrotor_model_->getState(), position_cmd, simulation_step_size);
-  }
+  /* if (input_mode >= MultirotorSimulator::POSITION_CMD) { */
+  /*   velocity_cmd = position_controller_.getControlSignal(quadrotor_model_->getState(), position_cmd, simulation_step_size); */
+  /* } */
 
-  if (input_mode >= MultirotorSimulator::VELOCITY_CMD) {
-    acceleration_cmd = velocity_controller_.getControlSignal(quadrotor_model_->getState(), velocity_cmd, simulation_step_size);
-  }
+  /* if (input_mode >= MultirotorSimulator::VELOCITY_CMD) { */
+  /*   acceleration_cmd = velocity_controller_.getControlSignal(quadrotor_model_->getState(), velocity_cmd, simulation_step_size); */
+  /* } */
 
-  if (input_mode >= MultirotorSimulator::ACCELERATION_CMD) {
-    attitude_cmd = acceleration_controller_.getControlSignal(quadrotor_model_->getState(), acceleration_cmd, simulation_step_size);
-  }
+  /* if (input_mode >= MultirotorSimulator::ACCELERATION_CMD) { */
+  /*   attitude_cmd = acceleration_controller_.getControlSignal(quadrotor_model_->getState(), acceleration_cmd, simulation_step_size); */
+  /* } */
 
-  if (input_mode >= MultirotorSimulator::ATTITUDE_CMD) {
-    attitude_rate_cmd = attitude_controller_.getControlSignal(quadrotor_model_->getState(), attitude_cmd, simulation_step_size);
-  }
+  /* if (input_mode >= MultirotorSimulator::ATTITUDE_CMD) { */
+  /*   attitude_rate_cmd = attitude_controller_.getControlSignal(quadrotor_model_->getState(), attitude_cmd, simulation_step_size); */
+  /* } */
 
-  if (input_mode >= MultirotorSimulator::ATTITUDE_RATE_CMD) {
-    control_group_cmd = rate_controller_.getControlSignal(quadrotor_model_->getState(), attitude_rate_cmd, simulation_step_size);
-  }
+  /* if (input_mode >= MultirotorSimulator::ATTITUDE_RATE_CMD) { */
+  /*   control_group_cmd = rate_controller_.getControlSignal(quadrotor_model_->getState(), attitude_rate_cmd, simulation_step_size); */
+  /* } */
 
-  if (input_mode >= MultirotorSimulator::CONTROL_GROUP_CMD) {
-    actuators_cmd = mixer_.getControlSignal(control_group_cmd);
-  }
+  /* if (input_mode >= MultirotorSimulator::CONTROL_GROUP_CMD) { */
+  /*   actuators_cmd = mixer_.getControlSignal(control_group_cmd); */
+  /* } */
 
   // | --------------------- model iteration -------------------- |
 
-  if (_iterate_without_input_ || input_mode != MultirotorSimulator::INPUT_TIMEOUT) {
+  if (_iterate_without_input_ || input_mode != UavSystem::INPUT_UNKNOWN) {
 
     // set the motor input for the model
-    quadrotor_model_->setInput(actuators_cmd);
+    /* quadrotor_model_->setInput(actuators_cmd); */
 
     // iterate the model
-    quadrotor_model_->step(simulation_step_size);
+    /* quadrotor_model_->step(simulation_step_size); */
   }
 
   // extract the current state
-  auto state = quadrotor_model_->getState();
+  MultirotorModel::State state = uav_system_.getState();
 
   // step the time
   sim_time_ = sim_time_ + ros::Duration(simulation_step_size);
@@ -477,30 +438,13 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
   imu.angular_velocity.y = state.omega[1];
   imu.angular_velocity.z = state.omega[2];
 
-  auto acc = quadrotor_model_->getImuAcceleration();
+  auto acc = uav_system_.getImuAcceleration();
 
   imu.linear_acceleration.x = acc[0];
   imu.linear_acceleration.y = acc[1];
   imu.linear_acceleration.z = acc[2];
 
   ph_imu_.publish(imu);
-}
-
-//}
-
-/* timerDiagnostics() //{ */
-
-void MultirotorSimulator::timerDiagnostics([[maybe_unused]] const ros::WallTimerEvent& event) {
-
-  if (!is_initialized_) {
-    return;
-  }
-
-  ROS_INFO_ONCE("[MultirotorSimulator]: diagnostics timer spinning");
-
-  mrs_multirotor_simulator::Diagnostics msg;
-
-  ph_diagnostics_.publish(msg);
 }
 
 //}
@@ -791,7 +735,7 @@ reference::Position MultirotorSimulator::getLastPositionCmd(void) {
 
 /* getInputType() //{ */
 
-MultirotorSimulator::INPUT_MODE MultirotorSimulator::getInputMode(void) {
+UavSystem::INPUT_MODE MultirotorSimulator::getInputMode(void) {
 
   const ros::Time now = ros::Time::now();
 
@@ -803,27 +747,27 @@ MultirotorSimulator::INPUT_MODE MultirotorSimulator::getInputMode(void) {
 
   if (getting_attitude_rate) {
 
-    return MultirotorSimulator::ATTITUDE_RATE_CMD;
+    return UavSystem::ATTITUDE_RATE_CMD;
 
   } else if (getting_attitude) {
 
-    return MultirotorSimulator::ATTITUDE_CMD;
+    return UavSystem::ATTITUDE_CMD;
 
   } else if (getting_acceleration) {
 
-    return MultirotorSimulator::ACCELERATION_CMD;
+    return UavSystem::ACCELERATION_CMD;
 
   } else if (getting_velocity) {
 
-    return MultirotorSimulator::VELOCITY_CMD;
+    return UavSystem::VELOCITY_CMD;
 
   } else if (getting_position) {
 
-    return MultirotorSimulator::POSITION_CMD;
+    return UavSystem::POSITION_CMD;
 
   } else {
 
-    return MultirotorSimulator::INPUT_TIMEOUT;
+    return UavSystem::INPUT_UNKNOWN;
   }
 }
 
