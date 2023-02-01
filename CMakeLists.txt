@@ -27,6 +27,8 @@ generate_dynamic_reconfigure_options(
   )
 
 set(LIBRARIES
+  MrsMultirotorSimModel
+  MrsMultirotorSimSystem
   MrsMultirotorSimulator
   )
 
@@ -43,13 +45,25 @@ include_directories(
   ${dynamic_reconfigure_PACKAGE_PATH}/cmake/cfgbuild.cmake
   )
 
-# Multirotor simulator
+# MultirotorModel
+# - library with the multirotor dynamics model
 
-add_library(MrsMultirotorSimulator
-  src/multirotor_simulator.cpp
-  src/uav_system.cpp
+add_library(MrsMultirotorSimModel
   src/multirotor_model.cpp
+  )
 
+target_link_libraries(MrsMultirotorSimModel
+  ${catkin_LIBRARIES}
+  ${Eigen_LIBRARIES}
+  )
+
+# MrsMultirotorSimSystem
+# - library of the Multirotor Dynamics system with the controllers
+
+add_library(MrsMultirotorSimSystem
+  src/uav_system.cpp
+
+  # controllers
   src/controllers/mixer.cpp
   src/controllers/rate_controller.cpp
   src/controllers/attitude_controller.cpp
@@ -58,17 +72,33 @@ add_library(MrsMultirotorSimulator
   src/controllers/position_controller.cpp
   )
 
+target_link_libraries(MrsMultirotorSimSystem
+  MrsMultirotorSimModel
+  ${catkin_LIBRARIES}
+  ${Eigen_LIBRARIES}
+  )
+
+# Multirotor simulator
+# - ROS node with the MRS Multirotor Simulator
+
+add_library(MrsMultirotorSimulator
+  src/multirotor_simulator.cpp
+  src/uav_system.cpp
+  )
+
 add_dependencies(MrsMultirotorSimulator
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
   )
 
 target_link_libraries(MrsMultirotorSimulator
+  MrsMultirotorSimSystem
   ${catkin_LIBRARIES}
   ${Eigen_LIBRARIES}
   )
 
 # Hw API Plugin
+# - pluginlib library for interfacing the Simulator with the MRS UAV System
 
 add_library(MrsSimulatorApiPlugin
   src/hw_api_plugin.cpp
@@ -94,7 +124,7 @@ install(TARGETS ${LIBRARIES}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
   )
 
-install(DIRECTORY launch config msg
+install(DIRECTORY launch config tmux
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
   )
 

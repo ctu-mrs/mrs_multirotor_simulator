@@ -629,9 +629,9 @@ reference::AttitudeRate MultirotorSimulator::getLastAttitudeRateCmd(void) {
 
   // default values
   cmd.throttle = 0.0;
-  cmd.rate_x   = 0;
-  cmd.rate_x   = 0;
-  cmd.rate_x   = 0;
+  cmd.rate_x   = 0.0;
+  cmd.rate_x   = 0.0;
+  cmd.rate_x   = 0.0;
 
   if (!sh_attitude_rate_cmd_.hasMsg()) {
     return cmd;
