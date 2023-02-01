@@ -14,10 +14,10 @@ class RateController {
 public:
   struct Params
   {
-    double kp;
-    double kd;
-    double ki;
-    double mass;
+    double          kp;
+    double          kd;
+    double          ki;
+    Eigen::Matrix3d J;
   };
 
   RateController();

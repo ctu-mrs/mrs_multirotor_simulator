@@ -95,7 +95,7 @@ void MultirotorModel::step(const double& dt) {
   }
 
   if (params_.takeoff_patch_enabled) {
-    if ((state_.x - _initial_pos_).norm() < 0.5) {
+    if (input_.norm() < 0.05) {
       if (state_.x(2) < _initial_pos_[2] && state_.v(2) < 0) {
         state_.x(2)  = _initial_pos_[2];
         state_.v     = Eigen::Vector3d::Zero();

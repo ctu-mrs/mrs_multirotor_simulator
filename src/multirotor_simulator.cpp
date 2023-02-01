@@ -241,7 +241,7 @@ void MultirotorSimulator::onInit() {
 
   RateController::Params rate_controller_params;
 
-  rate_controller_params.mass = model_params_.mass;
+  rate_controller_params.J = model_params_.J;
 
   param_loader.loadParam("rate_controller/kp", rate_controller_params.kp);
   param_loader.loadParam("rate_controller/kd", rate_controller_params.kd);
