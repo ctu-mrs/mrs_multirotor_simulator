@@ -165,8 +165,7 @@ void MultirotorSimulator::onInit() {
   model_params_.allocation_matrix.row(2) *= model_params_.km * (3.0 * model_params_.prop_radius) * model_params_.kf;
   model_params_.allocation_matrix.row(3) *= model_params_.kf;
 
-  /* uav_system_ = UavSystem(model_params_, Eigen::Vector3d(_spawn_x_, _spawn_y_, _spawn_z_)); */
-  uav_system_ = UavSystem();
+  uav_system_ = UavSystem(model_params_, Eigen::Vector3d(_spawn_x_, _spawn_y_, _spawn_z_));
 
   // | --------------- dynamic reconfigure server --------------- |
 
@@ -181,7 +180,7 @@ void MultirotorSimulator::onInit() {
 
   param_loader.loadParam("mixer/desaturation", mixer_params.desaturation);
 
-  /* mixer_.setParams(mixer_params); */
+  uav_system_.setMixerParams(mixer_params);
 
   // | --------------------- rate controller -------------------- |
 
@@ -191,7 +190,7 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("rate_controller/kd", rate_controller_params.kd);
   param_loader.loadParam("rate_controller/ki", rate_controller_params.ki);
 
-  /* rate_controller_.setParams(rate_controller_params); */
+  uav_system_.setRateControllerParams(rate_controller_params);
 
   // | --------------------- attitude controller -------------------- |
 
@@ -203,11 +202,7 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("attitude_controller/max_rate_roll_pitch", attitude_controller_params.max_rate_roll_pitch);
   param_loader.loadParam("attitude_controller/max_rate_yaw", attitude_controller_params.max_rate_yaw);
 
-  /* attitude_controller_.setParams(attitude_controller_params); */
-
-  // | ----------------- acceleration controller ---------------- |
-
-  /* acceleration_controller_.setParams(acceleration_controller_params); */
+  uav_system_.setAttitudeControllerParams(attitude_controller_params);
 
   // | ------------------- velocity controller ------------------ |
 
@@ -218,7 +213,7 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("velocity_controller/ki", velocity_controller_params.ki);
   param_loader.loadParam("velocity_controller/max_acceleration", velocity_controller_params.max_acceleration);
 
-  /* velocity_controller_.setParams(velocity_controller_params); */
+  uav_system_.setVelocityControllerParams(velocity_controller_params);
 
   // | ------------------- position controller ------------------ |
 
@@ -229,7 +224,7 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("position_controller/ki", position_controller_params.ki);
   param_loader.loadParam("position_controller/max_velocity", position_controller_params.max_velocity);
 
-  /* position_controller_.setParams(position_controller_params); */
+  uav_system_.setPositionControllerParams(position_controller_params);
 
   if (!param_loader.loadedSuccessfully()) {
     ROS_ERROR("[MultirotorSimulator]: could not load all parameters!");

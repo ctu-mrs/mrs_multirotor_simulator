@@ -110,7 +110,6 @@ void UavSystem::setInput(void) {
 void UavSystem::makeStep(const double dt) {
 
   if (active_input_ >= UavSystem::POSITION_CMD) {
-
     velocity_cmd_ = position_controller_.getControlSignal(multirotor_model_.getState(), position_cmd_, dt);
   }
 
@@ -160,5 +159,29 @@ Eigen::Vector3d UavSystem::getImuAcceleration(void) {
 
 //}
 
-}  // namespace mrs_multirotor_simulator
+/* setters for controllers' params //{ */
 
+void UavSystem::setMixerParams(const Mixer::Params& params) {
+  mixer_.setParams(params);
+}
+
+void UavSystem::setRateControllerParams(const RateController::Params& params) {
+  rate_controller_.setParams(params);
+}
+
+void UavSystem::setAttitudeControllerParams(const AttitudeController::Params& params) {
+  attitude_controller_.setParams(params);
+}
+
+void UavSystem::setVelocityControllerParams(const VelocityController::Params& params) {
+  velocity_controller_.setParams(params);
+}
+
+void UavSystem::setPositionControllerParams(const PositionController::Params& params) {
+  position_controller_.setParams(params);
+}
+
+//}
+
+
+}  // namespace mrs_multirotor_simulator

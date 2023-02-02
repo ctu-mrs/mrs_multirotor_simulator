@@ -15,6 +15,28 @@ namespace mrs_multirotor_simulator
 
 MultirotorModel::MultirotorModel(void) {
 
+  initializeState();
+
+  updateInternalState();
+}
+
+MultirotorModel::MultirotorModel(const ModelParams& params, const Eigen::Vector3d& initial_pos) {
+
+  params_ = params;
+
+  initializeState();
+
+  state_.x = initial_pos;
+
+  updateInternalState();
+}
+
+//}
+
+/* initializeState() //{ */
+
+void MultirotorModel::initializeState(void) {
+
   state_.x      = Eigen::Vector3d::Zero();
   state_.v      = Eigen::Vector3d::Zero();
   state_.v_prev = Eigen::Vector3d::Zero();
@@ -28,29 +50,22 @@ MultirotorModel::MultirotorModel(void) {
 
   external_force_.setZero();
   external_moment_.setZero();
-
-  updateInternalState();
 }
 
-MultirotorModel::MultirotorModel(const ModelParams& params, const Eigen::Vector3d& initial_pos) {
+//}
 
-  params_ = params;
+/* updatedInternalState() //{ */
 
-  state_.x      = initial_pos;
-  state_.v      = Eigen::Vector3d::Zero();
-  state_.v_prev = Eigen::Vector3d::Zero();
-  state_.R      = Eigen::Matrix3d::Identity();
-  state_.omega  = Eigen::Vector3d::Zero();
+void MultirotorModel::updateInternalState(void) {
 
-  imu_acceleration_ = Eigen::Vector3d::Zero();
-
-  state_.motor_rpm = Eigen::VectorXd::Zero(params_.n_motors);
-  input_           = Eigen::VectorXd::Zero(params_.n_motors);
-
-  external_force_.setZero();
-  external_moment_.setZero();
-
-  updateInternalState();
+  for (int i = 0; i < 3; i++) {
+    internal_state_[0 + i]  = state_.x(i);
+    internal_state_[3 + i]  = state_.v(i);
+    internal_state_[6 + i]  = state_.R(i, 0);
+    internal_state_[9 + i]  = state_.R(i, 1);
+    internal_state_[12 + i] = state_.R(i, 2);
+    internal_state_[15 + i] = state_.omega(i);
+  }
 }
 
 //}
@@ -204,22 +219,6 @@ void MultirotorModel::operator()(const MultirotorModel::InternalState& x, Multir
 
 //}
 
-/* updatedInternalState() //{ */
-
-void MultirotorModel::updateInternalState(void) {
-
-  for (int i = 0; i < 3; i++) {
-    internal_state_[0 + i]  = state_.x(i);
-    internal_state_[3 + i]  = state_.v(i);
-    internal_state_[6 + i]  = state_.R(i, 0);
-    internal_state_[9 + i]  = state_.R(i, 1);
-    internal_state_[12 + i] = state_.R(i, 2);
-    internal_state_[15 + i] = state_.omega(i);
-  }
-}
-
-//}
-
 // | ------------------- setters and getters ------------------ |
 
 /* setParams() //{ */
@@ -227,6 +226,10 @@ void MultirotorModel::updateInternalState(void) {
 void MultirotorModel::setParams(const ModelParams& params) {
 
   params_ = params;
+
+  initializeState();
+
+  updateInternalState();
 }
 
 //}

@@ -47,6 +47,12 @@ public:
 
   Eigen::Vector3d getImuAcceleration(void);
 
+  void setMixerParams(const Mixer::Params& params);
+  void setRateControllerParams(const RateController::Params& params);
+  void setAttitudeControllerParams(const AttitudeController::Params& params);
+  void setVelocityControllerParams(const VelocityController::Params& params);
+  void setPositionControllerParams(const PositionController::Params& params);
+
 private:
   // | ------------------------- basics ------------------------- |
 

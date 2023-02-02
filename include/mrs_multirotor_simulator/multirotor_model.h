@@ -26,6 +26,7 @@ public:
   ModelParams() {
 
     // | -------- default parameters of the x500 quadrotor -------- |
+    // it is recommended to load them through the setParams() method
 
     n_motors             = 4;
     g                    = 9.81;
@@ -129,6 +130,8 @@ public:
   void        setParams(const ModelParams& params);
 
 private:
+  void initializeState(void);
+
   void updateInternalState(void);
 
   MultirotorModel::State state_;

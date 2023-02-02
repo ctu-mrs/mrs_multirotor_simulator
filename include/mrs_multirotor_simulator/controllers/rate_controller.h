@@ -15,8 +15,8 @@ class RateController {
 public:
   class Params {
   public:
-    double kp = 5.0;
-    double kd = 0.0;
+    double kp = 4.0;
+    double kd = 0.04;
     double ki = 0.0;
   };
 
