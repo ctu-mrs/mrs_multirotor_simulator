@@ -111,7 +111,7 @@ add_dependencies(MrsMultirotorSimulator
   )
 
 target_link_libraries(MrsMultirotorSimulator
-  MrsMultirotorSimSystem
+  MrsMultirotorSimSystemRos
   ${catkin_LIBRARIES}
   ${Eigen_LIBRARIES}
   )

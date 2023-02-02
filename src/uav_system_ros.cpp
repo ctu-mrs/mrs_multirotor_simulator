@@ -32,13 +32,13 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string name) {
   param_loader.loadParam(type + "/mass", model_params_.mass);
   param_loader.loadParam(type + "/arm_length", model_params_.arm_length);
   param_loader.loadParam(type + "/body_height", model_params_.body_height);
+  param_loader.loadParam(type + "/air_resistance_coeff", model_params_.air_resistance_coeff);
   param_loader.loadParam(type + "/motor_time_constant", model_params_.motor_time_constant);
   param_loader.loadParam(type + "/propulsion/prop_radius", model_params_.prop_radius);
   param_loader.loadParam(type + "/propulsion/force_constant", model_params_.kf);
   param_loader.loadParam(type + "/propulsion/moment_constant", model_params_.km);
-  param_loader.loadParam(type + "/rpm/min", model_params_.min_rpm);
-  param_loader.loadParam(type + "/rpm/max", model_params_.max_rpm);
-  param_loader.loadParam(type + "/air_resistance_coeff", model_params_.air_resistance_coeff);
+  param_loader.loadParam(type + "/propulsion/rpm/min", model_params_.min_rpm);
+  param_loader.loadParam(type + "/propulsion/rpm/max", model_params_.max_rpm);
 
   // | --------------------- spawn location --------------------- |
 
@@ -60,7 +60,7 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string name) {
       model_params_.mass * (3.0 * model_params_.arm_length * model_params_.arm_length + model_params_.body_height * model_params_.body_height) / 12.0;
   model_params_.J(2, 2) = (model_params_.mass * model_params_.arm_length * model_params_.arm_length) / 2.0;
 
-  model_params_.allocation_matrix = param_loader.loadMatrixDynamic2("propulsion/allocation_matrix", 4, -1);
+  model_params_.allocation_matrix = param_loader.loadMatrixDynamic2(type + "/propulsion/allocation_matrix", 4, -1);
 
   model_params_.allocation_matrix.row(0) *= model_params_.arm_length * model_params_.kf;
   model_params_.allocation_matrix.row(1) *= model_params_.arm_length * model_params_.kf;
@@ -123,8 +123,8 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string name) {
 
   // | ----------------------- publishers ----------------------- |
 
-  ph_imu_  = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh, name + "/imu_out", 1, false);
-  ph_odom_ = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh, name + "/odom_out", 1, false);
+  ph_imu_  = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh, name + "/imu", 1, false);
+  ph_odom_ = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh, name + "/odom", 1, false);
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -138,16 +138,16 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string name) {
   shopts.transport_hints    = ros::TransportHints().tcpNoDelay();
 
   sh_attitude_rate_cmd_ =
-      mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>(shopts, name + "/attitude_rate_cmd_in", &UavSystemRos::callbackAttitudeRateCmd, this);
+      mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>(shopts, name + "/attitude_rate_cmd", &UavSystemRos::callbackAttitudeRateCmd, this);
 
-  sh_attitude_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>(shopts, name + "/attitude_cmd_in", &UavSystemRos::callbackAttitudeCmd, this);
+  sh_attitude_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>(shopts, name + "/attitude_cmd", &UavSystemRos::callbackAttitudeCmd, this);
 
   sh_acceleration_cmd_ =
-      mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd>(shopts, name + "/acceleration_cmd_in", &UavSystemRos::callbackAccelerationCmd, this);
+      mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd>(shopts, name + "/acceleration_cmd", &UavSystemRos::callbackAccelerationCmd, this);
 
-  sh_velocity_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityCmd>(shopts, name + "/velocity_cmd_in", &UavSystemRos::callbackVelocityCmd, this);
+  sh_velocity_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityCmd>(shopts, name + "/velocity_cmd", &UavSystemRos::callbackVelocityCmd, this);
 
-  sh_position_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>(shopts, name + "/position_cmd_in", &UavSystemRos::callbackPositionCmd, this);
+  sh_position_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>(shopts, name + "/position_cmd", &UavSystemRos::callbackPositionCmd, this);
 
   // | ------------------ first model iteration ----------------- |
 
@@ -175,7 +175,7 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string name) {
 
 /* makeStep() //{ */
 
-void UavSystem::makeStep(const double dt) {
+void UavSystemRos::makeStep(const double dt) {
 
   // | ---------------- check timeout of an input --------------- |
 
@@ -204,8 +204,62 @@ void UavSystem::makeStep(const double dt) {
     std::scoped_lock lock(mutex_uav_system_);
 
     // iterate the model
-    uav_system_.makeStep(simulation_step_size);
+    uav_system_.makeStep(dt);
   }
+
+  // extract the current state
+  MultirotorModel::State state = uav_system_.getState();
+
+  // | -------------------- publish odometry -------------------- |
+
+  nav_msgs::Odometry odom;
+
+  odom.header.stamp    = ros::Time::now();
+  odom.header.frame_id = "sim_world";
+  odom.child_frame_id  = "body";
+
+  try {
+    odom.pose.pose.orientation = mrs_lib::AttitudeConverter(state.R);
+  }
+  catch (...) {
+    ROS_ERROR("[AttitudeConverter]: internal orientation is invalid");
+    ROS_INFO_STREAM("[MultirotorSimulator]: " << state.R);
+  }
+
+  odom.pose.pose.position.x = state.x[0];
+  odom.pose.pose.position.y = state.x[1];
+  odom.pose.pose.position.z = state.x[2];
+
+  Eigen::Vector3d vel_body = state.R.transpose() * state.v;
+
+  odom.twist.twist.linear.x = vel_body[0];
+  odom.twist.twist.linear.y = vel_body[1];
+  odom.twist.twist.linear.z = vel_body[2];
+
+  odom.twist.twist.angular.x = state.omega[0];
+  odom.twist.twist.angular.y = state.omega[1];
+  odom.twist.twist.angular.z = state.omega[2];
+
+  ph_odom_.publish(odom);
+
+  // | ----------------------- publish IMU ---------------------- |
+
+  sensor_msgs::Imu imu;
+
+  imu.header.stamp    = ros::Time::now();
+  imu.header.frame_id = "body";
+
+  imu.angular_velocity.x = state.omega[0];
+  imu.angular_velocity.y = state.omega[1];
+  imu.angular_velocity.z = state.omega[2];
+
+  auto acc = uav_system_.getImuAcceleration();
+
+  imu.linear_acceleration.x = acc[0];
+  imu.linear_acceleration.y = acc[1];
+  imu.linear_acceleration.z = acc[2];
+
+  ph_imu_.publish(imu);
 }
 
 //}

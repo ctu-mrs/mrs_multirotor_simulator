@@ -7,6 +7,7 @@
 #include <mrs_lib/param_loader.h>
 #include <mrs_lib/publisher_handler.h>
 #include <mrs_lib/subscribe_handler.h>
+#include <mrs_lib/mutex.h>
 
 #include <mrs_multirotor_simulator/uav_system.h>
 
@@ -33,7 +34,7 @@ public:
 
 private:
   std::atomic<bool> is_initialized_ = false;
-  std::string _name_;
+  std::string       _name_;
 
   // | ------------------------ UavSystem ----------------------- |
 
