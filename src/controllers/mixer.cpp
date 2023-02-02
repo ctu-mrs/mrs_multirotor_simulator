@@ -12,6 +12,26 @@ Mixer::Mixer(const ModelParams& model_params) {
 
   model_params_ = model_params;
 
+  calculateAllocation();
+}
+
+//}
+
+/* setParams() //{ */
+
+void Mixer::setParams(const Params& params) {
+
+  params_ = params;
+
+  calculateAllocation();
+}
+
+//}
+
+/* calculateAllocation() //{ */
+
+void Mixer::calculateAllocation(void) {
+
   Eigen::MatrixXd allocation_tmp = model_params_.allocation_matrix;
 
   allocation_matrix_inv_ = allocation_tmp.transpose() * (allocation_tmp * allocation_tmp.transpose()).inverse();
@@ -39,15 +59,6 @@ Mixer::Mixer(const ModelParams& model_params) {
   for (int i = 0; i < model_params_.n_motors; i++) {
     allocation_matrix_inv_(i, 3) = 1.0;
   }
-}
-
-//}
-
-/* setParams() //{ */
-
-void Mixer::setParams(const Params& params) {
-
-  params_ = params;
 }
 
 //}
@@ -91,6 +102,14 @@ reference::Actuators Mixer::getControlSignal(const reference::ControlGroup& refe
   }
 
   return actuators;
+}
+
+//}
+
+/* getAllocationMatrix() //{ */
+
+Eigen::MatrixXd Mixer::getAllocationMatrix(void) {
+  return allocation_matrix_inv_;
 }
 
 //}

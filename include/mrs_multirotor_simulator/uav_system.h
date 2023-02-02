@@ -53,6 +53,8 @@ public:
   void setVelocityControllerParams(const VelocityController::Params& params);
   void setPositionControllerParams(const PositionController::Params& params);
 
+  Eigen::MatrixXd getMixerAllocation(void);
+
 private:
   // | ------------------------- basics ------------------------- |
 

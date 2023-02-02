@@ -22,9 +22,18 @@ public:
 
   reference::Actuators getControlSignal(const reference::ControlGroup& reference);
 
+  /**
+   * @brief get the normalized allocation matrix used in the mixer
+   *
+   * @return
+   */
+  Eigen::MatrixXd getAllocationMatrix(void);
+
 private:
   ModelParams model_params_;
   Params      params_;
+
+  void calculateAllocation(void);
 
   Eigen::MatrixXd allocation_matrix_inv_;
 };

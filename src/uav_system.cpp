@@ -150,6 +150,15 @@ MultirotorModel::State UavSystem::getState(void) {
 
 //}
 
+/* getMixerAllocation() //{ */
+
+Eigen::MatrixXd UavSystem::getMixerAllocation(void) {
+
+  return mixer_.getAllocationMatrix();
+}
+
+//}
+
 /* getImuAcceleration() //{ */
 
 Eigen::Vector3d UavSystem::getImuAcceleration(void) {
