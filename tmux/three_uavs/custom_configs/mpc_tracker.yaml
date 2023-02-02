@@ -1,4 +1,0 @@
-mpc_rate: 100.0 # rate of MPC calculation, >= 10 Hz
-
-collision_avoidance:
-  enabled: false
