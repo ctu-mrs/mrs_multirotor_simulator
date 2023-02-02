@@ -5,23 +5,30 @@ namespace mrs_multirotor_simulator
 
 // constructor
 RateController::RateController() {
+  initializePIDs();
 }
 
 RateController::RateController(const ModelParams& model_params) {
   model_params_ = model_params;
+  initializePIDs();
 }
 
 void RateController::setParams(const Params& params) {
 
   params_ = params;
 
+  initializePIDs();
+}
+
+void RateController::initializePIDs(void) {
+
   pid_x_.reset();
   pid_y_.reset();
   pid_z_.reset();
 
-  pid_x_.setParams(params.kp * model_params_.J(0, 0), params.kd * model_params_.J(0, 0), params.ki * model_params_.J(0, 0), 1.0);
-  pid_y_.setParams(params.kp * model_params_.J(1, 1), params.kd * model_params_.J(1, 1), params.ki * model_params_.J(1, 1), 1.0);
-  pid_z_.setParams(params.kp * model_params_.J(2, 2), params.kd * model_params_.J(2, 2), params.ki * model_params_.J(2, 2), 1.0);
+  pid_x_.setParams(params_.kp * model_params_.J(0, 0), params_.kd * model_params_.J(0, 0), params_.ki * model_params_.J(0, 0), 1.0);
+  pid_y_.setParams(params_.kp * model_params_.J(1, 1), params_.kd * model_params_.J(1, 1), params_.ki * model_params_.J(1, 1), 1.0);
+  pid_z_.setParams(params_.kp * model_params_.J(2, 2), params_.kd * model_params_.J(2, 2), params_.ki * model_params_.J(2, 2), 1.0);
 }
 
 reference::ControlGroup RateController::getControlSignal(const MultirotorModel::State& state, const reference::AttitudeRate& reference, const double& dt) {

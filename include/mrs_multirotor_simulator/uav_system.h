@@ -74,6 +74,8 @@ private:
   reference::Acceleration acceleration_cmd_;
   reference::Velocity     velocity_cmd_;
   reference::Position     position_cmd_;
+
+  void initializeControllers(void);
 };
 
 }  // namespace mrs_multirotor_simulator

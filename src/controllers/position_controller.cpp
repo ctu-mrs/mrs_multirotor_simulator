@@ -5,23 +5,33 @@ namespace mrs_multirotor_simulator
 
 // constructor
 PositionController::PositionController() {
+
+  initializePIDs();
 }
 
 PositionController::PositionController(const ModelParams& model_params) {
+
   model_params_ = model_params;
+
+  initializePIDs();
 }
 
 void PositionController::setParams(const Params& params) {
 
   params_ = params;
 
+  initializePIDs();
+}
+
+void PositionController::initializePIDs(void) {
+
   pid_x_.reset();
   pid_y_.reset();
   pid_z_.reset();
 
-  pid_x_.setParams(params.kp, params.kd, params.ki, params.max_velocity);
-  pid_y_.setParams(params.kp, params.kd, params.ki, params.max_velocity);
-  pid_z_.setParams(params.kp, params.kd, params.ki, params.max_velocity);
+  pid_x_.setParams(params_.kp, params_.kd, params_.ki, params_.max_velocity);
+  pid_y_.setParams(params_.kp, params_.kd, params_.ki, params_.max_velocity);
+  pid_z_.setParams(params_.kp, params_.kd, params_.ki, params_.max_velocity);
 }
 
 reference::Velocity PositionController::getControlSignal(const MultirotorModel::State& state, const reference::Position& reference, const double& dt) {

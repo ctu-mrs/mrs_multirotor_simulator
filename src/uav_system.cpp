@@ -8,14 +8,9 @@ namespace mrs_multirotor_simulator
 // constructor
 UavSystem::UavSystem(void) {
 
-  ModelParams model_params = multirotor_model_.getParams();
+  // the model params are supplied by the defaults from the header
 
-  mixer_                   = Mixer(model_params);
-  rate_controller_         = RateController(model_params);
-  attitude_controller_     = AttitudeController(model_params);
-  acceleration_controller_ = AccelerationController(model_params);
-  velocity_controller_     = VelocityController(model_params);
-  position_controller_     = PositionController(model_params);
+  initializeControllers();
 }
 
 // constructor
@@ -23,18 +18,24 @@ UavSystem::UavSystem(const ModelParams& model_params) {
 
   multirotor_model_.setParams(model_params);
 
-  mixer_                   = Mixer(model_params);
-  rate_controller_         = RateController(model_params);
-  attitude_controller_     = AttitudeController(model_params);
-  acceleration_controller_ = AccelerationController(model_params);
-  velocity_controller_     = VelocityController(model_params);
-  position_controller_     = PositionController(model_params);
+  initializeControllers();
 }
 
 UavSystem::UavSystem(const ModelParams& model_params, const Eigen::Vector3d initial_position) {
 
   multirotor_model_.setParams(model_params);
   multirotor_model_.setStatePos(initial_position);
+
+  initializeControllers();
+}
+
+//}
+
+/* initializeControllers() //{ */
+
+void UavSystem::initializeControllers(void) {
+
+  ModelParams model_params = multirotor_model_.getParams();
 
   mixer_                   = Mixer(model_params);
   rate_controller_         = RateController(model_params);
@@ -109,6 +110,7 @@ void UavSystem::setInput(void) {
 void UavSystem::makeStep(const double dt) {
 
   if (active_input_ >= UavSystem::POSITION_CMD) {
+
     velocity_cmd_ = position_controller_.getControlSignal(multirotor_model_.getState(), position_cmd_, dt);
   }
 

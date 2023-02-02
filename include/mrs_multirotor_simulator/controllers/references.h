@@ -2,6 +2,7 @@
 #define REFERENCES_H
 
 #include <eigen3/Eigen/Eigen>
+#include <iostream>
 
 namespace mrs_multirotor_simulator
 {
@@ -18,6 +19,11 @@ public:
    * @brief vector of motor throttles scaled as [0, 1]
    */
   Eigen::VectorXd motors;
+
+  friend std::ostream& operator<<(std::ostream& os, const Actuators& data) {
+    os << "Actuators = " << data.motors.transpose();
+    return os;
+  }
 };
 
 //}
@@ -45,6 +51,11 @@ public:
    * @brief the collective throttle along body-Z normalized to [-1, 1]
    */
   double throttle = 0;
+
+  friend std::ostream& operator<<(std::ostream& os, const ControlGroup& data) {
+    os << "Control group: roll = " << data.roll << ", pitch = " << data.pitch << ", yaw = " << data.yaw << ", throttle " << data.throttle;
+    return os;
+  }
 };
 
 //}
@@ -72,6 +83,11 @@ public:
    * @brief the collective throttle along body-Z normalized to [-1, 1]
    */
   double throttle = 0;
+
+  friend std::ostream& operator<<(std::ostream& os, const AttitudeRate& data) {
+    os << "Attitude rate: roll = " << data.rate_x << ", pitch = " << data.rate_y << ", yaw = " << data.rate_z << ", throttle " << data.throttle;
+    return os;
+  }
 };
 
 //}
@@ -90,6 +106,11 @@ public:
    * @brief the collective throttle along body-Z normalized to [-1, 1]
    */
   double throttle = 0;
+
+  friend std::ostream& operator<<(std::ostream& os, const Attitude& data) {
+    os << "Attitude: throttle " << data.throttle << ", R = " << std::endl << data.orientation;
+    return os;
+  }
 };
 
 //}
@@ -108,6 +129,11 @@ public:
    * @brief atan2 of body-x axis projected to the ground plane
    */
   double heading = 0;
+
+  friend std::ostream& operator<<(std::ostream& os, const Acceleration& data) {
+    os << "Acceleration: acc = " << data.acceleration.transpose() << ", heading = " << data.heading;
+    return os;
+  }
 };
 
 //}
@@ -126,6 +152,11 @@ public:
    * @brief atan2 of body-x axis projected to the ground plane
    */
   double heading = 0;
+
+  friend std::ostream& operator<<(std::ostream& os, const Velocity& data) {
+    os << "Velocity: vel = " << data.velocity.transpose() << ", heading = " << data.heading;
+    return os;
+  }
 };
 
 //}
@@ -144,6 +175,11 @@ public:
    * @brief atan2 of body-x axis projected to the ground plane
    */
   double heading = 0;
+
+  friend std::ostream& operator<<(std::ostream& os, const Position& data) {
+    os << "Position: pos = " << data.position.transpose() << ", heading = " << data.heading;
+    return os;
+  }
 };
 
 //}

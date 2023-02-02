@@ -30,6 +30,8 @@ private:
   ModelParams model_params_;
   Params      params_;
 
+  void initializePIDs(void);
+
   PIDController pid_x_;
   PIDController pid_y_;
   PIDController pid_z_;

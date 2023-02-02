@@ -1,6 +1,6 @@
 name: simulation
 root: ./
-pre_window: export UAV_NAME=uav1; export RUN_TYPE=simulation; export UAV_TYPE=f550; export WORLD_NAME=simulation; export SENSORS="garmin_down"; export ODOMETRY_TYPE="gps"
+pre_window: export UAV_NAME=uav1; export RUN_TYPE=simulation; export UAV_TYPE=x500; export WORLD_NAME=simulation; export SENSORS="garmin_down"; export ODOMETRY_TYPE="gps"
 startup_window: simulator
 windows:
   - roscore:
@@ -14,8 +14,8 @@ windows:
   - takeoff:
       layout: tiled
       panes:
-        - export RUN_TYPE=uav; waitForControl; roslaunch mrs_uav_general automatic_start.launch
-        # - export RUN_TYPE=uav; history -s 'rosservice call /uav1/uav_manager/midair_activation'
+        # - export RUN_TYPE=uav; waitForControl; roslaunch mrs_uav_general automatic_start.launch
+        - export RUN_TYPE=uav; history -s 'rosservice call /uav1/uav_manager/midair_activation'
   - hw_api:
       layout: tiled
       panes:
@@ -32,5 +32,5 @@ windows:
       layout: tiled
       panes:
         - waitForControl; rosrun rviz rviz -d ./rviz.rviz
-        - waitForControl; export UAV_TYPE=f550; roslaunch mrs_rviz_plugins load_robot.launch
+        - waitForControl; roslaunch mrs_rviz_plugins load_robot.launch
         - waitForControl; waitForControl; roslaunch mrs_rviz_plugins rviz_interface.launch
