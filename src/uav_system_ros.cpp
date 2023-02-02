@@ -26,7 +26,16 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string uav_name) {
     _frame_world_ = uav_name + "/" + _frame_world_;
   }
 
+  param_loader.loadParam("frames/rangefinder/name", _frame_rangefinder_);
+
+  _frame_rangefinder_ = uav_name + "/" + _frame_rangefinder_;
+
+  param_loader.loadParam("frames/rangefinder/publish_tf", _publish_rangefinder_tf_);
+
   param_loader.loadParam("frames/fcu/name", _frame_fcu_);
+
+  _frame_fcu_ = uav_name + "/" + _frame_fcu_;
+
   param_loader.loadParam("g", model_params_.g);
   param_loader.loadParam("iterate_without_input", _iterate_without_input_);
   param_loader.loadParam("input_timeout", _input_timeout_);
@@ -131,14 +140,15 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string uav_name) {
 
   // | ----------------------- publishers ----------------------- |
 
-  ph_imu_  = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh, uav_name + "/imu", 1, false);
-  ph_odom_ = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh, uav_name + "/odom", 1, false);
+  ph_imu_         = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh, uav_name + "/imu", 1, false);
+  ph_odom_        = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh, uav_name + "/odom", 1, false);
+  ph_rangefinder_ = mrs_lib::PublisherHandler<sensor_msgs::Range>(nh, uav_name + "/rangefinder", 1, false);
 
   // | ----------------------- subscribers ---------------------- |
 
   mrs_lib::SubscribeHandlerOptions shopts;
   shopts.nh                 = nh;
-  shopts.node_name          = "UavSystemRos";
+  shopts.node_name          = _uav_name_;
   shopts.no_message_timeout = mrs_lib::no_timeout;
   shopts.threadsafe         = true;
   shopts.autostart          = true;
@@ -156,6 +166,10 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string uav_name) {
   sh_velocity_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityCmd>(shopts, uav_name + "/velocity_cmd", &UavSystemRos::callbackVelocityCmd, this);
 
   sh_position_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>(shopts, uav_name + "/position_cmd", &UavSystemRos::callbackPositionCmd, this);
+
+  // | --------------------- tf broadcaster --------------------- |
+
+  tf_broadcaster_ = std::make_shared<mrs_lib::TransformBroadcaster>();
 
   // | ------------------ first model iteration ----------------- |
 
@@ -191,7 +205,7 @@ void UavSystemRos::makeStep(const double dt) {
 
   if (time_last_input > ros::Time(0)) {
     if ((ros::Time::now() - time_last_input).toSec() > _input_timeout_) {
-      ROS_WARN_THROTTLE(1.0, "[MultirotorSimulator]: input timeouted");
+      ROS_WARN_THROTTLE(1.0, "[%s]: input timeouted", _uav_name_.c_str());
 
       {
         std::scoped_lock lock(mutex_uav_system_);
@@ -226,13 +240,7 @@ void UavSystemRos::makeStep(const double dt) {
   odom.header.frame_id = _frame_world_;
   odom.child_frame_id  = _frame_fcu_;
 
-  try {
-    odom.pose.pose.orientation = mrs_lib::AttitudeConverter(state.R);
-  }
-  catch (...) {
-    ROS_ERROR("[AttitudeConverter]: internal orientation is invalid");
-    ROS_INFO_STREAM("[MultirotorSimulator]: " << state.R);
-  }
+  odom.pose.pose.orientation = mrs_lib::AttitudeConverter(state.R);
 
   odom.pose.pose.position.x = state.x[0];
   odom.pose.pose.position.y = state.x[1];
@@ -268,6 +276,22 @@ void UavSystemRos::makeStep(const double dt) {
   imu.linear_acceleration.z = acc[2];
 
   ph_imu_.publish(imu);
+
+  // | ----------------- publish rangefinder tf ----------------- |
+
+  geometry_msgs::TransformStamped tf;
+
+  tf.header.stamp    = ros::Time::now();
+  tf.header.frame_id = _frame_fcu_;
+  tf.child_frame_id  = _frame_rangefinder_;
+
+  tf.transform.translation.x = 0;
+  tf.transform.translation.y = 0;
+  tf.transform.translation.z = -0.05;
+
+  tf.transform.rotation = mrs_lib::AttitudeConverter(0, 1.57, 0);
+
+  tf_broadcaster_->sendTransform(tf);
 }
 
 //}
@@ -282,7 +306,7 @@ void UavSystemRos::callbackAttitudeRateCmd([[maybe_unused]] mrs_lib::SubscribeHa
     return;
   }
 
-  ROS_INFO_ONCE("[UavSystemRos]: getting attitude rate command");
+  ROS_INFO_ONCE("[%s]: getting attitude rate command", _uav_name_.c_str());
 
   mrs_msgs::HwApiAttitudeRateCmd::ConstPtr msg = wrp.getMsg();
 
@@ -316,7 +340,7 @@ void UavSystemRos::callbackAttitudeCmd([[maybe_unused]] mrs_lib::SubscribeHandle
     return;
   }
 
-  ROS_INFO_ONCE("[UavSystemRos]: getting attitude command");
+  ROS_INFO_ONCE("[%s]: getting attitude command", _uav_name_.c_str());
 
   mrs_msgs::HwApiAttitudeCmd::ConstPtr msg = wrp.getMsg();
 
@@ -324,13 +348,7 @@ void UavSystemRos::callbackAttitudeCmd([[maybe_unused]] mrs_lib::SubscribeHandle
 
   cmd.throttle = msg->throttle;
 
-  try {
-    cmd.orientation = mrs_lib::AttitudeConverter(msg->orientation);
-  }
-  catch (...) {
-    ROS_ERROR("[AttitudeConverter]: exception caught in callbackAttitude()");
-    ROS_INFO_STREAM("[UavSystemRos]: " << msg->orientation);
-  }
+  cmd.orientation = mrs_lib::AttitudeConverter(msg->orientation);
 
   {
     std::scoped_lock lock(mutex_uav_system_);
@@ -355,7 +373,7 @@ void UavSystemRos::callbackAccelerationCmd([[maybe_unused]] mrs_lib::SubscribeHa
     return;
   }
 
-  ROS_INFO_ONCE("[UavSystemRos]: getting acceleration command");
+  ROS_INFO_ONCE("[%s]: getting acceleration command", _uav_name_.c_str());
 
   mrs_msgs::HwApiAccelerationCmd::ConstPtr msg = wrp.getMsg();
 
@@ -390,7 +408,7 @@ void UavSystemRos::callbackVelocityCmd([[maybe_unused]] mrs_lib::SubscribeHandle
     return;
   }
 
-  ROS_INFO_ONCE("[UavSystemRos]: getting velocity command");
+  ROS_INFO_ONCE("[%s]: getting velocity command", _uav_name_.c_str());
 
   mrs_msgs::HwApiVelocityCmd::ConstPtr msg = wrp.getMsg();
 
@@ -425,7 +443,7 @@ void UavSystemRos::callbackPositionCmd([[maybe_unused]] mrs_lib::SubscribeHandle
     return;
   }
 
-  ROS_INFO_ONCE("[UavSystemRos]: getting position command");
+  ROS_INFO_ONCE("[%s]: getting position command", _uav_name_.c_str());
 
   mrs_msgs::HwApiPositionCmd::ConstPtr msg = wrp.getMsg();
 
