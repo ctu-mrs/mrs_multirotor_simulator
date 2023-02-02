@@ -1,6 +1,7 @@
 #ifndef MIXER_H
 #define MIXER_H
 
+#include <mrs_multirotor_simulator/multirotor_model.h>
 #include <mrs_multirotor_simulator/controllers/references.h>
 
 namespace mrs_multirotor_simulator
@@ -9,21 +10,21 @@ namespace mrs_multirotor_simulator
 class Mixer {
 
 public:
-  struct Params
-  {
-    int             n_motors;
-    bool            desaturation;
-    Eigen::MatrixXd allocation_matrix;
+  class Params {
+  public:
+    bool desaturation = true;
   };
 
   Mixer();
+  Mixer(const ModelParams& model_params);
 
   void setParams(const Params& params);
 
   reference::Actuators getControlSignal(const reference::ControlGroup& reference);
 
 private:
-  Params params_;
+  ModelParams model_params_;
+  Params      params_;
 
   Eigen::MatrixXd allocation_matrix_inv_;
 };

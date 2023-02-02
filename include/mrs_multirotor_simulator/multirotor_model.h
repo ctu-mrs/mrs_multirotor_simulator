@@ -21,33 +21,70 @@
 namespace mrs_multirotor_simulator
 {
 
-typedef struct
-{
+class ModelParams {
+public:
+  ModelParams() {
+
+    // | -------- default parameters of the x500 quadrotor -------- |
+
+    n_motors             = 4;
+    g                    = 9.81;
+    mass                 = 2.0;
+    kf                   = 0.00000022970;
+    km                   = 0.07;
+    prop_radius          = 0.15;
+    arm_length           = 0.25;
+    body_height          = 0.1;
+    motor_time_constant  = 0.03;
+    max_rpm              = 8951;
+    min_rpm              = 895;
+    air_resistance_coeff = 0.30;
+
+    J       = Eigen::Matrix3d::Zero();
+    J(0, 0) = mass * (3.0 * arm_length * arm_length + body_height * body_height) / 12.0;
+    J(1, 1) = mass * (3.0 * arm_length * arm_length + body_height * body_height) / 12.0;
+    J(2, 2) = (mass * arm_length * arm_length) / 2.0;
+
+    allocation_matrix = Eigen::MatrixXd::Zero(4, 4);
+
+    // clang-format off
+    allocation_matrix <<
+      -0.707, 0.707, 0.707,  -0.707,
+      -0.707, 0.707, -0.707, 0.707,
+      -1,     -1,    1,      1,
+      1,      1,     1,      1;
+    // clang-format on
+
+    allocation_matrix.row(0) *= arm_length * kf;
+    allocation_matrix.row(1) *= arm_length * kf;
+    allocation_matrix.row(2) *= km * (3.0 * prop_radius) * kf;
+    allocation_matrix.row(3) *= kf;
+
+    ground_enabled        = false;
+    takeoff_patch_enabled = true;
+  }
 
   int    n_motors;
   double g;
   double mass;
   double kf;
+  double km;
   double prop_radius;
   double arm_length;
   double body_height;
   double motor_time_constant;
   double max_rpm;
   double min_rpm;
-  double propulsion_force_constant;
-  double propulsion_moment_constant;
   double air_resistance_coeff;
 
   Eigen::Matrix3d J;
   Eigen::MatrixXd allocation_matrix;
-  Eigen::MatrixXd mixing_matrix;
 
   bool   ground_enabled;
   double ground_z;
 
   bool takeoff_patch_enabled;
-
-} ModelParams_t;
+};
 
 class MultirotorModel {
 
@@ -64,7 +101,7 @@ public:
 
   MultirotorModel();
 
-  MultirotorModel(const ModelParams_t& params, const Eigen::Vector3d& initial_pos);
+  MultirotorModel(const ModelParams& params, const Eigen::Vector3d& initial_pos);
 
   const MultirotorModel::State& getState(void) const;
 
@@ -88,6 +125,9 @@ public:
 
   Eigen::Vector3d getImuAcceleration() const;
 
+  ModelParams getParams(void);
+  void        setParams(const ModelParams& params);
+
 private:
   void updateInternalState(void);
 
@@ -101,7 +141,7 @@ private:
 
   Eigen::Vector3d _initial_pos_;
 
-  ModelParams_t params_;
+  ModelParams params_;
 
   InternalState internal_state_;
 };

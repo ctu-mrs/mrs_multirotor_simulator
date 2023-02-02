@@ -14,12 +14,27 @@ namespace mrs_multirotor_simulator
 /* constructor MultirotorModel //{ */
 
 MultirotorModel::MultirotorModel(void) {
+
+  state_.x      = Eigen::Vector3d::Zero();
+  state_.v      = Eigen::Vector3d::Zero();
+  state_.v_prev = Eigen::Vector3d::Zero();
+  state_.R      = Eigen::Matrix3d::Identity();
+  state_.omega  = Eigen::Vector3d::Zero();
+
+  imu_acceleration_ = Eigen::Vector3d::Zero();
+
+  state_.motor_rpm = Eigen::VectorXd::Zero(params_.n_motors);
+  input_           = Eigen::VectorXd::Zero(params_.n_motors);
+
+  external_force_.setZero();
+  external_moment_.setZero();
+
+  updateInternalState();
 }
 
-MultirotorModel::MultirotorModel(const ModelParams_t& params, const Eigen::Vector3d& initial_pos) {
+MultirotorModel::MultirotorModel(const ModelParams& params, const Eigen::Vector3d& initial_pos) {
 
-  params_       = params;
-  _initial_pos_ = initial_pos;
+  params_ = params;
 
   state_.x      = initial_pos;
   state_.v      = Eigen::Vector3d::Zero();
@@ -29,8 +44,8 @@ MultirotorModel::MultirotorModel(const ModelParams_t& params, const Eigen::Vecto
 
   imu_acceleration_ = Eigen::Vector3d::Zero();
 
-  state_.motor_rpm = Eigen::VectorXd::Zero(params.n_motors);
-  input_           = Eigen::VectorXd::Zero(params.n_motors);
+  state_.motor_rpm = Eigen::VectorXd::Zero(params_.n_motors);
+  input_           = Eigen::VectorXd::Zero(params_.n_motors);
 
   external_force_.setZero();
   external_moment_.setZero();
@@ -96,7 +111,7 @@ void MultirotorModel::step(const double& dt) {
 
   if (params_.takeoff_patch_enabled) {
 
-    const double hover_rpm = sqrt((params_.mass * params_.g)/(params_.n_motors * params_.kf));
+    const double hover_rpm = sqrt((params_.mass * params_.g) / (params_.n_motors * params_.kf));
     if (input_.mean() <= 0.90 * hover_rpm) {
       if (state_.x(2) < _initial_pos_[2] && state_.v(2) < 0) {
         state_.x(2)  = _initial_pos_[2];
@@ -154,7 +169,7 @@ void MultirotorModel::operator()(const MultirotorModel::InternalState& x, Multir
 
   Eigen::VectorXd motor_rpm_sq = state_.motor_rpm.array().square();
 
-  Eigen::Vector4d torque_thrust = params_.mixing_matrix * motor_rpm_sq;
+  Eigen::Vector4d torque_thrust = params_.allocation_matrix * motor_rpm_sq;
   double          thrust        = torque_thrust(3);
 
   double resistance = params_.air_resistance_coeff * M_PI * (params_.arm_length) * (params_.arm_length) * cur_state.v.norm() * cur_state.v.norm();
@@ -206,6 +221,24 @@ void MultirotorModel::updateInternalState(void) {
 //}
 
 // | ------------------- setters and getters ------------------ |
+
+/* setParams() //{ */
+
+void MultirotorModel::setParams(const ModelParams& params) {
+
+  params_ = params;
+}
+
+//}
+
+/* getParams() //{ */
+
+ModelParams MultirotorModel::getParams(void) {
+
+  return params_;
+}
+
+//}
 
 /* setInput() //{ */
 

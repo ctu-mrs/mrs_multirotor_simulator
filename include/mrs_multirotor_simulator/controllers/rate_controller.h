@@ -13,22 +13,23 @@ namespace mrs_multirotor_simulator
 class RateController {
 
 public:
-  struct Params
-  {
-    double          kp;
-    double          kd;
-    double          ki;
-    Eigen::Matrix3d J;
+  class Params {
+  public:
+    double kp = 5.0;
+    double kd = 0.0;
+    double ki = 0.0;
   };
 
   RateController();
+  RateController(const ModelParams& model_params);
 
   void setParams(const Params& params);
 
   reference::ControlGroup getControlSignal(const MultirotorModel::State& state, const reference::AttitudeRate& reference, const double& dt);
 
 private:
-  Params params_;
+  ModelParams model_params_;
+  Params      params_;
 
   PIDController pid_x_;
   PIDController pid_y_;

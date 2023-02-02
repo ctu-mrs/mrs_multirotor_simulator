@@ -3,24 +3,50 @@
 namespace mrs_multirotor_simulator
 {
 
+/* UavSystem() //{ */
+
 // constructor
 UavSystem::UavSystem(void) {
+
+  ModelParams model_params = multirotor_model_.getParams();
+
+  mixer_                   = Mixer(model_params);
+  rate_controller_         = RateController(model_params);
+  attitude_controller_     = AttitudeController(model_params);
+  acceleration_controller_ = AccelerationController(model_params);
+  velocity_controller_     = VelocityController(model_params);
+  position_controller_     = PositionController(model_params);
 }
 
 // constructor
-UavSystem::UavSystem(const ModelParams_t& model_params) {
+UavSystem::UavSystem(const ModelParams& model_params) {
 
-  quadrotor_model_ = std::make_unique<MultirotorModel>(model_params, Eigen::Vector3d(0, 0, 0));
+  multirotor_model_.setParams(model_params);
 
-  initialized_ = true;
+  mixer_                   = Mixer(model_params);
+  rate_controller_         = RateController(model_params);
+  attitude_controller_     = AttitudeController(model_params);
+  acceleration_controller_ = AccelerationController(model_params);
+  velocity_controller_     = VelocityController(model_params);
+  position_controller_     = PositionController(model_params);
 }
 
-UavSystem::UavSystem(const ModelParams_t& model_params, const Eigen::Vector3d initial_position) {
+UavSystem::UavSystem(const ModelParams& model_params, const Eigen::Vector3d initial_position) {
 
-  quadrotor_model_ = std::make_unique<MultirotorModel>(model_params, initial_position);
+  multirotor_model_.setParams(model_params);
+  multirotor_model_.setStatePos(initial_position);
 
-  initialized_ = true;
+  mixer_                   = Mixer(model_params);
+  rate_controller_         = RateController(model_params);
+  attitude_controller_     = AttitudeController(model_params);
+  acceleration_controller_ = AccelerationController(model_params);
+  velocity_controller_     = VelocityController(model_params);
+  position_controller_     = PositionController(model_params);
 }
+
+//}
+
+/* setInput() //{ */
 
 void UavSystem::setInput(const reference::Actuators& cmd) {
 
@@ -71,20 +97,66 @@ void UavSystem::setInput(const reference::Position& cmd) {
   active_input_ = POSITION_CMD;
 }
 
+void UavSystem::setInput(void) {
+
+  active_input_ = INPUT_UNKNOWN;
+}
+
+//}
+
+/* makeStep() //{ */
+
 void UavSystem::makeStep(const double dt) {
 
-  quadrotor_model_->step(dt);
+  if (active_input_ >= UavSystem::POSITION_CMD) {
+    velocity_cmd_ = position_controller_.getControlSignal(multirotor_model_.getState(), position_cmd_, dt);
+  }
+
+  if (active_input_ >= UavSystem::VELOCITY_CMD) {
+    acceleration_cmd_ = velocity_controller_.getControlSignal(multirotor_model_.getState(), velocity_cmd_, dt);
+  }
+
+  if (active_input_ >= UavSystem::ACCELERATION_CMD) {
+    attitude_cmd_ = acceleration_controller_.getControlSignal(multirotor_model_.getState(), acceleration_cmd_, dt);
+  }
+
+  if (active_input_ >= UavSystem::ATTITUDE_CMD) {
+    attitude_rate_cmd_ = attitude_controller_.getControlSignal(multirotor_model_.getState(), attitude_cmd_, dt);
+  }
+
+  if (active_input_ >= UavSystem::ATTITUDE_RATE_CMD) {
+    control_group_cmd_ = rate_controller_.getControlSignal(multirotor_model_.getState(), attitude_rate_cmd_, dt);
+  }
+
+  if (active_input_ >= UavSystem::CONTROL_GROUP_CMD) {
+    actuators_cmd_ = mixer_.getControlSignal(control_group_cmd_);
+  }
+
+  // set the motor input for the model
+  multirotor_model_.setInput(actuators_cmd_);
+
+  multirotor_model_.step(dt);
 }
+
+//}
+
+/* getState() //{ */
 
 MultirotorModel::State UavSystem::getState(void) {
 
-  return quadrotor_model_->getState();
+  return multirotor_model_.getState();
 }
+
+//}
+
+/* getImuAcceleration() //{ */
 
 Eigen::Vector3d UavSystem::getImuAcceleration(void) {
 
-  return quadrotor_model_->getImuAcceleration();
+  return multirotor_model_.getImuAcceleration();
 }
+
+//}
 
 }  // namespace mrs_multirotor_simulator
 

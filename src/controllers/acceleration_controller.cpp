@@ -7,15 +7,14 @@ namespace mrs_multirotor_simulator
 AccelerationController::AccelerationController() {
 }
 
-void AccelerationController::setParams(const Params& params) {
-
-  params_ = params;
+AccelerationController::AccelerationController(const ModelParams& model_params) {
+  model_params_ = model_params;
 }
 
 reference::Attitude AccelerationController::getControlSignal(const MultirotorModel::State& state, const reference::Acceleration& reference,
                                                              [[maybe_unused]] const double dt) {
 
-  const Eigen::Vector3d fd      = (reference.acceleration + Eigen::Vector3d(0, 0, params_.g)) * params_.mass;
+  const Eigen::Vector3d fd      = (reference.acceleration + Eigen::Vector3d(0, 0, model_params_.g)) * model_params_.mass;
   const Eigen::Vector3d fd_norm = fd.normalized();
 
   const Eigen::Vector3d bxd(cos(reference.heading), sin(reference.heading), 0.0);
@@ -61,7 +60,8 @@ reference::Attitude AccelerationController::getControlSignal(const MultirotorMod
 
   double thrust_force = fd.dot(state.R.col(2));
 
-  output.throttle = (sqrt(thrust_force / (params_.kf * params_.n_motors)) - params_.min_rpm) / (params_.max_rpm - params_.min_rpm);
+  output.throttle =
+      (sqrt(thrust_force / (model_params_.kf * model_params_.n_motors)) - model_params_.min_rpm) / (model_params_.max_rpm - model_params_.min_rpm);
 
   return output;
 }

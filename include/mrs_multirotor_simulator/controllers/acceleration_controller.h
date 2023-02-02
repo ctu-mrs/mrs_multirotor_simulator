@@ -10,24 +10,13 @@ namespace mrs_multirotor_simulator
 class AccelerationController {
 
 public:
-  struct Params
-  {
-    double g;
-    double mass;
-    double kf;
-    double max_rpm;
-    double min_rpm;
-    double n_motors;
-  };
-
   AccelerationController();
-
-  void setParams(const Params& params);
+  AccelerationController(const ModelParams& model_params);
 
   reference::Attitude getControlSignal(const MultirotorModel::State& state, const reference::Acceleration& reference, const double dt);
 
 private:
-  Params params_;
+  ModelParams model_params_;
 };
 
 }  // namespace mrs_multirotor_simulator

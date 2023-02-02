@@ -7,6 +7,10 @@ namespace mrs_multirotor_simulator
 AttitudeController::AttitudeController() {
 }
 
+AttitudeController::AttitudeController(const ModelParams& model_params) {
+  model_params_ = model_params;
+}
+
 void AttitudeController::setParams(const Params& params) {
 
   params_ = params;
@@ -15,9 +19,9 @@ void AttitudeController::setParams(const Params& params) {
   pid_y_.reset();
   pid_z_.reset();
 
-  pid_x_.setParams(params.kp * params.mass, params.kd * params.mass, params.ki * params.mass, params.max_rate_roll_pitch);
-  pid_y_.setParams(params.kp * params.mass, params.kd * params.mass, params.ki * params.mass, params.max_rate_roll_pitch);
-  pid_z_.setParams(params.kp * params.mass, params.kd * params.mass, params.ki * params.mass, params.max_rate_yaw);
+  pid_x_.setParams(params.kp * model_params_.mass, params.kd * model_params_.mass, params.ki * model_params_.mass, params.max_rate_roll_pitch);
+  pid_y_.setParams(params.kp * model_params_.mass, params.kd * model_params_.mass, params.ki * model_params_.mass, params.max_rate_roll_pitch);
+  pid_z_.setParams(params.kp * model_params_.mass, params.kd * model_params_.mass, params.ki * model_params_.mass, params.max_rate_yaw);
 }
 
 reference::AttitudeRate AttitudeController::getControlSignal(const MultirotorModel::State& state, const reference::Attitude& reference, const double& dt) {

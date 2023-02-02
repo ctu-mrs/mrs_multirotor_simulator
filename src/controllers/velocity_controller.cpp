@@ -7,6 +7,10 @@ namespace mrs_multirotor_simulator
 VelocityController::VelocityController() {
 }
 
+VelocityController::VelocityController(const ModelParams& model_params) {
+  model_params_ = model_params;
+}
+
 void VelocityController::setParams(const Params& params) {
 
   params_ = params;

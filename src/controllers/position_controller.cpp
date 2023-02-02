@@ -7,6 +7,10 @@ namespace mrs_multirotor_simulator
 PositionController::PositionController() {
 }
 
+PositionController::PositionController(const ModelParams& model_params) {
+  model_params_ = model_params;
+}
+
 void PositionController::setParams(const Params& params) {
 
   params_ = params;

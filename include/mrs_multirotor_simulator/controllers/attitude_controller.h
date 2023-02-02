@@ -11,24 +11,25 @@ namespace mrs_multirotor_simulator
 class AttitudeController {
 
 public:
-  struct Params
-  {
-    double kp;
-    double kd;
-    double ki;
-    double mass;
-    double max_rate_roll_pitch;
-    double max_rate_yaw;
+  class Params {
+  public:
+    double kp                  = 4.0;
+    double kd                  = 0.05;
+    double ki                  = 0.01;
+    double max_rate_roll_pitch = 10.0;  // rad/s
+    double max_rate_yaw        = 1.0;   // rad/s
   };
 
   AttitudeController();
+  AttitudeController(const ModelParams& model_params);
 
   void setParams(const Params& params);
 
   reference::AttitudeRate getControlSignal(const MultirotorModel::State& state, const reference::Attitude& reference, const double& dt);
 
 private:
-  Params params_;
+  Params      params_;
+  ModelParams model_params_;
 
   PIDController pid_x_;
   PIDController pid_y_;

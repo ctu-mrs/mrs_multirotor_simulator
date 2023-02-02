@@ -13,20 +13,22 @@ class VelocityController {
 public:
   struct Params
   {
-    double kp;
-    double kd;
-    double ki;
-    double max_acceleration;
+    double kp               = 1.0;
+    double kd               = 0.025;
+    double ki               = 0.01;
+    double max_acceleration = 2.0;  // m/s^2;
   };
 
   VelocityController();
+  VelocityController(const ModelParams& model_params);
 
   void setParams(const Params& params);
 
   reference::Acceleration getControlSignal(const MultirotorModel::State& state, const reference::Velocity& reference, const double& dt);
 
 private:
-  Params params_;
+  ModelParams model_params_;
+  Params      params_;
 
   PIDController pid_x_;
   PIDController pid_y_;

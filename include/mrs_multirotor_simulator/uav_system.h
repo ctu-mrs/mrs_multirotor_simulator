@@ -28,9 +28,9 @@ public:
     POSITION_CMD      = 7,
   };
 
-  UavSystem();
-  UavSystem(const ModelParams_t& model_params);
-  UavSystem(const ModelParams_t& model_params, const Eigen::Vector3d initial_position);
+  UavSystem(void);
+  UavSystem(const ModelParams& model_params);
+  UavSystem(const ModelParams& model_params, const Eigen::Vector3d initial_position);
 
   void makeStep(const double dt);
 
@@ -41,6 +41,7 @@ public:
   void setInput(const reference::Acceleration& acceleration);
   void setInput(const reference::Velocity& velocity);
   void setInput(const reference::Position& position);
+  void setInput(void);
 
   MultirotorModel::State getState(void);
 
@@ -53,7 +54,7 @@ private:
 
   // | --------------------- dynamics model --------------------- |
 
-  std::unique_ptr<MultirotorModel> quadrotor_model_;
+  MultirotorModel multirotor_model_;
 
   // | ----------------------- controllers ---------------------- |
 
