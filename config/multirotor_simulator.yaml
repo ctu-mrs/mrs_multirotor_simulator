@@ -7,6 +7,13 @@ iterate_without_input: false
 
 input_timeout: 0.25 # [s]
 
+frames:
+  world:
+    name: "simulator_origin"
+    prefix_uav_name: false
+  fcu:
+    name: "fcu"
+
 ground:
   enabled: true
   z: 0.0 # [m]

@@ -34,7 +34,7 @@ public:
 
 private:
   std::atomic<bool> is_initialized_ = false;
-  std::string       _name_;
+  std::string       _uav_name_;
 
   // | ------------------------ UavSystem ----------------------- |
 
@@ -48,6 +48,9 @@ private:
 
   bool   _iterate_without_input_;
   double _input_timeout_;
+
+  std::string _frame_world_;
+  std::string _frame_fcu_;
 
   // | ----------------------- publishers ----------------------- |
 

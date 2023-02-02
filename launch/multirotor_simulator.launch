@@ -20,39 +20,35 @@
     <param name="/use_sim_time" value="true" />
   </group>
 
-  <group ns="$(arg uav_name)">
+  <node pkg="nodelet" type="nodelet" name="multirotor_simulator" args="$(arg nodelet) mrs_multirotor_simulator/MultirotorSimulator $(arg nodelet_manager)" output="screen" launch-prefix="$(arg launch_prefix)">
 
-    <node pkg="nodelet" type="nodelet" name="multirotor_simulator" args="$(arg nodelet) mrs_multirotor_simulator/MultirotorSimulator $(arg nodelet_manager)" output="screen" launch-prefix="$(arg launch_prefix)">
+    <rosparam file="$(find mrs_multirotor_simulator)/config/multirotor_simulator.yaml" />
+    <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/f550.yaml" />
+    <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/x500.yaml" />
+    <rosparam file="$(find mrs_multirotor_simulator)/config/uavs.yaml" />
 
-      <rosparam file="$(find mrs_multirotor_simulator)/config/multirotor_simulator.yaml" />
-      <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/f550.yaml" />
-      <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/x500.yaml" />
-      <rosparam file="$(find mrs_multirotor_simulator)/config/uavs.yaml" />
+    <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/mixer.yaml" />
+    <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/rate_controller.yaml" />
+    <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/attitude_controller.yaml" />
+    <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/velocity_controller.yaml" />
+    <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/position_controller.yaml" />
 
-      <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/mixer.yaml" />
-      <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/rate_controller.yaml" />
-      <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/attitude_controller.yaml" />
-      <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/velocity_controller.yaml" />
-      <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/position_controller.yaml" />
+    <remap from="~diagnostics_out" to="~diagnostics" />
+    <remap from="~imu_out" to="~imu" />
+    <remap from="~odom_out" to="~odom" />
+    <remap from="~clock_out" to="/clock" />
 
-      <remap from="~diagnostics_out" to="~diagnostics" />
-      <remap from="~imu_out" to="~imu" />
-      <remap from="~odom_out" to="~odom" />
-      <remap from="~clock_out" to="/clock" />
+    <remap from="~actuator_cmd_in" to="~actuator_cmd" />
+    <remap from="~control_group_cmd_in" to="~control_group_cmd" />
+    <remap from="~attitude_rate_cmd_in" to="~attitude_rate_cmd" />
+    <remap from="~attitude_cmd_in" to="~attitude_cmd" />
+    <remap from="~acceleration_cmd_in" to="~acceleration_cmd" />
+    <remap from="~velocity_cmd_in" to="~velocity_cmd" />
+    <remap from="~position_cmd_in" to="~position_cmd" />
 
-      <remap from="~actuator_cmd_in" to="~actuator_cmd" />
-      <remap from="~control_group_cmd_in" to="~control_group_cmd" />
-      <remap from="~attitude_rate_cmd_in" to="~attitude_rate_cmd" />
-      <remap from="~attitude_cmd_in" to="~attitude_cmd" />
-      <remap from="~acceleration_cmd_in" to="~acceleration_cmd" />
-      <remap from="~velocity_cmd_in" to="~velocity_cmd" />
-      <remap from="~position_cmd_in" to="~position_cmd" />
+    <remap from="~arm_in" to="~arm" />
+    <remap from="~offboard_in" to="~offboard" />
 
-      <remap from="~arm_in" to="~arm" />
-      <remap from="~offboard_in" to="~offboard" />
-
-    </node>
-
-  </group>
+  </node>
 
 </launch>

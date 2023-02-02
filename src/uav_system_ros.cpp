@@ -1,24 +1,32 @@
 #include <uav_system_ros.h>
 
-
 namespace mrs_multirotor_simulator
 {
 
 /* UavSystemRos //{ */
 
-UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string name) {
+UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string uav_name) {
 
   time_last_input_ = ros::Time(0);
 
-  _name_ = name;
+  _uav_name_ = uav_name;
 
   mrs_lib::ParamLoader param_loader(nh, "UavSystemRos");
 
   std::string type;
-  param_loader.loadParam(name + "/type", type);
+  param_loader.loadParam(uav_name + "/type", type);
 
   // | --------------------- general params --------------------- |
 
+  param_loader.loadParam("frames/world/name", _frame_world_);
+  bool prefix_world_name;
+  param_loader.loadParam("frames/world/prefix_world_name", prefix_world_name);
+
+  if (prefix_world_name) {
+    _frame_world_ = uav_name + "/" + _frame_world_;
+  }
+
+  param_loader.loadParam("frames/fcu/name", _frame_fcu_);
   param_loader.loadParam("g", model_params_.g);
   param_loader.loadParam("iterate_without_input", _iterate_without_input_);
   param_loader.loadParam("input_timeout", _input_timeout_);
@@ -47,10 +55,10 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string name) {
   double spawn_z;
   double spawn_heading;
 
-  param_loader.loadParam(name + "/spawn/x", spawn_x);
-  param_loader.loadParam(name + "/spawn/y", spawn_y);
-  param_loader.loadParam(name + "/spawn/z", spawn_z);
-  param_loader.loadParam(name + "/spawn/heading", spawn_heading);
+  param_loader.loadParam(uav_name + "/spawn/x", spawn_x);
+  param_loader.loadParam(uav_name + "/spawn/y", spawn_y);
+  param_loader.loadParam(uav_name + "/spawn/z", spawn_z);
+  param_loader.loadParam(uav_name + "/spawn/heading", spawn_heading);
 
   // create the inertia matrix
   model_params_.J = Eigen::Matrix3d::Zero();
@@ -123,8 +131,8 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string name) {
 
   // | ----------------------- publishers ----------------------- |
 
-  ph_imu_  = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh, name + "/imu", 1, false);
-  ph_odom_ = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh, name + "/odom", 1, false);
+  ph_imu_  = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh, uav_name + "/imu", 1, false);
+  ph_odom_ = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh, uav_name + "/odom", 1, false);
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -138,16 +146,16 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string name) {
   shopts.transport_hints    = ros::TransportHints().tcpNoDelay();
 
   sh_attitude_rate_cmd_ =
-      mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>(shopts, name + "/attitude_rate_cmd", &UavSystemRos::callbackAttitudeRateCmd, this);
+      mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>(shopts, uav_name + "/attitude_rate_cmd", &UavSystemRos::callbackAttitudeRateCmd, this);
 
-  sh_attitude_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>(shopts, name + "/attitude_cmd", &UavSystemRos::callbackAttitudeCmd, this);
+  sh_attitude_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>(shopts, uav_name + "/attitude_cmd", &UavSystemRos::callbackAttitudeCmd, this);
 
   sh_acceleration_cmd_ =
-      mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd>(shopts, name + "/acceleration_cmd", &UavSystemRos::callbackAccelerationCmd, this);
+      mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd>(shopts, uav_name + "/acceleration_cmd", &UavSystemRos::callbackAccelerationCmd, this);
 
-  sh_velocity_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityCmd>(shopts, name + "/velocity_cmd", &UavSystemRos::callbackVelocityCmd, this);
+  sh_velocity_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityCmd>(shopts, uav_name + "/velocity_cmd", &UavSystemRos::callbackVelocityCmd, this);
 
-  sh_position_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>(shopts, name + "/position_cmd", &UavSystemRos::callbackPositionCmd, this);
+  sh_position_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>(shopts, uav_name + "/position_cmd", &UavSystemRos::callbackPositionCmd, this);
 
   // | ------------------ first model iteration ----------------- |
 
@@ -168,7 +176,7 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string name) {
 
   is_initialized_ = true;
 
-  ROS_INFO("[%s]: initialized", _name_.c_str());
+  ROS_INFO("[%s]: initialized", _uav_name_.c_str());
 }
 
 //}
@@ -215,8 +223,8 @@ void UavSystemRos::makeStep(const double dt) {
   nav_msgs::Odometry odom;
 
   odom.header.stamp    = ros::Time::now();
-  odom.header.frame_id = "sim_world";
-  odom.child_frame_id  = "body";
+  odom.header.frame_id = _frame_world_;
+  odom.child_frame_id  = _frame_fcu_;
 
   try {
     odom.pose.pose.orientation = mrs_lib::AttitudeConverter(state.R);
@@ -247,7 +255,7 @@ void UavSystemRos::makeStep(const double dt) {
   sensor_msgs::Imu imu;
 
   imu.header.stamp    = ros::Time::now();
-  imu.header.frame_id = "body";
+  imu.header.frame_id = _frame_fcu_;
 
   imu.angular_velocity.x = state.omega[0];
   imu.angular_velocity.y = state.omega[1];
