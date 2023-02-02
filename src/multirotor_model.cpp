@@ -20,13 +20,14 @@ MultirotorModel::MultirotorModel(void) {
   updateInternalState();
 }
 
-MultirotorModel::MultirotorModel(const ModelParams& params, const Eigen::Vector3d& initial_pos) {
+MultirotorModel::MultirotorModel(const ModelParams& params, const Eigen::Vector4d& spawn) {
 
   params_ = params;
 
   initializeState();
 
-  state_.x = initial_pos;
+  state_.x = spawn.block(0, 0, 3, 1);
+  state_.R = mrs_lib::AttitudeConverter(0, 0, spawn(3));
 
   updateInternalState();
 }
@@ -293,9 +294,10 @@ void MultirotorModel::setState(const MultirotorModel::State& state) {
 
 /* setStatePos() //{ */
 
-void MultirotorModel::setStatePos(const Eigen::Vector3d& Pos) {
+void MultirotorModel::setStatePos(const Eigen::Vector4d& pos) {
 
-  state_.x = Pos;
+  state_.x = pos.block(0, 0, 3, 1);
+  state_.R = mrs_lib::AttitudeConverter(0, 0, pos(3));
 
   updateInternalState();
 }

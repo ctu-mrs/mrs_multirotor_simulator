@@ -30,7 +30,7 @@ public:
 
   UavSystem(void);
   UavSystem(const ModelParams& model_params);
-  UavSystem(const ModelParams& model_params, const Eigen::Vector3d initial_position);
+  UavSystem(const ModelParams& model_params, const Eigen::Vector4d spawn);
 
   void makeStep(const double dt);
 

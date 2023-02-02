@@ -18,6 +18,8 @@
 
 #include <mrs_multirotor_simulator/controllers/references.h>
 
+#include <mrs_lib/attitude_converter.h>
+
 namespace mrs_multirotor_simulator
 {
 
@@ -102,13 +104,13 @@ public:
 
   MultirotorModel();
 
-  MultirotorModel(const ModelParams& params, const Eigen::Vector3d& initial_pos);
+  MultirotorModel(const ModelParams& params, const Eigen::Vector4d& spawn);
 
   const MultirotorModel::State& getState(void) const;
 
   void setState(const MultirotorModel::State& state);
 
-  void setStatePos(const Eigen::Vector3d& Pos);
+  void setStatePos(const Eigen::Vector4d& pos);
 
   const Eigen::Vector3d& getExternalForce(void) const;
   void                   setExternalForce(const Eigen::Vector3d& force);

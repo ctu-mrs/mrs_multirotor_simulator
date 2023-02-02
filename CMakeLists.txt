@@ -30,6 +30,7 @@ set(LIBRARIES
   MrsMultirotorSimModel
   MrsMultirotorSimSystem
   MrsMultirotorSimulator
+  MrsMultirotorSimSystemRos
   )
 
 catkin_package(
@@ -75,6 +76,23 @@ add_library(MrsMultirotorSimSystem
 
 target_link_libraries(MrsMultirotorSimSystem
   MrsMultirotorSimModel
+  ${catkin_LIBRARIES}
+  ${Eigen_LIBRARIES}
+  )
+
+# ROS Wrapper for the UavSystem
+
+add_library(MrsMultirotorSimSystemRos
+  src/uav_system_ros.cpp
+  )
+
+add_dependencies(MrsMultirotorSimSystemRos
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
+  )
+
+target_link_libraries(MrsMultirotorSimSystemRos
+  MrsMultirotorSimSystem
   ${catkin_LIBRARIES}
   ${Eigen_LIBRARIES}
   )
