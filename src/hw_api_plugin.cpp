@@ -80,6 +80,8 @@ private:
 
   // | ----------------------- parameters ----------------------- |
 
+  std::string _simulator_prefix_;
+
   std::string _topic_simulator_odom_;
   std::string _topic_simulator_imu_;
   std::string _topic_simulator_diag_;
@@ -156,6 +158,7 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
   param_loader.loadParam("input_mode/velocity", _input_mode_velocity_);
   param_loader.loadParam("input_mode/position", _input_mode_position_);
 
+  param_loader.loadParam("topics/prefix", _simulator_prefix_);
   param_loader.loadParam("topics/simulator/odom", _topic_simulator_odom_);
   param_loader.loadParam("topics/simulator/imu", _topic_simulator_imu_);
   param_loader.loadParam("topics/simulator/diagnostics", _topic_simulator_diag_);
@@ -181,17 +184,24 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
   shopts.queue_size         = 10;
   shopts.transport_hints    = ros::TransportHints().tcpNoDelay();
 
-  sh_odom_ = mrs_lib::SubscribeHandler<nav_msgs::Odometry>(shopts, topic_prefix + "/" + _topic_simulator_odom_, &Api::callbackOdom, this);
+  sh_odom_ = mrs_lib::SubscribeHandler<nav_msgs::Odometry>(shopts, topic_prefix + "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_odom_,
+                                                           &Api::callbackOdom, this);
 
-  sh_imu_ = mrs_lib::SubscribeHandler<sensor_msgs::Imu>(shopts, topic_prefix + "/" + _topic_simulator_imu_, &Api::callbackImu, this);
+  sh_imu_ = mrs_lib::SubscribeHandler<sensor_msgs::Imu>(shopts, topic_prefix + "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_imu_,
+                                                        &Api::callbackImu, this);
 
   // | ----------------------- publishers ----------------------- |
 
-  ph_attitude_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd>(nh_, topic_prefix + "/" + _topic_simulator_attitude_rate_cmd_, 1);
-  ph_attitude_cmd_      = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>(nh_, topic_prefix + "/" + _topic_simulator_attitude_cmd_, 1);
-  ph_acceleration_cmd_  = mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationCmd>(nh_, topic_prefix + "/" + _topic_simulator_acceleration_cmd_, 1);
-  ph_velocity_cmd_      = mrs_lib::PublisherHandler<mrs_msgs::HwApiVelocityCmd>(nh_, topic_prefix + "/" + _topic_simulator_velocity_cmd_, 1);
-  ph_position_cmd_      = mrs_lib::PublisherHandler<mrs_msgs::HwApiPositionCmd>(nh_, topic_prefix + "/" + _topic_simulator_position_cmd_, 1);
+  ph_attitude_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd>(
+      nh_, topic_prefix + "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_attitude_rate_cmd_, 1);
+  ph_attitude_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>(
+      nh_, topic_prefix + "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_attitude_cmd_, 1);
+  ph_acceleration_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationCmd>(
+      nh_, topic_prefix + "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_acceleration_cmd_, 1);
+  ph_velocity_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiVelocityCmd>(
+      nh_, topic_prefix + "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_velocity_cmd_, 1);
+  ph_position_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiPositionCmd>(
+      nh_, topic_prefix + "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_position_cmd_, 1);
 
   // | ------------------------- timers ------------------------- |
 

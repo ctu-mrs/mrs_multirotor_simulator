@@ -10,12 +10,13 @@ input_mode:
   position: true
 
 topics:
+  prefix: "multirotor_simulator"
   simulator:
-    imu: "multirotor_simulator/imu"
-    odom: "multirotor_simulator/odom"
-    diagnostics: "multirotor_simulator/diagnostics"
-    attitude_rate_cmd: "multirotor_simulator/attitude_rate_cmd"
-    attitude_cmd: "multirotor_simulator/attitude_cmd"
-    acceleration_cmd: "multirotor_simulator/acceleration_cmd"
-    velocity_cmd: "multirotor_simulator/velocity_cmd"
-    position_cmd: "multirotor_simulator/position_cmd"
+    imu: "imu"
+    odom: "odom"
+    diagnostics: "diagnostics"
+    attitude_rate_cmd: "attitude_rate_cmd"
+    attitude_cmd: "attitude_cmd"
+    acceleration_cmd: "acceleration_cmd"
+    velocity_cmd: "velocity_cmd"
+    position_cmd: "position_cmd"
