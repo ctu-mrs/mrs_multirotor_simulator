@@ -28,7 +28,7 @@ MultirotorModel::MultirotorModel(const ModelParams& params, const Eigen::Vector3
   _initial_pos_ = spawn_pos;
 
   state_.x = spawn_pos;
-  state_.R = mrs_lib::AttitudeConverter(0, 0, spawn_heading);
+  state_.R = Eigen::AngleAxis(-spawn_heading, Eigen::Vector3d(0, 0, 1));
 
   updateInternalState();
 }
@@ -300,7 +300,7 @@ void MultirotorModel::setStatePos(const Eigen::Vector3d& pos, const double headi
 
   _initial_pos_ = pos;
   state_.x      = pos;
-  state_.R      = mrs_lib::AttitudeConverter(0, 0, heading);
+  state_.R      = Eigen::AngleAxis(-heading, Eigen::Vector3d(0, 0, 1));
 
   updateInternalState();
 }

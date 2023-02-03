@@ -9,17 +9,14 @@
 
 #define N_INTERNAL_STATES 18
 
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+/* #include <Eigen/Core> */
+/* #include <Eigen/Geometry> */
 #include <boost/array.hpp>
-#include <iostream>
-#include <boost/bind.hpp>
+/* #include <iostream> */
+/* #include <boost/bind.hpp> */
 
 #include "ode/boost/numeric/odeint.hpp"
-
 #include "controllers/references.h"
-
-#include <mrs_lib/attitude_converter.h>
 
 namespace odeint = boost::numeric::odeint;
 

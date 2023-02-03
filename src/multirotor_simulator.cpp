@@ -14,6 +14,8 @@
 #include <dynamic_reconfigure/server.h>
 #include <mrs_multirotor_simulator/multirotor_simulatorConfig.h>
 
+#include <nanoflann.hpp>
+
 //}
 
 namespace mrs_multirotor_simulator

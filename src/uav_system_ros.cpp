@@ -249,6 +249,8 @@ void UavSystemRos::makeStep(const double dt) {
 
 //}
 
+// | ----------------------- publishers ----------------------- |
+
 /* publishOdometry() //{ */
 
 void UavSystemRos::publishOdometry(const MultirotorModel::State& state) {

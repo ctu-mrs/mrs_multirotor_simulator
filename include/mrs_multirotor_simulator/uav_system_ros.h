@@ -10,6 +10,7 @@
 #include <mrs_lib/publisher_handler.h>
 #include <mrs_lib/subscribe_handler.h>
 #include <mrs_lib/mutex.h>
+#include <mrs_lib/attitude_converter.h>
 
 #include <mrs_multirotor_simulator/uav_system/uav_system.h>
 
@@ -22,7 +23,6 @@
 #include <mrs_msgs/HwApiAccelerationCmd.h>
 #include <mrs_msgs/HwApiVelocityCmd.h>
 #include <mrs_msgs/HwApiPositionCmd.h>
-
 
 namespace mrs_multirotor_simulator
 {
