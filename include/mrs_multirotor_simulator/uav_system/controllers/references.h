@@ -1,7 +1,6 @@
 #ifndef REFERENCES_H
 #define REFERENCES_H
 
-#include <eigen3/Eigen/Eigen>
 #include <iostream>
 
 namespace mrs_multirotor_simulator

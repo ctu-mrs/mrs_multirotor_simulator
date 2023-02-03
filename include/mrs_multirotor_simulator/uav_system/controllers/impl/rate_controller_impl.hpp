@@ -1,4 +1,5 @@
-#include <mrs_multirotor_simulator/controllers/rate_controller.h>
+#ifndef RATE_CONTROLLER_IMPL_H
+#define RATE_CONTROLLER_IMPL_H
 
 namespace mrs_multirotor_simulator
 {
@@ -48,3 +49,5 @@ reference::ControlGroup RateController::getControlSignal(const MultirotorModel::
 }
 
 }  // namespace mrs_multirotor_simulator
+
+#endif // RATE_CONTROLLER_IMPL_H

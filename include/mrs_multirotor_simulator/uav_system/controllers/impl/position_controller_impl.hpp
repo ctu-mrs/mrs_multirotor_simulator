@@ -1,4 +1,5 @@
-#include <mrs_multirotor_simulator/controllers/position_controller.h>
+#ifndef POSITION_CONTROLLER_IMPL_H
+#define POSITION_CONTROLLER_IMPL_H
 
 namespace mrs_multirotor_simulator
 {
@@ -50,3 +51,5 @@ reference::Velocity PositionController::getControlSignal(const MultirotorModel::
 }
 
 }  // namespace mrs_multirotor_simulator
+
+#endif // POSITION_CONTROLLER_IMPL_H

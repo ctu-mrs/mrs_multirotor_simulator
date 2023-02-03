@@ -1,4 +1,5 @@
-#include <mrs_multirotor_simulator/controllers/velocity_controller.h>
+#ifndef VELOCITY_CONTROLLER_IMPL_H
+#define VELOCITY_CONTROLLER_IMPL_H
 
 namespace mrs_multirotor_simulator
 {
@@ -48,3 +49,5 @@ reference::Acceleration VelocityController::getControlSignal(const MultirotorMod
 }
 
 }  // namespace mrs_multirotor_simulator
+
+#endif // VELOCITY_CONTROLLER_IMPL_H

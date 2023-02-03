@@ -4,8 +4,8 @@
  * Acknowledgement:
  * * https://github.com/HKUST-Aerial-Robotics/Fast-Planner
  */
-#ifndef MULTIROTOR_DYNAMICS_H
-#define MULTIROTOR_DYNAMICS_H
+#ifndef MULTIROTOR_MODEL_H
+#define MULTIROTOR_MODEL_H
 
 #define N_INTERNAL_STATES 18
 
@@ -14,11 +14,14 @@
 #include <boost/array.hpp>
 #include <iostream>
 #include <boost/bind.hpp>
-#include <ode/boost/numeric/odeint.hpp>
 
-#include <mrs_multirotor_simulator/controllers/references.h>
+#include "ode/boost/numeric/odeint.hpp"
+
+#include "controllers/references.h"
 
 #include <mrs_lib/attitude_converter.h>
+
+namespace odeint = boost::numeric::odeint;
 
 namespace mrs_multirotor_simulator
 {
@@ -152,5 +155,7 @@ private:
 };
 
 }  // namespace mrs_multirotor_simulator
+
+#include "impl/multirotor_model_impl.hpp"
 
 #endif

@@ -1,4 +1,5 @@
-#include <mrs_multirotor_simulator/controllers/attitude_controller.h>
+#ifndef ATTITUDE_CONTROLLER_IMPL_H
+#define ATTITUDE_CONTROLLER_IMPL_H
 
 namespace mrs_multirotor_simulator
 {
@@ -55,3 +56,5 @@ reference::AttitudeRate AttitudeController::getControlSignal(const MultirotorMod
 }
 
 }  // namespace mrs_multirotor_simulator
+
+#endif // ATTITUDE_CONTROLLER_IMPL_H

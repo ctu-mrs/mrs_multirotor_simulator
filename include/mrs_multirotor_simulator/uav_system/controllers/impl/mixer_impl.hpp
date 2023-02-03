@@ -1,4 +1,5 @@
-#include <mrs_multirotor_simulator/controllers/mixer.h>
+#ifndef MIXER_IMPL_H
+#define MIXER_IMPL_H
 
 namespace mrs_multirotor_simulator
 {
@@ -115,3 +116,5 @@ Eigen::MatrixXd Mixer::getAllocationMatrix(void) {
 //}
 
 }  // namespace mrs_multirotor_simulator
+
+#endif // MIXER_IMPL_H

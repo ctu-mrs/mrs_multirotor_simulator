@@ -1,14 +1,14 @@
 #ifndef UAV_SYSTEM_H
 #define UAV_SYSTEM_H
 
-#include <mrs_multirotor_simulator/multirotor_model.h>
+#include "multirotor_model.h"
 
-#include <mrs_multirotor_simulator/controllers/mixer.h>
-#include <mrs_multirotor_simulator/controllers/rate_controller.h>
-#include <mrs_multirotor_simulator/controllers/attitude_controller.h>
-#include <mrs_multirotor_simulator/controllers/acceleration_controller.h>
-#include <mrs_multirotor_simulator/controllers/velocity_controller.h>
-#include <mrs_multirotor_simulator/controllers/position_controller.h>
+#include "controllers/mixer.h"
+#include "controllers/rate_controller.h"
+#include "controllers/attitude_controller.h"
+#include "controllers/acceleration_controller.h"
+#include "controllers/velocity_controller.h"
+#include "controllers/position_controller.h"
 
 namespace mrs_multirotor_simulator
 {
@@ -87,5 +87,7 @@ private:
 };
 
 }  // namespace mrs_multirotor_simulator
+
+#include "impl/uav_system_impl.hpp"
 
 #endif  // UAV_SYSTEM_H

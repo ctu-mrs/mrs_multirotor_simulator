@@ -1,4 +1,5 @@
-#include <mrs_multirotor_simulator/controllers/acceleration_controller.h>
+#ifndef ACCELERATION_CONTROLLER_IMPL_H
+#define ACCELERATION_CONTROLLER_IMPL_H
 
 namespace mrs_multirotor_simulator
 {
@@ -67,3 +68,5 @@ reference::Attitude AccelerationController::getControlSignal(const MultirotorMod
 }
 
 }  // namespace mrs_multirotor_simulator
+
+#endif // ACCELERATION_CONTROLLER_IMPL_H

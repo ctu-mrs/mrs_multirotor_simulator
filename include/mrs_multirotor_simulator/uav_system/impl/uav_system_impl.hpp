@@ -1,4 +1,5 @@
-#include <mrs_multirotor_simulator/uav_system.h>
+#ifndef UAV_SYSTEM_IMPL_H
+#define UAV_SYSTEM_IMPL_H
 
 namespace mrs_multirotor_simulator
 {
@@ -198,3 +199,5 @@ void UavSystem::setPositionControllerParams(const PositionController::Params& pa
 
 
 }  // namespace mrs_multirotor_simulator
+
+#endif // UAV_SYSTEM_IMPL_H

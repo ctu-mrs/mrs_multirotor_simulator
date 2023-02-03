@@ -11,7 +11,7 @@
 #include <mrs_lib/subscribe_handler.h>
 #include <mrs_lib/mutex.h>
 
-#include <mrs_multirotor_simulator/uav_system.h>
+#include <mrs_multirotor_simulator/uav_system/uav_system.h>
 
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/Range.h>

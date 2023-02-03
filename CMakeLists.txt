@@ -27,57 +27,23 @@ generate_dynamic_reconfigure_options(
   )
 
 set(LIBRARIES
-  MrsMultirotorSimModel
-  MrsMultirotorSimSystem
   MrsMultirotorSimulator
   MrsMultirotorSimSystemRos
   )
 
 catkin_package(
   LIBRARIES ${LIBRARIES}
-  INCLUDE_DIRS include include/mrs_multirotor_simulator include/mrs_multirotor_simulator/controllers
+  INCLUDE_DIRS include include/mrs_multirotor_simulator include/mrs_multirotor_simulator/uav_system include/mrs_multirotor_simulator/uav_system/controllers
   CATKIN_DEPENDS std_msgs mrs_msgs mrs_lib roscpp std_srvs mrs_uav_hw_api nav_msgs dynamic_reconfigure rosgraph_msgs
   )
 
 include_directories(
   include
   include/mrs_multirotor_simulator
-  include/mrs_multirotor_simulator/controllers
+  include/mrs_multirotor_simulator/uav_system
+  include/mrs_multirotor_simulator/uav_system/controllers
   ${catkin_INCLUDE_DIRS}
   ${dynamic_reconfigure_PACKAGE_PATH}/cmake/cfgbuild.cmake
-  )
-
-# MultirotorModel
-# - library with the multirotor dynamics model
-
-add_library(MrsMultirotorSimModel
-  src/multirotor_model.cpp
-  )
-
-target_link_libraries(MrsMultirotorSimModel
-  ${catkin_LIBRARIES}
-  ${Eigen_LIBRARIES}
-  )
-
-# MrsMultirotorSimSystem
-# - library of the Multirotor Dynamics system with the controllers
-
-add_library(MrsMultirotorSimSystem
-  src/uav_system.cpp
-
-  # controllers
-  src/controllers/mixer.cpp
-  src/controllers/rate_controller.cpp
-  src/controllers/attitude_controller.cpp
-  src/controllers/acceleration_controller.cpp
-  src/controllers/velocity_controller.cpp
-  src/controllers/position_controller.cpp
-  )
-
-target_link_libraries(MrsMultirotorSimSystem
-  MrsMultirotorSimModel
-  ${catkin_LIBRARIES}
-  ${Eigen_LIBRARIES}
   )
 
 # ROS Wrapper for the UavSystem
@@ -92,7 +58,6 @@ add_dependencies(MrsMultirotorSimSystemRos
   )
 
 target_link_libraries(MrsMultirotorSimSystemRos
-  MrsMultirotorSimSystem
   ${catkin_LIBRARIES}
   ${Eigen_LIBRARIES}
   )
@@ -102,7 +67,6 @@ target_link_libraries(MrsMultirotorSimSystemRos
 
 add_library(MrsMultirotorSimulator
   src/multirotor_simulator.cpp
-  src/uav_system.cpp
   )
 
 add_dependencies(MrsMultirotorSimulator

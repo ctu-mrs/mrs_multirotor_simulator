@@ -4,9 +4,8 @@
  * Acknowledgement:
  * * https://github.com/HKUST-Aerial-Robotics/Fast-Planner
  */
-#include <mrs_multirotor_simulator/multirotor_model.h>
-
-namespace odeint = boost::numeric::odeint;
+#ifndef MULTIROTOR_MODEL_IMPL_H
+#define MULTIROTOR_MODEL_IMPL_H
 
 namespace mrs_multirotor_simulator
 {
@@ -349,3 +348,5 @@ Eigen::Vector3d MultirotorModel::getImuAcceleration() const {
 //}
 
 }  // namespace mrs_multirotor_simulator
+
+#endif  // MULTIROTOR_MODEL_IMPL_H

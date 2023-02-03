@@ -1,9 +1,8 @@
 #ifndef POSITION_CONTROLLER_H
 #define POSITION_CONTROLLER_H
 
-#include <mrs_multirotor_simulator/multirotor_model.h>
-#include <mrs_multirotor_simulator/controllers/pid.h>
-#include <mrs_multirotor_simulator/controllers/references.h>
+#include "pid.h"
+#include "references.h"
 
 namespace mrs_multirotor_simulator
 {
@@ -38,5 +37,7 @@ private:
 };
 
 }  // namespace mrs_multirotor_simulator
+
+#include "impl/position_controller_impl.hpp"
 
 #endif  // POSITION_CONTROLLER_H

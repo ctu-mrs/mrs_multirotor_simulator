@@ -1,8 +1,7 @@
 #ifndef MIXER_H
 #define MIXER_H
 
-#include <mrs_multirotor_simulator/multirotor_model.h>
-#include <mrs_multirotor_simulator/controllers/references.h>
+#include "references.h"
 
 namespace mrs_multirotor_simulator
 {
@@ -39,5 +38,7 @@ private:
 };
 
 }  // namespace mrs_multirotor_simulator
+
+#include "impl/mixer_impl.hpp"
 
 #endif  // MIXER_H

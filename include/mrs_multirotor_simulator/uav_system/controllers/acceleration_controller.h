@@ -1,8 +1,7 @@
 #ifndef ACCELERATION_CONTROLLER_H
 #define ACCELERATION_CONTROLLER_H
 
-#include <mrs_multirotor_simulator/multirotor_model.h>
-#include <mrs_multirotor_simulator/controllers/references.h>
+#include "references.h"
 
 namespace mrs_multirotor_simulator
 {
@@ -20,5 +19,7 @@ private:
 };
 
 }  // namespace mrs_multirotor_simulator
+
+#include "impl/acceleration_controller_impl.hpp"
 
 #endif  // ACCELERATION_CONTROLLER_H
