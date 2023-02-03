@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
-add_compile_options("-Og")
+# add_compile_options("-Og")
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -46,7 +46,7 @@ include_directories(
   ${dynamic_reconfigure_PACKAGE_PATH}/cmake/cfgbuild.cmake
   )
 
-# ROS Wrapper for the UavSystem
+# ROS Wrapper for the Multirotor UAV System + controllers
 
 add_library(MrsMultirotorSimSystemRos
   src/uav_system_ros.cpp

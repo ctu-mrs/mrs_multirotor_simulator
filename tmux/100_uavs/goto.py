@@ -2,6 +2,8 @@
 
 import rospy
 import rosnode
+import random
+import os
 
 from mrs_msgs.msg import HwApiPositionCmd as HwApiPositionCmd
 
@@ -21,15 +23,24 @@ class Goto:
 
         rate = rospy.Rate(10)
 
+        xs = []
+        ys = []
+
+        for i in range(0, n_uavs):
+            xs.append(random.randint(-20, 20))
+            ys.append(random.randint(-20, 20))
+
         while not rospy.is_shutdown():
 
             msg = HwApiPositionCmd();
-            msg.position.x = 0;
-            msg.position.y = 0;
             msg.position.z = 5;
             msg.heading = 0;
 
             for i in range(0, n_uavs):
+
+                msg.position.x = xs[i]
+                msg.position.y = ys[i]
+
                 publishers[i].publish(msg)
 
             rate.sleep();
