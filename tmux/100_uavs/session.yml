@@ -13,7 +13,8 @@ windows:
   - goto:
       layout: tiled
       panes:
-        - 'history -s ./goto.sh'
+        - 'history -s ./velocity_cmd_up.py'
+        - 'history -s ./goto.py'
   - rviz:
       layout: tiled
       panes:

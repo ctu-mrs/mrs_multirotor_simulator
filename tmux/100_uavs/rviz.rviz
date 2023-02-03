@@ -111,7 +111,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav1/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -146,7 +146,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav2/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -181,7 +181,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav3/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -216,7 +216,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav4/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -251,7 +251,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav5/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -286,7 +286,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav6/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -321,7 +321,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav7/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -356,7 +356,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav8/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -391,7 +391,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav9/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -426,7 +426,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav10/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -461,7 +461,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav11/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -496,7 +496,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav12/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -531,7 +531,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav13/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -566,7 +566,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav14/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -601,7 +601,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav15/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -636,7 +636,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav16/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -671,7 +671,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav17/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -706,7 +706,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav18/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -741,7 +741,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav19/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -776,7 +776,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav20/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -811,7 +811,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav21/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -846,7 +846,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav22/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -881,7 +881,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav23/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -916,7 +916,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav24/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -951,7 +951,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav25/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -986,7 +986,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav26/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1021,7 +1021,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav27/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1056,7 +1056,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav28/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1091,7 +1091,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav29/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1126,7 +1126,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav30/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1161,7 +1161,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav31/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1196,7 +1196,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav32/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1231,7 +1231,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav33/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1266,7 +1266,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav34/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1301,7 +1301,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav35/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1336,7 +1336,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav36/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1371,7 +1371,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav37/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1406,7 +1406,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav38/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1441,7 +1441,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav39/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1476,7 +1476,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav40/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1511,7 +1511,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav41/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1546,7 +1546,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav42/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1581,7 +1581,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav43/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1616,7 +1616,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav44/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1651,7 +1651,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav45/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1686,7 +1686,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav46/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1721,7 +1721,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav47/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1756,7 +1756,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav48/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1791,7 +1791,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav49/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1826,7 +1826,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav50/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1861,7 +1861,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav51/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1896,7 +1896,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav52/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1931,7 +1931,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav53/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -1966,7 +1966,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav54/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2001,7 +2001,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav55/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2036,7 +2036,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav56/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2071,7 +2071,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav57/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2106,7 +2106,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav58/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2141,7 +2141,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav59/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2176,7 +2176,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav60/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2211,7 +2211,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav61/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2246,7 +2246,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav62/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2281,7 +2281,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav63/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2316,7 +2316,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav64/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2351,7 +2351,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav65/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2386,7 +2386,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav66/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2421,7 +2421,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav67/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2456,7 +2456,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav68/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2491,7 +2491,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav69/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2526,7 +2526,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav70/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2561,7 +2561,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav71/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2596,7 +2596,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav72/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2631,7 +2631,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav73/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2666,7 +2666,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav74/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2701,7 +2701,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav75/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2736,7 +2736,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav76/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2771,7 +2771,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav77/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2806,7 +2806,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav78/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2841,7 +2841,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav79/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2876,7 +2876,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav80/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2911,7 +2911,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav81/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2946,7 +2946,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav82/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -2981,7 +2981,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav83/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3016,7 +3016,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav84/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3051,7 +3051,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav85/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3086,7 +3086,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav86/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3121,7 +3121,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav87/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3156,7 +3156,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav88/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3191,7 +3191,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav89/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3226,7 +3226,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav90/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3261,7 +3261,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav91/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3296,7 +3296,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav92/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3331,7 +3331,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav93/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3366,7 +3366,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav94/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3401,7 +3401,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav95/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3436,7 +3436,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav96/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3471,7 +3471,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav97/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3506,7 +3506,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav98/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3541,7 +3541,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav99/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
     - Angle Tolerance: 0.10000000149011612
       Class: rviz/Odometry
@@ -3576,7 +3576,7 @@ Visualization Manager:
         Shaft Radius: 0.05000000074505806
         Value: Axes
       Topic: /multirotor_simulator/uav100/odom
-      Unreliable: false
+      Unreliable: true
       Value: true
   Enabled: true
   Global Options:

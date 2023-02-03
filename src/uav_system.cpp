@@ -133,6 +133,10 @@ void UavSystem::makeStep(const double dt) {
     actuators_cmd_ = mixer_.getControlSignal(control_group_cmd_);
   }
 
+  if (active_input_ == UavSystem::INPUT_UNKNOWN) {
+    actuators_cmd_.motors = Eigen::VectorXd::Zero(multirotor_model_.getParams().n_motors);
+  }
+
   // set the motor input for the model
   multirotor_model_.setInput(actuators_cmd_);
 

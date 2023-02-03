@@ -138,7 +138,6 @@ void MultirotorModel::step(const double& dt) {
         state_.omega = Eigen::Vector3d::Zero();
       }
     } else {
-      std::cout << "disabling takeoff patch " << input_.transpose() << std::endl;
       params_.takeoff_patch_enabled = false;
     }
   }
