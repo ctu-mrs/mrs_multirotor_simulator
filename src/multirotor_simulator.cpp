@@ -189,7 +189,7 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
 
       if (dist < 1.0) {
         /* uavs_[idx]->crash(); */
-        forces[i] += 20 * (pose_1 - pose_2).normalized();
+        forces[i] += 50 * (pose_1 - pose_2).normalized();
       }
     }
 

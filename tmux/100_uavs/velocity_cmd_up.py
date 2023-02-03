@@ -26,7 +26,7 @@ class Up:
             msg = HwApiVelocityCmd();
             msg.velocity.x = 0;
             msg.velocity.y = 0;
-            msg.velocity.z = 2;
+            msg.velocity.z = 0;
             msg.heading = 0;
 
             for i in range(0, n_uavs):
