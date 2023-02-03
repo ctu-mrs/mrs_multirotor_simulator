@@ -110,6 +110,8 @@ public:
 
   void setState(const MultirotorModel::State& state);
 
+  void applyForce(const Eigen::Vector3d& state);
+
   void setStatePos(const Eigen::Vector3d& pos, const double heading);
 
   const Eigen::Vector3d& getExternalForce(void) const;

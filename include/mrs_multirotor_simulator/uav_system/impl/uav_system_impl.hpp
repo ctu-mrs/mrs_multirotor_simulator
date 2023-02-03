@@ -106,6 +106,23 @@ void UavSystem::setInput(void) {
 
 //}
 
+/* crash() //{ */
+
+void UavSystem::crash(void) {
+  crashed_ = true;
+}
+
+//}
+
+/* applyForce() //{ */
+
+void UavSystem::applyForce(const Eigen::Vector3d& force) {
+
+  multirotor_model_.applyForce(force);
+}
+
+//}
+
 /* makeStep() //{ */
 
 void UavSystem::makeStep(const double dt) {
@@ -134,7 +151,7 @@ void UavSystem::makeStep(const double dt) {
     actuators_cmd_ = mixer_.getControlSignal(control_group_cmd_);
   }
 
-  if (active_input_ == UavSystem::INPUT_UNKNOWN) {
+  if (crashed_ || active_input_ == UavSystem::INPUT_UNKNOWN) {
     actuators_cmd_.motors = Eigen::VectorXd::Zero(multirotor_model_.getParams().n_motors);
   }
 
@@ -200,4 +217,4 @@ void UavSystem::setPositionControllerParams(const PositionController::Params& pa
 
 }  // namespace mrs_multirotor_simulator
 
-#endif // UAV_SYSTEM_IMPL_H
+#endif  // UAV_SYSTEM_IMPL_H

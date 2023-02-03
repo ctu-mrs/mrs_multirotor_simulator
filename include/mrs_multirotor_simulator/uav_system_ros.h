@@ -34,6 +34,12 @@ public:
 
   void makeStep(const double dt);
 
+  void crash(void);
+
+  void applyForce(const Eigen::Vector3d& force);
+
+  Eigen::Vector3d getPose(void);
+
 private:
   std::atomic<bool> is_initialized_ = false;
   std::string       _uav_name_;

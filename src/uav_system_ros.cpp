@@ -249,6 +249,31 @@ void UavSystemRos::makeStep(const double dt) {
 
 //}
 
+/* getPose() //{ */
+
+Eigen::Vector3d UavSystemRos::getPose(void) {
+
+  return uav_system_.getState().x;
+}
+
+//}
+
+/* crash() //{ */
+
+void UavSystemRos::crash(void) {
+  uav_system_.crash();
+}
+
+//}
+
+/* applyForce() //{ */
+
+void UavSystemRos::applyForce(const Eigen::Vector3d& force) {
+  uav_system_.applyForce(force);
+}
+
+//}
+
 // | ----------------------- publishers ----------------------- |
 
 /* publishOdometry() //{ */

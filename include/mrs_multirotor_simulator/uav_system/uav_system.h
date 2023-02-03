@@ -34,6 +34,10 @@ public:
 
   void makeStep(const double dt);
 
+  void crash(void);
+
+  void applyForce(const Eigen::Vector3d& force);
+
   void setInput(const reference::Actuators& actuators);
   void setInput(const reference::ControlGroup& control_group);
   void setInput(const reference::AttitudeRate& attitude_rate);
@@ -59,6 +63,8 @@ private:
   // | ------------------------- basics ------------------------- |
 
   bool initialized_ = false;
+
+  bool crashed_ = false;
 
   // | --------------------- dynamics model --------------------- |
 

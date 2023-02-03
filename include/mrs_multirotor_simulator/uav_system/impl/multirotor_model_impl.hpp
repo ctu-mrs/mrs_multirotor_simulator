@@ -152,6 +152,15 @@ void MultirotorModel::step(const double& dt) {
 
 //}
 
+/* applyModel() //{ */
+
+void MultirotorModel::applyForce(const Eigen::Vector3d& force) {
+
+  external_force_ = force;
+}
+
+//}
+
 /* operator() //{ */
 
 void MultirotorModel::operator()(const MultirotorModel::InternalState& x, MultirotorModel::InternalState& dxdt, [[maybe_unused]] const double t) {

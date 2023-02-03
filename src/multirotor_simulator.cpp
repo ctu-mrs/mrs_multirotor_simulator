@@ -14,12 +14,15 @@
 #include <dynamic_reconfigure/server.h>
 #include <mrs_multirotor_simulator/multirotor_simulatorConfig.h>
 
-#include <nanoflann.hpp>
+#include <KDTreeVectorOfVectorsAdaptor.h>
+#include <Eigen/Dense>
 
 //}
 
 namespace mrs_multirotor_simulator
 {
+
+typedef std::vector<Eigen::VectorXd> my_vector_of_vectors_t;
 
 /* class MultirotorSimulator //{ */
 
@@ -144,6 +147,60 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
   for (size_t i = 0; i < uavs_.size(); i++) {
     uavs_[i]->makeStep(simulation_step_size);
   }
+
+  // | ----------------------- collisions ----------------------- |
+
+  std::vector<Eigen::VectorXd> poses;
+
+  for (size_t i = 0; i < uavs_.size(); i++) {
+    poses.push_back(uavs_[i]->getPose());
+  }
+
+  typedef KDTreeVectorOfVectorsAdaptor<my_vector_of_vectors_t, double> my_kd_tree_t;
+
+  my_kd_tree_t mat_index(3, poses, 10);
+
+  std::vector<nanoflann::ResultItem<int, double>> indices_dists;
+
+  std::vector<Eigen::Vector3d> forces;
+
+  for (size_t i = 0; i < uavs_.size(); i++) {
+    forces.push_back(Eigen::Vector3d::Zero());
+  }
+
+  for (size_t i = 0; i < uavs_.size(); i++) {
+
+    Eigen::Vector3d pose_1 = uavs_[i]->getPose();
+
+    nanoflann::RadiusResultSet<double, int> resultSet(1.2, indices_dists);
+
+    mat_index.index->findNeighbors(resultSet, &pose_1[0]);
+
+    for (size_t j = 0; j < resultSet.m_indices_dists.size(); j++) {
+
+      const size_t idx  = resultSet.m_indices_dists[j].first;
+      const double dist = resultSet.m_indices_dists[j].second;
+
+      if (idx == i) {
+        continue;
+      }
+
+      Eigen::Vector3d pose_2 = uavs_[idx]->getPose();
+
+      if (dist < 1.0) {
+        /* uavs_[idx]->crash(); */
+        forces[i] += 20 * (pose_1 - pose_2).normalized();
+      }
+    }
+
+    for (size_t i = 0; i < uavs_.size(); i++) {
+      uavs_[i]->applyForce(forces[i]);
+    }
+  }
+
+  /* for (size_t i = 0; i < resultSet.m_indices_dists.size(); i++) { */
+  /*   std::cout << "uav[" << resultSet.m_indices_dists[i].first << "] = " << resultSet.m_indices_dists[i].second << std::endl; */
+  /* } */
 
   // | ---------------------- publish time ---------------------- |
 
