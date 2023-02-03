@@ -31,6 +31,7 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string uav_name) {
   _frame_rangefinder_ = uav_name + "/" + _frame_rangefinder_;
 
   param_loader.loadParam("frames/rangefinder/publish_tf", _publish_rangefinder_tf_);
+  param_loader.loadParam("frames/fcu/publish_tf", _publish_fcu_tf_);
 
   param_loader.loadParam("frames/fcu/name", _frame_fcu_);
 
@@ -352,6 +353,23 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State& state) {
     tf.transform.translation.z = -0.05;
 
     tf.transform.rotation = mrs_lib::AttitudeConverter(0, 1.57, 0);
+
+    tf_broadcaster_->sendTransform(tf);
+  }
+
+  if (_publish_fcu_tf_) {
+
+    geometry_msgs::TransformStamped tf;
+
+    tf.header.stamp    = ros::Time::now();
+    tf.header.frame_id = _frame_world_;
+    tf.child_frame_id  = _frame_fcu_;
+
+    tf.transform.translation.x = state.x[0];
+    tf.transform.translation.y = state.x[1];
+    tf.transform.translation.z = state.x[2];
+
+    tf.transform.rotation = mrs_lib::AttitudeConverter(state.R.transpose());
 
     tf_broadcaster_->sendTransform(tf);
   }

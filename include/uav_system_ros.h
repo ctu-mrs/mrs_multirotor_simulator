@@ -55,6 +55,7 @@ private:
   std::string _frame_fcu_;
   std::string _frame_rangefinder_;
   bool        _publish_rangefinder_tf_;
+  bool        _publish_fcu_tf_;
 
   // | ----------------------- publishers ----------------------- |
 

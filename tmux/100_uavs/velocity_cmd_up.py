@@ -17,6 +17,8 @@ class Up:
         for i in range(0, n_uavs):
             publishers.append(rospy.Publisher('/multirotor_simulator/uav{}/velocity_cmd'.format(i+1), HwApiVelocityCmd, queue_size=1))
 
+        rospy.sleep(2.0)
+
         rate = rospy.Rate(10)
 
         while not rospy.is_shutdown():
