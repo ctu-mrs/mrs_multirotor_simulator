@@ -10,7 +10,7 @@ input_timeout: 0.25 # [s]
 frames:
   world:
     name: "simulator_origin"
-    prefix_uav_name: false
+    prefix_with_uav_name: false
   fcu:
     name: "fcu"
   rangefinder:
@@ -19,9 +19,9 @@ frames:
 
 ground:
   enabled: true
-  z: 5.0 # [m]
+  z: 0.0 # [m]
 
 # * when enabled, this will place a temporary patch of ground just under the spawn location
 # * this patch will disappear after the total_thrust > 0.9*hover_thrust
 takeoff_patch:
-  enabled: false
+  enabled: true

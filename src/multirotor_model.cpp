@@ -20,14 +20,16 @@ MultirotorModel::MultirotorModel(void) {
   updateInternalState();
 }
 
-MultirotorModel::MultirotorModel(const ModelParams& params, const Eigen::Vector4d& spawn) {
+MultirotorModel::MultirotorModel(const ModelParams& params, const Eigen::Vector3d& spawn_pos, const double spawn_heading) {
 
   params_ = params;
 
   initializeState();
 
-  state_.x = spawn.block(0, 0, 3, 1);
-  state_.R = mrs_lib::AttitudeConverter(0, 0, spawn(3));
+  _initial_pos_ = spawn_pos;
+
+  state_.x = spawn_pos;
+  state_.R = mrs_lib::AttitudeConverter(0, 0, spawn_heading);
 
   updateInternalState();
 }
@@ -129,12 +131,14 @@ void MultirotorModel::step(const double& dt) {
 
     const double hover_rpm = sqrt((params_.mass * params_.g) / (params_.n_motors * params_.kf));
     if (input_.mean() <= 0.90 * hover_rpm) {
+
       if (state_.x(2) < _initial_pos_[2] && state_.v(2) < 0) {
         state_.x(2)  = _initial_pos_[2];
         state_.v     = Eigen::Vector3d::Zero();
         state_.omega = Eigen::Vector3d::Zero();
       }
     } else {
+      std::cout << "disabling takeoff patch " << input_.transpose() << std::endl;
       params_.takeoff_patch_enabled = false;
     }
   }
@@ -294,10 +298,11 @@ void MultirotorModel::setState(const MultirotorModel::State& state) {
 
 /* setStatePos() //{ */
 
-void MultirotorModel::setStatePos(const Eigen::Vector4d& pos) {
+void MultirotorModel::setStatePos(const Eigen::Vector3d& pos, const double heading) {
 
-  state_.x = pos.block(0, 0, 3, 1);
-  state_.R = mrs_lib::AttitudeConverter(0, 0, pos(3));
+  _initial_pos_ = pos;
+  state_.x      = pos;
+  state_.R      = mrs_lib::AttitudeConverter(0, 0, heading);
 
   updateInternalState();
 }

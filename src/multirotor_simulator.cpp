@@ -9,8 +9,6 @@
 
 #include <mrs_lib/param_loader.h>
 #include <mrs_lib/publisher_handler.h>
-#include <mrs_lib/attitude_converter.h>
-#include <mrs_lib/mutex.h>
 #include <mrs_lib/subscribe_handler.h>
 
 #include <dynamic_reconfigure/server.h>
@@ -168,7 +166,7 @@ void MultirotorSimulator::callbackDrs(mrs_multirotor_simulator::multirotor_simul
 
   timer_main_.setPeriod(ros::WallDuration(1.0 / (_simulation_rate_ * config.realtime_factor)), true);
 
-  ROS_INFO("[MultirotorSimulator]: DRS updated gains");
+  ROS_INFO("[MultirotorSimulator]: DRS updated params");
 }
 
 //}

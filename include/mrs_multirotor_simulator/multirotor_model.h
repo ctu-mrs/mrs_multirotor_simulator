@@ -104,13 +104,13 @@ public:
 
   MultirotorModel();
 
-  MultirotorModel(const ModelParams& params, const Eigen::Vector4d& spawn);
+  MultirotorModel(const ModelParams& params, const Eigen::Vector3d& spawn_pos, const double spawn_heading);
 
   const MultirotorModel::State& getState(void) const;
 
   void setState(const MultirotorModel::State& state);
 
-  void setStatePos(const Eigen::Vector4d& pos);
+  void setStatePos(const Eigen::Vector3d& pos, const double heading);
 
   const Eigen::Vector3d& getExternalForce(void) const;
   void                   setExternalForce(const Eigen::Vector3d& force);

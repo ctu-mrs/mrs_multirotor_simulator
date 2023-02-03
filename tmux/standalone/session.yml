@@ -1,0 +1,20 @@
+name: simulation
+root: ./
+startup_window: goto
+windows:
+  - roscore:
+      layout: tiled
+      panes:
+        - roscore
+  - simulator:
+      layout: tiled
+      panes:
+        - waitForRos; roslaunch mrs_multirotor_simulator multirotor_simulator.launch
+  - goto:
+      layout: tiled
+      panes:
+        - 'history -s ./goto.sh'
+  - rviz:
+      layout: tiled
+      panes:
+        - waitForRos; rosrun rviz rviz -d ./rviz.rviz

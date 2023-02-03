@@ -12,9 +12,11 @@ input_mode:
 topics:
   prefix: "multirotor_simulator"
   simulator:
+    # subscribers
     imu: "imu"
     odom: "odom"
     rangefinder: "rangefinder"
+    # publishers
     attitude_rate_cmd: "attitude_rate_cmd"
     attitude_cmd: "attitude_cmd"
     acceleration_cmd: "acceleration_cmd"

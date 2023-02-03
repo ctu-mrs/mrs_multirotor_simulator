@@ -7,6 +7,7 @@
   <arg name="debug" default="false" />
   <arg name="standalone" default="true" />
   <arg name="use_sim_time" default="true" />
+  <arg name="custom_config" default="" />
 
   <arg     if="$(eval arg('standalone') or arg('debug'))" name="nodelet" value="standalone" />
   <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet" value="load" />
@@ -32,6 +33,8 @@
     <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/attitude_controller.yaml" />
     <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/velocity_controller.yaml" />
     <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/position_controller.yaml" />
+
+    <rosparam if="$(eval not arg('custom_config') == '')" file="$(arg custom_config)" />
 
     <remap from="~diagnostics_out" to="~diagnostics" />
     <remap from="~imu_out" to="~imu" />

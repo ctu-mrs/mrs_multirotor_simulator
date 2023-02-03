@@ -20,7 +20,7 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string uav_name) {
 
   param_loader.loadParam("frames/world/name", _frame_world_);
   bool prefix_world_name;
-  param_loader.loadParam("frames/world/prefix_world_name", prefix_world_name);
+  param_loader.loadParam("frames/world/prefix_with_uav_name", prefix_world_name);
 
   if (prefix_world_name) {
     _frame_world_ = uav_name + "/" + _frame_world_;
@@ -84,7 +84,7 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string uav_name) {
   model_params_.allocation_matrix.row(2) *= model_params_.km * (3.0 * model_params_.prop_radius) * model_params_.kf;
   model_params_.allocation_matrix.row(3) *= model_params_.kf;
 
-  uav_system_ = UavSystem(model_params_, Eigen::Vector4d(spawn_x, spawn_y, spawn_z, spawn_heading));
+  uav_system_ = UavSystem(model_params_, Eigen::Vector3d(spawn_x, spawn_y, spawn_z), spawn_heading);
 
   // | -------------------------- mixer ------------------------- |
 
@@ -137,6 +137,11 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string uav_name) {
   param_loader.loadParam("position_controller/max_velocity", position_controller_params.max_velocity);
 
   uav_system_.setPositionControllerParams(position_controller_params);
+
+  if (!param_loader.loadedSuccessfully()) {
+    ROS_ERROR("[%s]: failed to load all parameters", _uav_name_.c_str());
+    ros::shutdown();
+  }
 
   // | ----------------------- publishers ----------------------- |
 
