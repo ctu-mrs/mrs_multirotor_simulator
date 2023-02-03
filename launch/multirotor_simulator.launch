@@ -1,9 +1,5 @@
 <launch>
 
-  <arg name="UAV_TYPE" default="$(env UAV_TYPE)"/>
-
-  <arg name="uav_name" default="$(env UAV_NAME)"/>
-
   <arg name="debug" default="false" />
   <arg name="standalone" default="true" />
   <arg name="use_sim_time" default="true" />
@@ -12,7 +8,7 @@
   <arg     if="$(eval arg('standalone') or arg('debug'))" name="nodelet" value="standalone" />
   <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet" value="load" />
   <arg     if="$(eval arg('standalone') or arg('debug'))" name="nodelet_manager" value="" />
-  <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet_manager" value="$(arg UAV_NAME)_nodelet_manager" />
+  <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet_manager" value="mrs_simulator_nodelet_manager" />
 
   <arg     if="$(arg debug)" name="launch_prefix" value="debug_roslaunch" />
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
