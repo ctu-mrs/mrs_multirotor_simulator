@@ -4,6 +4,8 @@
 #include <ros/ros.h>
 #include <nodelet/nodelet.h>
 
+#include <mrs_lib/transform_broadcaster.h>
+
 #include <mrs_lib/param_loader.h>
 #include <mrs_lib/publisher_handler.h>
 #include <mrs_lib/subscribe_handler.h>
@@ -51,11 +53,22 @@ private:
 
   std::string _frame_world_;
   std::string _frame_fcu_;
+  std::string _frame_rangefinder_;
+  bool        _publish_rangefinder_tf_;
 
   // | ----------------------- publishers ----------------------- |
 
   mrs_lib::PublisherHandler<sensor_msgs::Imu>   ph_imu_;
   mrs_lib::PublisherHandler<nav_msgs::Odometry> ph_odom_;
+  mrs_lib::PublisherHandler<sensor_msgs::Range> ph_rangefinder_;
+
+  void publishOdometry(const MultirotorModel::State& state);
+  void publishIMU(const MultirotorModel::State& state);
+  void publishRangefinder(const MultirotorModel::State& state);
+
+  // | --------------------------- tf --------------------------- |
+
+  std::shared_ptr<mrs_lib::TransformBroadcaster> tf_broadcaster_;
 
   // | ----------------------- subscribers ---------------------- |
 

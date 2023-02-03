@@ -74,7 +74,7 @@ private:
 
   std::string _topic_simulator_odom_;
   std::string _topic_simulator_imu_;
-  std::string _topic_simulator_diag_;
+  std::string _topic_simulator_rangefinder_;
 
   std::string _topic_simulator_attitude_rate_cmd_;
   std::string _topic_simulator_attitude_cmd_;
@@ -86,9 +86,11 @@ private:
 
   mrs_lib::SubscribeHandler<nav_msgs::Odometry> sh_odom_;
   mrs_lib::SubscribeHandler<sensor_msgs::Imu>   sh_imu_;
+  mrs_lib::SubscribeHandler<sensor_msgs::Range> sh_range_;
 
   void callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry> &wrp);
   void callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu> &wrp);
+  void callbackRangefinder(mrs_lib::SubscribeHandler<sensor_msgs::Range> &wrp);
 
   // | ----------------------- publishers ----------------------- |
 
@@ -151,7 +153,7 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
   param_loader.loadParam("topics/prefix", _simulator_prefix_);
   param_loader.loadParam("topics/simulator/odom", _topic_simulator_odom_);
   param_loader.loadParam("topics/simulator/imu", _topic_simulator_imu_);
-  param_loader.loadParam("topics/simulator/diagnostics", _topic_simulator_diag_);
+  param_loader.loadParam("topics/simulator/rangefinder", _topic_simulator_rangefinder_);
   param_loader.loadParam("topics/simulator/attitude_rate_cmd", _topic_simulator_attitude_rate_cmd_);
   param_loader.loadParam("topics/simulator/attitude_cmd", _topic_simulator_attitude_cmd_);
   param_loader.loadParam("topics/simulator/acceleration_cmd", _topic_simulator_acceleration_cmd_);
@@ -179,6 +181,9 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
 
   sh_imu_ =
       mrs_lib::SubscribeHandler<sensor_msgs::Imu>(shopts, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_imu_, &Api::callbackImu, this);
+
+  sh_range_ = mrs_lib::SubscribeHandler<sensor_msgs::Range>(shopts, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_rangefinder_,
+                                                            &Api::callbackRangefinder, this);
 
   // | ----------------------- publishers ----------------------- |
 
@@ -494,17 +499,6 @@ void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry> &wrp) {
   hdg.value        = heading;
 
   common_handlers_->publishers.publishMagnetometerHeading(hdg);
-
-  // | ---------------------- publish range --------------------- |
-
-  sensor_msgs::Range rng;
-
-  rng.header.stamp = ros::Time::now();
-  rng.max_range    = 40;
-  rng.min_range    = 0;
-  rng.range        = odom->pose.pose.position.z;
-
-  common_handlers_->publishers.publishDistanceSensor(rng);
 }
 
 //}
@@ -522,6 +516,23 @@ void Api::callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu> &wrp) {
   sensor_msgs::ImuConstPtr imu = wrp.getMsg();
 
   common_handlers_->publishers.publishIMU(*imu);
+}
+
+//}
+
+/* callbackRangefinder() //{ */
+
+void Api::callbackRangefinder(mrs_lib::SubscribeHandler<sensor_msgs::Range> &wrp) {
+
+  if (!is_initialized_) {
+    return;
+  }
+
+  ROS_INFO_ONCE("[Api]: getting rangefinder");
+
+  sensor_msgs::RangeConstPtr range = wrp.getMsg();
+
+  common_handlers_->publishers.publishDistanceSensor(*range);
 }
 
 //}

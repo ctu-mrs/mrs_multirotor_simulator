@@ -232,7 +232,20 @@ void UavSystemRos::makeStep(const double dt) {
   // extract the current state
   MultirotorModel::State state = uav_system_.getState();
 
-  // | -------------------- publish odometry -------------------- |
+  // publish data
+
+  publishOdometry(state);
+
+  publishIMU(state);
+
+  publishRangefinder(state);
+}
+
+//}
+
+/* publishOdometry() //{ */
+
+void UavSystemRos::publishOdometry(const MultirotorModel::State& state) {
 
   nav_msgs::Odometry odom;
 
@@ -257,8 +270,13 @@ void UavSystemRos::makeStep(const double dt) {
   odom.twist.twist.angular.z = state.omega[2];
 
   ph_odom_.publish(odom);
+}
 
-  // | ----------------------- publish IMU ---------------------- |
+//}
+
+/* publishIMU() //{ */
+
+void UavSystemRos::publishIMU(const MultirotorModel::State& state) {
 
   sensor_msgs::Imu imu;
 
@@ -276,22 +294,62 @@ void UavSystemRos::makeStep(const double dt) {
   imu.linear_acceleration.z = acc[2];
 
   ph_imu_.publish(imu);
+}
 
-  // | ----------------- publish rangefinder tf ----------------- |
+//}
 
-  geometry_msgs::TransformStamped tf;
+/* publishRangefinder() //{ */
 
-  tf.header.stamp    = ros::Time::now();
-  tf.header.frame_id = _frame_fcu_;
-  tf.child_frame_id  = _frame_rangefinder_;
+void UavSystemRos::publishRangefinder(const MultirotorModel::State& state) {
 
-  tf.transform.translation.x = 0;
-  tf.transform.translation.y = 0;
-  tf.transform.translation.z = -0.05;
+  // | ----------------------- publish tf ----------------------- |
 
-  tf.transform.rotation = mrs_lib::AttitudeConverter(0, 1.57, 0);
+  const Eigen::Vector3d body_z          = state.R.col(2);
+  const Eigen::Vector3d rangefinder_dir = -body_z;
 
-  tf_broadcaster_->sendTransform(tf);
+  // calculate the angle between the drone's z axis and the world's z axis
+  double tilt = acos(rangefinder_dir.dot(Eigen::Vector3d(0, 0, -1)));
+
+  double range_measurement;
+
+  if (body_z[2] > 0) {
+    range_measurement = (state.x[2] - model_params_.ground_z) / cos(tilt);
+  } else {
+    range_measurement = std::numeric_limits<double>::max();
+  }
+
+  if (range_measurement > 40.0) {
+    range_measurement = 41.0;
+  }
+
+  sensor_msgs::Range range;
+
+  range.header.frame_id = _frame_rangefinder_;
+  range.header.stamp    = ros::Time::now();
+  range.max_range       = 40.0;
+  range.min_range       = 0.15;
+  range.range           = range_measurement;
+  range.radiation_type  = range.INFRARED;
+  range.field_of_view   = 0.01;
+
+  ph_rangefinder_.publish(range);
+
+  if (_publish_rangefinder_tf_) {
+
+    geometry_msgs::TransformStamped tf;
+
+    tf.header.stamp    = ros::Time::now();
+    tf.header.frame_id = _frame_fcu_;
+    tf.child_frame_id  = _frame_rangefinder_;
+
+    tf.transform.translation.x = 0;
+    tf.transform.translation.y = 0;
+    tf.transform.translation.z = -0.05;
+
+    tf.transform.rotation = mrs_lib::AttitudeConverter(0, 1.57, 0);
+
+    tf_broadcaster_->sendTransform(tf);
+  }
 }
 
 //}

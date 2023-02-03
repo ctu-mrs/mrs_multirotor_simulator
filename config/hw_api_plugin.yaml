@@ -14,7 +14,7 @@ topics:
   simulator:
     imu: "imu"
     odom: "odom"
-    diagnostics: "diagnostics"
+    rangefinder: "rangefinder"
     attitude_rate_cmd: "attitude_rate_cmd"
     attitude_cmd: "attitude_cmd"
     acceleration_cmd: "acceleration_cmd"
