@@ -21,14 +21,14 @@ class Goto:
 
         rospy.sleep(2.0)
 
-        rate = rospy.Rate(10)
+        rate = rospy.Rate(6)
 
         xs = []
         ys = []
 
         for i in range(0, n_uavs):
-            xs.append(random.randint(-20, 20))
-            ys.append(random.randint(-20, 20))
+            xs.append(random.randint(20, 20))
+            ys.append(random.randint(20, 20))
             # xs.append(0)
             # ys.append(0)
 
