@@ -20,7 +20,7 @@ frames:
 
 collisions:
   enabled: true
-  crash: true
+  crash: false
 
   # if crash==false, then the collisions are elastic
   rebounce: 100.0
