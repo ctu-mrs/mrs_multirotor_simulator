@@ -21,15 +21,15 @@ public:
   };
 
   AttitudeController();
-  AttitudeController(const ModelParams& model_params);
+  AttitudeController(const MultirotorModel::ModelParams& model_params);
 
   void setParams(const Params& params);
 
   reference::AttitudeRate getControlSignal(const MultirotorModel::State& state, const reference::Attitude& reference, const double& dt);
 
 private:
-  Params      params_;
-  ModelParams model_params_;
+  Params                       params_;
+  MultirotorModel::ModelParams model_params_;
 
   void initializePIDS(void);
 

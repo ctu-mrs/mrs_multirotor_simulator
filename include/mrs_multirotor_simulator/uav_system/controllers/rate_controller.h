@@ -18,15 +18,15 @@ public:
   };
 
   RateController();
-  RateController(const ModelParams& model_params);
+  RateController(const MultirotorModel::ModelParams& model_params);
 
   void setParams(const Params& params);
 
   reference::ControlGroup getControlSignal(const MultirotorModel::State& state, const reference::AttitudeRate& reference, const double& dt);
 
 private:
-  ModelParams model_params_;
-  Params      params_;
+  MultirotorModel::ModelParams model_params_;
+  Params                       params_;
 
   void initializePIDs(void);
 

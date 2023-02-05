@@ -36,9 +36,14 @@ public:
 
   void crash(void);
 
+  bool hasCrashed(void);
+
   void applyForce(const Eigen::Vector3d& force);
 
   Eigen::Vector3d getPose(void);
+
+  MultirotorModel::ModelParams getParams();
+  MultirotorModel::State getState();
 
 private:
   std::atomic<bool> is_initialized_ = false;
@@ -52,7 +57,7 @@ private:
   ros::Time  time_last_input_;
   std::mutex mutex_time_last_input_;
 
-  ModelParams model_params_;
+  MultirotorModel::ModelParams model_params_;
 
   bool   _iterate_without_input_;
   double _input_timeout_;

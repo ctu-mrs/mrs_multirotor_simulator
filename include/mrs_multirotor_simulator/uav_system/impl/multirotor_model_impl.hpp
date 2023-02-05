@@ -19,7 +19,7 @@ MultirotorModel::MultirotorModel(void) {
   updateInternalState();
 }
 
-MultirotorModel::MultirotorModel(const ModelParams& params, const Eigen::Vector3d& spawn_pos, const double spawn_heading) {
+MultirotorModel::MultirotorModel(const MultirotorModel::ModelParams& params, const Eigen::Vector3d& spawn_pos, const double spawn_heading) {
 
   params_ = params;
 
@@ -84,14 +84,6 @@ void MultirotorModel::step(const double& dt) {
 
   for (int i = 0; i < N_INTERNAL_STATES; ++i) {
     if (std::isnan(internal_state_[i])) {
-
-      std::cout << "dump " << i << " << pos ";
-
-      for (int j = 0; j < N_INTERNAL_STATES; ++j) {
-        std::cout << save[j] << " ";
-      }
-
-      std::cout << std::endl;
       internal_state_ = save;
       break;
     }
@@ -235,7 +227,7 @@ void MultirotorModel::operator()(const MultirotorModel::InternalState& x, Multir
 
 /* setParams() //{ */
 
-void MultirotorModel::setParams(const ModelParams& params) {
+void MultirotorModel::setParams(const MultirotorModel::ModelParams& params) {
 
   params_ = params;
 
@@ -248,7 +240,7 @@ void MultirotorModel::setParams(const ModelParams& params) {
 
 /* getParams() //{ */
 
-ModelParams MultirotorModel::getParams(void) {
+MultirotorModel::ModelParams MultirotorModel::getParams(void) {
 
   return params_;
 }
@@ -264,7 +256,6 @@ void MultirotorModel::setInput(const reference::Actuators& input) {
     double val = input.motors(i);
 
     if (!std::isfinite(val)) {
-      std::cout << "[MultirotorModel] Error: NaN detected in motor input!!!";
       val = 0;
     }
 

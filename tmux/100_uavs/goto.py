@@ -27,10 +27,10 @@ class Goto:
         ys = []
 
         for i in range(0, n_uavs):
-            xs.append(random.randint(-20, 20))
-            ys.append(random.randint(-20, 20))
-            # xs.append(0)
-            # ys.append(0)
+            # xs.append(random.randint(-20, 20))
+            # ys.append(random.randint(-20, 20))
+            xs.append(0)
+            ys.append(0)
 
         while not rospy.is_shutdown():
 

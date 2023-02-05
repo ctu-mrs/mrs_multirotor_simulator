@@ -15,7 +15,7 @@ public:
   };
 
   Mixer();
-  Mixer(const ModelParams& model_params);
+  Mixer(const MultirotorModel::ModelParams& model_params);
 
   void setParams(const Params& params);
 
@@ -29,8 +29,8 @@ public:
   Eigen::MatrixXd getAllocationMatrix(void);
 
 private:
-  ModelParams model_params_;
-  Params      params_;
+  MultirotorModel::ModelParams model_params_;
+  Params                       params_;
 
   void calculateAllocation(void);
 

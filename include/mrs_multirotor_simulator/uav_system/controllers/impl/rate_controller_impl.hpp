@@ -9,7 +9,7 @@ RateController::RateController() {
   initializePIDs();
 }
 
-RateController::RateController(const ModelParams& model_params) {
+RateController::RateController(const MultirotorModel::ModelParams& model_params) {
   model_params_ = model_params;
   initializePIDs();
 }

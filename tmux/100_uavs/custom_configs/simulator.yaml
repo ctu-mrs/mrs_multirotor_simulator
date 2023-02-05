@@ -112,7 +112,7 @@ uav1:
 uav2:
   type: "f550"
   spawn:
-    x: 2.0
+    x: 4.0
     y: 0.0
     z: 0.0
     heading: 0
@@ -120,7 +120,7 @@ uav2:
 uav3:
   type: "f550"
   spawn:
-    x: 4.0
+    x: 8.0
     y: 0.0
     z: 0.0
     heading: 0
@@ -128,7 +128,7 @@ uav3:
 uav4:
   type: "f550"
   spawn:
-    x: 6.0
+    x: 12.0
     y: 0.0
     z: 0.0
     heading: 0
@@ -136,7 +136,7 @@ uav4:
 uav5:
   type: "f550"
   spawn:
-    x: 8.0
+    x: 16.0
     y: 0.0
     z: 0.0
     heading: 0
@@ -144,7 +144,7 @@ uav5:
 uav6:
   type: "f550"
   spawn:
-    x: 10.0
+    x: 20.0
     y: 0.0
     z: 0.0
     heading: 0
@@ -152,7 +152,7 @@ uav6:
 uav7:
   type: "f550"
   spawn:
-    x: 12.0
+    x: 24.0
     y: 0.0
     z: 0.0
     heading: 0
@@ -160,7 +160,7 @@ uav7:
 uav8:
   type: "f550"
   spawn:
-    x: 14.0
+    x: 28.0
     y: 0.0
     z: 0.0
     heading: 0
@@ -168,7 +168,7 @@ uav8:
 uav9:
   type: "f550"
   spawn:
-    x: 16.0
+    x: 32.0
     y: 0.0
     z: 0.0
     heading: 0
@@ -176,7 +176,7 @@ uav9:
 uav10:
   type: "f550"
   spawn:
-    x: 18.0
+    x: 36.0
     y: 0.0
     z: 0.0
     heading: 0
@@ -185,79 +185,79 @@ uav11:
   type: "f550"
   spawn:
     x: 0.0
-    y: 2.0
+    y: 4.0
     z: 0.0
     heading: 0
 
 uav12:
   type: "f550"
   spawn:
-    x: 2.0
-    y: 2.0
+    x: 4.0
+    y: 4.0
     z: 0.0
     heading: 0
 
 uav13:
   type: "f550"
   spawn:
-    x: 4.0
-    y: 2.0
+    x: 8.0
+    y: 4.0
     z: 0.0
     heading: 0
 
 uav14:
   type: "f550"
   spawn:
-    x: 6.0
-    y: 2.0
+    x: 12.0
+    y: 4.0
     z: 0.0
     heading: 0
 
 uav15:
   type: "f550"
   spawn:
-    x: 8.0
-    y: 2.0
+    x: 16.0
+    y: 4.0
     z: 0.0
     heading: 0
 
 uav16:
   type: "f550"
   spawn:
-    x: 10.0
-    y: 2.0
+    x: 20.0
+    y: 4.0
     z: 0.0
     heading: 0
 
 uav17:
   type: "f550"
   spawn:
-    x: 12.0
-    y: 2.0
+    x: 24.0
+    y: 4.0
     z: 0.0
     heading: 0
 
 uav18:
   type: "f550"
   spawn:
-    x: 14.0
-    y: 2.0
+    x: 28.0
+    y: 4.0
     z: 0.0
     heading: 0
 
 uav19:
   type: "f550"
   spawn:
-    x: 16.0
-    y: 2.0
+    x: 32.0
+    y: 4.0
     z: 0.0
     heading: 0
 
 uav20:
   type: "f550"
   spawn:
-    x: 18.0
-    y: 2.0
+    x: 36.0
+    y: 4.0
     z: 0.0
     heading: 0
 
@@ -265,79 +265,79 @@ uav21:
   type: "f550"
   spawn:
     x: 0.0
-    y: 4.0
+    y: 8.0
     z: 0.0
     heading: 0
 
 uav22:
   type: "f550"
   spawn:
-    x: 2.0
-    y: 4.0
+    x: 4.0
+    y: 8.0
     z: 0.0
     heading: 0
 
 uav23:
   type: "f550"
   spawn:
-    x: 4.0
-    y: 4.0
+    x: 8.0
+    y: 8.0
     z: 0.0
     heading: 0
 
 uav24:
   type: "f550"
   spawn:
-    x: 6.0
-    y: 4.0
+    x: 12.0
+    y: 8.0
     z: 0.0
     heading: 0
 
 uav25:
   type: "f550"
   spawn:
-    x: 8.0
-    y: 4.0
+    x: 16.0
+    y: 8.0
     z: 0.0
     heading: 0
 
 uav26:
   type: "f550"
   spawn:
-    x: 10.0
-    y: 4.0
+    x: 20.0
+    y: 8.0
     z: 0.0
     heading: 0
 
 uav27:
   type: "f550"
   spawn:
-    x: 12.0
-    y: 4.0
+    x: 24.0
+    y: 8.0
     z: 0.0
     heading: 0
 
 uav28:
   type: "f550"
   spawn:
-    x: 14.0
-    y: 4.0
+    x: 28.0
+    y: 8.0
     z: 0.0
     heading: 0
 
 uav29:
   type: "f550"
   spawn:
-    x: 16.0
-    y: 4.0
+    x: 32.0
+    y: 8.0
     z: 0.0
     heading: 0
 
 uav30:
   type: "f550"
   spawn:
-    x: 18.0
-    y: 4.0
+    x: 36.0
+    y: 8.0
     z: 0.0
     heading: 0
 
@@ -345,79 +345,79 @@ uav31:
   type: "f550"
   spawn:
     x: 0.0
-    y: 6.0
+    y: 12.0
     z: 0.0
     heading: 0
 
 uav32:
   type: "f550"
   spawn:
-    x: 2.0
-    y: 6.0
+    x: 4.0
+    y: 12.0
     z: 0.0
     heading: 0
 
 uav33:
   type: "f550"
   spawn:
-    x: 4.0
-    y: 6.0
+    x: 8.0
+    y: 12.0
     z: 0.0
     heading: 0
 
 uav34:
   type: "f550"
   spawn:
-    x: 6.0
-    y: 6.0
+    x: 12.0
+    y: 12.0
     z: 0.0
     heading: 0
 
 uav35:
   type: "f550"
   spawn:
-    x: 8.0
-    y: 6.0
+    x: 16.0
+    y: 12.0
     z: 0.0
     heading: 0
 
 uav36:
   type: "f550"
   spawn:
-    x: 10.0
-    y: 6.0
+    x: 20.0
+    y: 12.0
     z: 0.0
     heading: 0
 
 uav37:
   type: "f550"
   spawn:
-    x: 12.0
-    y: 6.0
+    x: 24.0
+    y: 12.0
     z: 0.0
     heading: 0
 
 uav38:
   type: "f550"
   spawn:
-    x: 14.0
-    y: 6.0
+    x: 28.0
+    y: 12.0
     z: 0.0
     heading: 0
 
 uav39:
   type: "f550"
   spawn:
-    x: 16.0
-    y: 6.0
+    x: 32.0
+    y: 12.0
     z: 0.0
     heading: 0
 
 uav40:
   type: "f550"
   spawn:
-    x: 18.0
-    y: 6.0
+    x: 36.0
+    y: 12.0
     z: 0.0
     heading: 0
 
@@ -425,79 +425,79 @@ uav41:
   type: "f550"
   spawn:
     x: 0.0
-    y: 8.0
+    y: 16.0
     z: 0.0
     heading: 0
 
 uav42:
   type: "f550"
   spawn:
-    x: 2.0
-    y: 8.0
+    x: 4.0
+    y: 16.0
     z: 0.0
     heading: 0
 
 uav43:
   type: "f550"
   spawn:
-    x: 4.0
-    y: 8.0
+    x: 8.0
+    y: 16.0
     z: 0.0
     heading: 0
 
 uav44:
   type: "f550"
   spawn:
-    x: 6.0
-    y: 8.0
+    x: 12.0
+    y: 16.0
     z: 0.0
     heading: 0
 
 uav45:
   type: "f550"
   spawn:
-    x: 8.0
-    y: 8.0
+    x: 16.0
+    y: 16.0
     z: 0.0
     heading: 0
 
 uav46:
   type: "f550"
   spawn:
-    x: 10.0
-    y: 8.0
+    x: 20.0
+    y: 16.0
     z: 0.0
     heading: 0
 
 uav47:
   type: "f550"
   spawn:
-    x: 12.0
-    y: 8.0
+    x: 24.0
+    y: 16.0
     z: 0.0
     heading: 0
 
 uav48:
   type: "f550"
   spawn:
-    x: 14.0
-    y: 8.0
+    x: 28.0
+    y: 16.0
     z: 0.0
     heading: 0
 
 uav49:
   type: "f550"
   spawn:
-    x: 16.0
-    y: 8.0
+    x: 32.0
+    y: 16.0
     z: 0.0
     heading: 0
 
 uav50:
   type: "f550"
   spawn:
-    x: 18.0
-    y: 8.0
+    x: 36.0
+    y: 16.0
     z: 0.0
     heading: 0
 
@@ -505,79 +505,79 @@ uav51:
   type: "f550"
   spawn:
     x: 0.0
-    y: 10.0
+    y: 20.0
     z: 0.0
     heading: 0
 
 uav52:
   type: "f550"
   spawn:
-    x: 2.0
-    y: 10.0
+    x: 4.0
+    y: 20.0
     z: 0.0
     heading: 0
 
 uav53:
   type: "f550"
   spawn:
-    x: 4.0
-    y: 10.0
+    x: 8.0
+    y: 20.0
     z: 0.0
     heading: 0
 
 uav54:
   type: "f550"
   spawn:
-    x: 6.0
-    y: 10.0
+    x: 12.0
+    y: 20.0
     z: 0.0
     heading: 0
 
 uav55:
   type: "f550"
   spawn:
-    x: 8.0
-    y: 10.0
+    x: 16.0
+    y: 20.0
     z: 0.0
     heading: 0
 
 uav56:
   type: "f550"
   spawn:
-    x: 10.0
-    y: 10.0
+    x: 20.0
+    y: 20.0
     z: 0.0
     heading: 0
 
 uav57:
   type: "f550"
   spawn:
-    x: 12.0
-    y: 10.0
+    x: 24.0
+    y: 20.0
     z: 0.0
     heading: 0
 
 uav58:
   type: "f550"
   spawn:
-    x: 14.0
-    y: 10.0
+    x: 28.0
+    y: 20.0
     z: 0.0
     heading: 0
 
 uav59:
   type: "f550"
   spawn:
-    x: 16.0
-    y: 10.0
+    x: 32.0
+    y: 20.0
     z: 0.0
     heading: 0
 
 uav60:
   type: "f550"
   spawn:
-    x: 18.0
-    y: 10.0
+    x: 36.0
+    y: 20.0
     z: 0.0
     heading: 0
 
@@ -585,79 +585,79 @@ uav61:
   type: "f550"
   spawn:
     x: 0.0
-    y: 12.0
+    y: 24.0
     z: 0.0
     heading: 0
 
 uav62:
   type: "f550"
   spawn:
-    x: 2.0
-    y: 12.0
+    x: 4.0
+    y: 24.0
     z: 0.0
     heading: 0
 
 uav63:
   type: "f550"
   spawn:
-    x: 4.0
-    y: 12.0
+    x: 8.0
+    y: 24.0
     z: 0.0
     heading: 0
 
 uav64:
   type: "f550"
   spawn:
-    x: 6.0
-    y: 12.0
+    x: 12.0
+    y: 24.0
     z: 0.0
     heading: 0
 
 uav65:
   type: "f550"
   spawn:
-    x: 8.0
-    y: 12.0
+    x: 16.0
+    y: 24.0
     z: 0.0
     heading: 0
 
 uav66:
   type: "f550"
   spawn:
-    x: 10.0
-    y: 12.0
+    x: 20.0
+    y: 24.0
     z: 0.0
     heading: 0
 
 uav67:
   type: "f550"
   spawn:
-    x: 12.0
-    y: 12.0
+    x: 24.0
+    y: 24.0
     z: 0.0
     heading: 0
 
 uav68:
   type: "f550"
   spawn:
-    x: 14.0
-    y: 12.0
+    x: 28.0
+    y: 24.0
     z: 0.0
     heading: 0
 
 uav69:
   type: "f550"
   spawn:
-    x: 16.0
-    y: 12.0
+    x: 32.0
+    y: 24.0
     z: 0.0
     heading: 0
 
 uav70:
   type: "f550"
   spawn:
-    x: 18.0
-    y: 12.0
+    x: 36.0
+    y: 24.0
     z: 0.0
     heading: 0
 
@@ -665,79 +665,79 @@ uav71:
   type: "f550"
   spawn:
     x: 0.0
-    y: 14.0
+    y: 28.0
     z: 0.0
     heading: 0
 
 uav72:
   type: "f550"
   spawn:
-    x: 2.0
-    y: 14.0
+    x: 4.0
+    y: 28.0
     z: 0.0
     heading: 0
 
 uav73:
   type: "f550"
   spawn:
-    x: 4.0
-    y: 14.0
+    x: 8.0
+    y: 28.0
     z: 0.0
     heading: 0
 
 uav74:
   type: "f550"
   spawn:
-    x: 6.0
-    y: 14.0
+    x: 12.0
+    y: 28.0
     z: 0.0
     heading: 0
 
 uav75:
   type: "f550"
   spawn:
-    x: 8.0
-    y: 14.0
+    x: 16.0
+    y: 28.0
     z: 0.0
     heading: 0
 
 uav76:
   type: "f550"
   spawn:
-    x: 10.0
-    y: 14.0
+    x: 20.0
+    y: 28.0
     z: 0.0
     heading: 0
 
 uav77:
   type: "f550"
   spawn:
-    x: 12.0
-    y: 14.0
+    x: 24.0
+    y: 28.0
     z: 0.0
     heading: 0
 
 uav78:
   type: "f550"
   spawn:
-    x: 14.0
-    y: 14.0
+    x: 28.0
+    y: 28.0
     z: 0.0
     heading: 0
 
 uav79:
   type: "f550"
   spawn:
-    x: 16.0
-    y: 14.0
+    x: 32.0
+    y: 28.0
     z: 0.0
     heading: 0
 
 uav80:
   type: "f550"
   spawn:
-    x: 18.0
-    y: 14.0
+    x: 36.0
+    y: 28.0
     z: 0.0
     heading: 0
 
@@ -745,79 +745,79 @@ uav81:
   type: "f550"
   spawn:
     x: 0.0
-    y: 16.0
+    y: 32.0
     z: 0.0
     heading: 0
 
 uav82:
   type: "f550"
   spawn:
-    x: 2.0
-    y: 16.0
+    x: 4.0
+    y: 32.0
     z: 0.0
     heading: 0
 
 uav83:
   type: "f550"
   spawn:
-    x: 4.0
-    y: 16.0
+    x: 8.0
+    y: 32.0
     z: 0.0
     heading: 0
 
 uav84:
   type: "f550"
   spawn:
-    x: 6.0
-    y: 16.0
+    x: 12.0
+    y: 32.0
     z: 0.0
     heading: 0
 
 uav85:
   type: "f550"
   spawn:
-    x: 8.0
-    y: 16.0
+    x: 16.0
+    y: 32.0
     z: 0.0
     heading: 0
 
 uav86:
   type: "f550"
   spawn:
-    x: 10.0
-    y: 16.0
+    x: 20.0
+    y: 32.0
     z: 0.0
     heading: 0
 
 uav87:
   type: "f550"
   spawn:
-    x: 12.0
-    y: 16.0
+    x: 24.0
+    y: 32.0
     z: 0.0
     heading: 0
 
 uav88:
   type: "f550"
   spawn:
-    x: 14.0
-    y: 16.0
+    x: 28.0
+    y: 32.0
     z: 0.0
     heading: 0
 
 uav89:
   type: "f550"
   spawn:
-    x: 16.0
-    y: 16.0
+    x: 32.0
+    y: 32.0
     z: 0.0
     heading: 0
 
 uav90:
   type: "f550"
   spawn:
-    x: 18.0
-    y: 16.0
+    x: 36.0
+    y: 32.0
     z: 0.0
     heading: 0
 
@@ -825,78 +825,78 @@ uav91:
   type: "f550"
   spawn:
     x: 0.0
-    y: 18.0
+    y: 36.0
     z: 0.0
     heading: 0
 
 uav92:
   type: "f550"
   spawn:
-    x: 2.0
-    y: 18.0
+    x: 4.0
+    y: 36.0
     z: 0.0
     heading: 0
 
 uav93:
   type: "f550"
   spawn:
-    x: 4.0
-    y: 18.0
+    x: 8.0
+    y: 36.0
     z: 0.0
     heading: 0
 
 uav94:
   type: "f550"
   spawn:
-    x: 6.0
-    y: 18.0
+    x: 12.0
+    y: 36.0
     z: 0.0
     heading: 0
 
 uav95:
   type: "f550"
   spawn:
-    x: 8.0
-    y: 18.0
+    x: 16.0
+    y: 36.0
     z: 0.0
     heading: 0
 
 uav96:
   type: "f550"
   spawn:
-    x: 10.0
-    y: 18.0
+    x: 20.0
+    y: 36.0
     z: 0.0
     heading: 0
 
 uav97:
   type: "f550"
   spawn:
-    x: 12.0
-    y: 18.0
+    x: 24.0
+    y: 36.0
     z: 0.0
     heading: 0
 
 uav98:
   type: "f550"
   spawn:
-    x: 14.0
-    y: 18.0
+    x: 28.0
+    y: 36.0
     z: 0.0
     heading: 0
 
 uav99:
   type: "f550"
   spawn:
-    x: 16.0
-    y: 18.0
+    x: 32.0
+    y: 36.0
     z: 0.0
     heading: 0
 
 uav100:
   type: "f550"
   spawn:
-    x: 18.0
-    y: 18.0
+    x: 36.0
+    y: 36.0
     z: 0.0
     heading: 0

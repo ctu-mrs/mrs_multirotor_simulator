@@ -9,7 +9,7 @@ namespace mrs_multirotor_simulator
 Mixer::Mixer() {
 }
 
-Mixer::Mixer(const ModelParams& model_params) {
+Mixer::Mixer(const MultirotorModel::ModelParams& model_params) {
 
   model_params_ = model_params;
 

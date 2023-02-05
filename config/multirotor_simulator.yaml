@@ -18,6 +18,13 @@ frames:
     name: "garmin"
     publish_tf: true
 
+collisions:
+  enabled: true
+  crash: true
+
+  # if crash==false, then the collisions are elastic
+  rebounce: 100.0
+
 ground:
   enabled: true
   z: 0.0 # [m]

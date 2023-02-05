@@ -19,15 +19,15 @@ public:
   };
 
   PositionController();
-  PositionController(const ModelParams& model_params);
+  PositionController(const MultirotorModel::ModelParams& model_params);
 
   void setParams(const Params& params);
 
   reference::Velocity getControlSignal(const MultirotorModel::State& state, const reference::Position& reference, const double& dt);
 
 private:
-  ModelParams model_params_;
-  Params      params_;
+  MultirotorModel::ModelParams model_params_;
+  Params                       params_;
 
   void initializePIDs(void);
 

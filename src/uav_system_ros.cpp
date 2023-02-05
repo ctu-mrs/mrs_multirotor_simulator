@@ -258,10 +258,36 @@ Eigen::Vector3d UavSystemRos::getPose(void) {
 
 //}
 
+/* getParams() //{ */
+
+MultirotorModel::ModelParams UavSystemRos::getParams() {
+
+  return uav_system_.getParams();
+}
+
+//}
+
+/* getState() //{ */
+
+MultirotorModel::State UavSystemRos::getState() {
+
+  return uav_system_.getState();
+}
+
+//}
+
 /* crash() //{ */
 
 void UavSystemRos::crash(void) {
   uav_system_.crash();
+}
+
+//}
+
+/* hasCrashed() //{ */
+
+bool UavSystemRos::hasCrashed(void) {
+  return uav_system_.hasCrashed();
 }
 
 //}

@@ -53,6 +53,10 @@ private:
 
   std::vector<std::unique_ptr<UavSystemRos>> uavs_;
 
+  // | ------------------------- methods ------------------------ |
+
+  void handleCollisions(void);
+
   // | --------------- dynamic reconfigure server --------------- |
 
   boost::recursive_mutex                                       mutex_drs_;
@@ -84,6 +88,9 @@ void MultirotorSimulator::onInit() {
 
   param_loader.loadParam("simulation_rate", _simulation_rate_);
   param_loader.loadParam("realtime_factor", drs_params_.realtime_factor);
+  param_loader.loadParam("collisions/enabled", drs_params_.collisions_enabled);
+  param_loader.loadParam("collisions/crash", drs_params_.collisions_crash);
+  param_loader.loadParam("collisions/rebounce", drs_params_.collisions_rebounce);
 
   std::vector<std::string> uav_names;
 
@@ -150,57 +157,7 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
 
   // | ----------------------- collisions ----------------------- |
 
-  std::vector<Eigen::VectorXd> poses;
-
-  for (size_t i = 0; i < uavs_.size(); i++) {
-    poses.push_back(uavs_[i]->getPose());
-  }
-
-  typedef KDTreeVectorOfVectorsAdaptor<my_vector_of_vectors_t, double> my_kd_tree_t;
-
-  my_kd_tree_t mat_index(3, poses, 10);
-
-  std::vector<nanoflann::ResultItem<int, double>> indices_dists;
-
-  std::vector<Eigen::Vector3d> forces;
-
-  for (size_t i = 0; i < uavs_.size(); i++) {
-    forces.push_back(Eigen::Vector3d::Zero());
-  }
-
-  for (size_t i = 0; i < uavs_.size(); i++) {
-
-    Eigen::Vector3d pose_1 = uavs_[i]->getPose();
-
-    nanoflann::RadiusResultSet<double, int> resultSet(1.2, indices_dists);
-
-    mat_index.index->findNeighbors(resultSet, &pose_1[0]);
-
-    for (size_t j = 0; j < resultSet.m_indices_dists.size(); j++) {
-
-      const size_t idx  = resultSet.m_indices_dists[j].first;
-      const double dist = resultSet.m_indices_dists[j].second;
-
-      if (idx == i) {
-        continue;
-      }
-
-      Eigen::Vector3d pose_2 = uavs_[idx]->getPose();
-
-      if (dist < 1.0) {
-        /* uavs_[idx]->crash(); */
-        forces[i] += 50 * (pose_1 - pose_2).normalized();
-      }
-    }
-
-    for (size_t i = 0; i < uavs_.size(); i++) {
-      uavs_[i]->applyForce(forces[i]);
-    }
-  }
-
-  /* for (size_t i = 0; i < resultSet.m_indices_dists.size(); i++) { */
-  /*   std::cout << "uav[" << resultSet.m_indices_dists[i].first << "] = " << resultSet.m_indices_dists[i].second << std::endl; */
-  /* } */
+  handleCollisions();
 
   // | ---------------------- publish time ---------------------- |
 
@@ -226,6 +183,74 @@ void MultirotorSimulator::callbackDrs(mrs_multirotor_simulator::multirotor_simul
   timer_main_.setPeriod(ros::WallDuration(1.0 / (_simulation_rate_ * config.realtime_factor)), true);
 
   ROS_INFO("[MultirotorSimulator]: DRS updated params");
+}
+
+//}
+
+// | ------------------------- methods ------------------------ |
+
+/* handleCollisions() //{ */
+
+void MultirotorSimulator::handleCollisions(void) {
+
+  auto drs_params = mrs_lib::get_mutexed(mutex_drs_params_, drs_params_);
+
+  std::vector<Eigen::VectorXd> poses;
+
+  for (size_t i = 0; i < uavs_.size(); i++) {
+    poses.push_back(uavs_[i]->getPose());
+  }
+
+  typedef KDTreeVectorOfVectorsAdaptor<my_vector_of_vectors_t, double> my_kd_tree_t;
+
+  my_kd_tree_t mat_index(3, poses, 10);
+
+  std::vector<nanoflann::ResultItem<int, double>> indices_dists;
+
+  std::vector<Eigen::Vector3d> forces;
+
+  for (size_t i = 0; i < uavs_.size(); i++) {
+    forces.push_back(Eigen::Vector3d::Zero());
+  }
+
+  for (size_t i = 0; i < uavs_.size(); i++) {
+
+    MultirotorModel::State       state_1  = uavs_[i]->getState();
+    MultirotorModel::ModelParams params_1 = uavs_[i]->getParams();
+
+    nanoflann::RadiusResultSet<double, int> resultSet(3.0, indices_dists);
+
+    mat_index.index->findNeighbors(resultSet, &state_1.x[0]);
+
+    for (size_t j = 0; j < resultSet.m_indices_dists.size(); j++) {
+
+      const size_t idx  = resultSet.m_indices_dists[j].first;
+      const double dist = resultSet.m_indices_dists[j].second;
+
+      if (idx == i) {
+        continue;
+      }
+
+      MultirotorModel::State       state_2  = uavs_[idx]->getState();
+      MultirotorModel::ModelParams params_2 = uavs_[idx]->getParams();
+
+      const double crit_dist = params_1.arm_length + params_1.prop_radius + params_2.arm_length + params_2.prop_radius;
+
+      const Eigen::Vector3d rel_pos = state_1.x - state_2.x;
+
+      if (dist < crit_dist) {
+        if (drs_params.collisions_crash) {
+          uavs_[idx]->crash();
+        } else {
+          forces[i] += drs_params.collisions_rebounce * rel_pos.normalized() * params_1.mass * (params_2.mass / (params_1.mass + params_2.mass));
+        }
+      }
+    }
+  }
+
+  for (size_t i = 0; i < uavs_.size(); i++) {
+    uavs_[i]->applyForce(forces[i]);
+  }
 }
 
 //}

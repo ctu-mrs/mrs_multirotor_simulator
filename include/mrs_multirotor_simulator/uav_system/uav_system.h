@@ -29,12 +29,13 @@ public:
   };
 
   UavSystem(void);
-  UavSystem(const ModelParams& model_params);
-  UavSystem(const ModelParams& model_params, const Eigen::Vector3d spawn_pos, const double spawn_heading);
+  UavSystem(const MultirotorModel::ModelParams& model_params);
+  UavSystem(const MultirotorModel::ModelParams& model_params, const Eigen::Vector3d spawn_pos, const double spawn_heading);
 
   void makeStep(const double dt);
 
   void crash(void);
+  bool hasCrashed(void);
 
   void applyForce(const Eigen::Vector3d& force);
 
@@ -47,7 +48,8 @@ public:
   void setInput(const reference::Position& position);
   void setInput(void);
 
-  MultirotorModel::State getState(void);
+  MultirotorModel::State       getState(void);
+  MultirotorModel::ModelParams getParams(void);
 
   Eigen::Vector3d getImuAcceleration(void);
 

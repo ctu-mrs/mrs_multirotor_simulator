@@ -19,15 +19,15 @@ public:
   };
 
   VelocityController();
-  VelocityController(const ModelParams& model_params);
+  VelocityController(const MultirotorModel::ModelParams& model_params);
 
   void setParams(const Params& params);
 
   reference::Acceleration getControlSignal(const MultirotorModel::State& state, const reference::Velocity& reference, const double& dt);
 
 private:
-  ModelParams model_params_;
-  Params      params_;
+  MultirotorModel::ModelParams model_params_;
+  Params                       params_;
 
   void initializePIDs(void);
 

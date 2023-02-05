@@ -9,7 +9,7 @@ AttitudeController::AttitudeController() {
   initializePIDS();
 }
 
-AttitudeController::AttitudeController(const ModelParams& model_params) {
+AttitudeController::AttitudeController(const MultirotorModel::ModelParams& model_params) {
   model_params_ = model_params;
   initializePIDS();
 }

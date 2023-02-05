@@ -8,7 +8,7 @@ namespace mrs_multirotor_simulator
 AccelerationController::AccelerationController() {
 }
 
-AccelerationController::AccelerationController(const ModelParams& model_params) {
+AccelerationController::AccelerationController(const MultirotorModel::ModelParams& model_params) {
   model_params_ = model_params;
 }
 

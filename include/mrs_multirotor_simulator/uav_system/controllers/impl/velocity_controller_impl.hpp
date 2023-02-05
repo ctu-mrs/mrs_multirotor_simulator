@@ -9,7 +9,7 @@ VelocityController::VelocityController() {
   initializePIDs();
 }
 
-VelocityController::VelocityController(const ModelParams& model_params) {
+VelocityController::VelocityController(const MultirotorModel::ModelParams& model_params) {
   model_params_ = model_params;
 
   initializePIDs();
@@ -50,4 +50,4 @@ reference::Acceleration VelocityController::getControlSignal(const MultirotorMod
 
 }  // namespace mrs_multirotor_simulator
 
-#endif // VELOCITY_CONTROLLER_IMPL_H
+#endif  // VELOCITY_CONTROLLER_IMPL_H

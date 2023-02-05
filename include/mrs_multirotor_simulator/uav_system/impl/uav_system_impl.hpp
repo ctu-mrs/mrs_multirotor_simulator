@@ -15,14 +15,14 @@ UavSystem::UavSystem(void) {
 }
 
 // constructor
-UavSystem::UavSystem(const ModelParams& model_params) {
+UavSystem::UavSystem(const MultirotorModel::ModelParams& model_params) {
 
   multirotor_model_.setParams(model_params);
 
   initializeControllers();
 }
 
-UavSystem::UavSystem(const ModelParams& model_params, const Eigen::Vector3d spawn_pos, const double spawn_heading) {
+UavSystem::UavSystem(const MultirotorModel::ModelParams& model_params, const Eigen::Vector3d spawn_pos, const double spawn_heading) {
 
   multirotor_model_.setParams(model_params);
   multirotor_model_.setStatePos(spawn_pos, spawn_heading);
@@ -36,7 +36,7 @@ UavSystem::UavSystem(const ModelParams& model_params, const Eigen::Vector3d spaw
 
 void UavSystem::initializeControllers(void) {
 
-  ModelParams model_params = multirotor_model_.getParams();
+  MultirotorModel::ModelParams model_params = multirotor_model_.getParams();
 
   mixer_                   = Mixer(model_params);
   rate_controller_         = RateController(model_params);
@@ -114,6 +114,15 @@ void UavSystem::crash(void) {
 
 //}
 
+/* hasCrashed() //{ */
+
+bool UavSystem::hasCrashed(void) {
+
+  return crashed_;
+}
+
+//}
+
 /* applyForce() //{ */
 
 void UavSystem::applyForce(const Eigen::Vector3d& force) {
@@ -172,6 +181,15 @@ MultirotorModel::State UavSystem::getState(void) {
 
 //}
 
+/* getParams() //{ */
+
+MultirotorModel::ModelParams UavSystem::getParams(void) {
+
+  return multirotor_model_.getParams();
+}
+
+//}
+
 /* getMixerAllocation() //{ */
 
 Eigen::MatrixXd UavSystem::getMixerAllocation(void) {
@@ -213,7 +231,6 @@ void UavSystem::setPositionControllerParams(const PositionController::Params& pa
 }
 
 //}
-
 
 }  // namespace mrs_multirotor_simulator
 

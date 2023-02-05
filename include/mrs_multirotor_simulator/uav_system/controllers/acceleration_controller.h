@@ -10,12 +10,12 @@ class AccelerationController {
 
 public:
   AccelerationController();
-  AccelerationController(const ModelParams& model_params);
+  AccelerationController(const MultirotorModel::ModelParams& model_params);
 
   reference::Attitude getControlSignal(const MultirotorModel::State& state, const reference::Acceleration& reference, const double dt);
 
 private:
-  ModelParams model_params_;
+  MultirotorModel::ModelParams model_params_;
 };
 
 }  // namespace mrs_multirotor_simulator

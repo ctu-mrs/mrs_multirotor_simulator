@@ -10,7 +10,7 @@ PositionController::PositionController() {
   initializePIDs();
 }
 
-PositionController::PositionController(const ModelParams& model_params) {
+PositionController::PositionController(const MultirotorModel::ModelParams& model_params) {
 
   model_params_ = model_params;
 
