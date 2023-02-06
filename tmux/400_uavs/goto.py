@@ -14,7 +14,7 @@ class Goto:
         rospy.init_node('goto', anonymous=True)
 
         publishers = []
-        n_uavs = 100
+        n_uavs = 400
 
         for i in range(0, n_uavs):
             publishers.append(rospy.Publisher('/multirotor_simulator/uav{}/position_cmd'.format(i+1), HwApiPositionCmd, queue_size=1))
@@ -27,10 +27,10 @@ class Goto:
         ys = []
 
         for i in range(0, n_uavs):
-            xs.append(random.randint(20, 20))
-            ys.append(random.randint(20, 20))
-            # xs.append(0)
-            # ys.append(0)
+            # xs.append(random.randint(-40, 40))
+            # ys.append(random.randint(-40, 40))
+            xs.append(0)
+            ys.append(0)
 
         while not rospy.is_shutdown():
 

@@ -3,7 +3,7 @@ realtime_factor: 1.0 # [-]
 
 g: 9.81 # [ms^-2]
 
-iterate_without_input: true
+iterate_without_input: false
 
 input_timeout: 0.25 # [s]
 
@@ -20,7 +20,7 @@ frames:
 
 collisions:
   enabled: true
-  crash: false
+  crash: true
 
   # if crash==false, then the collisions are elastic
   rebounce: 100.0

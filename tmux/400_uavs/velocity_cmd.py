@@ -12,7 +12,7 @@ class Up:
         rospy.init_node('Up', anonymous=True)
 
         publishers = []
-        n_uavs = 100
+        n_uavs = 400
 
         for i in range(0, n_uavs):
             publishers.append(rospy.Publisher('/multirotor_simulator/uav{}/velocity_cmd'.format(i+1), HwApiVelocityCmd, queue_size=1))
@@ -24,7 +24,7 @@ class Up:
         while not rospy.is_shutdown():
 
             msg = HwApiVelocityCmd();
-            msg.velocity.x = 0;
+            msg.velocity.x = 1;
             msg.velocity.y = 0;
             msg.velocity.z = 0;
             msg.heading = 0;

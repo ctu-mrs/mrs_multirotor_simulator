@@ -14,7 +14,7 @@ windows:
       layout: tiled
       panes:
         - 'history -s ./goto.py'
-        - 'history -s ./velocity_cmd_up.py'
+        - 'history -s ./velocity_cmd.py'
   - rviz:
       layout: tiled
       panes:
