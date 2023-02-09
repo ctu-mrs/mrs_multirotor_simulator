@@ -5,9 +5,9 @@ input_mode:
   control_group: false
   attitude_rate: true
   attitude: true
-  acceleration: true
-  velocity: true
-  position: true
+  acceleration: false
+  velocity: false
+  position: false
 
 topics:
   prefix: "multirotor_simulator"
@@ -24,3 +24,4 @@ topics:
     acceleration_cmd: "acceleration_cmd"
     velocity_cmd: "velocity_cmd"
     position_cmd: "position_cmd"
+

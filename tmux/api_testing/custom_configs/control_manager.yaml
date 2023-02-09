@@ -1,0 +1,36 @@
+MpcTracker:
+  address: "mrs_uav_trackers/MpcTracker"
+  human_switchable: true
+
+LandoffTracker:
+  address: "mrs_uav_trackers/LandoffTracker"
+  human_switchable: true
+
+LineTracker:
+  address: "mrs_uav_trackers/LineTracker"
+  human_switchable: true
+
+Se3Controller:
+  human_switchable: true
+  outputs:
+    attitude:      true
+
+MpcController:
+  human_switchable: true
+  outputs:
+    attitude:      true
+
+FailsafeController:
+  human_switchable: true
+  outputs:
+    attitude:      true
+
+EmergencyController:
+  human_switchable: true
+  outputs:
+    attitude:      true
+
+MidairActivationController:
+  human_switchable: true
+  outputs:
+    attitude:      true

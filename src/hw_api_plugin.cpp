@@ -76,6 +76,8 @@ private:
   std::string _topic_simulator_imu_;
   std::string _topic_simulator_rangefinder_;
 
+  std::string _topic_simulator_actuators_cmd_;
+  std::string _topic_simulator_control_group_cmd_;
   std::string _topic_simulator_attitude_rate_cmd_;
   std::string _topic_simulator_attitude_cmd_;
   std::string _topic_simulator_acceleration_cmd_;
@@ -94,6 +96,8 @@ private:
 
   // | ----------------------- publishers ----------------------- |
 
+  mrs_lib::PublisherHandler<mrs_msgs::HwApiActuatorCmd>     ph_actuators_cmd_;
+  mrs_lib::PublisherHandler<mrs_msgs::HwApiControlGroupCmd> ph_control_group_cmd_;
   mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd> ph_attitude_rate_cmd_;
   mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>     ph_attitude_cmd_;
   mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationCmd> ph_acceleration_cmd_;
@@ -154,6 +158,8 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
   param_loader.loadParam("topics/simulator/odom", _topic_simulator_odom_);
   param_loader.loadParam("topics/simulator/imu", _topic_simulator_imu_);
   param_loader.loadParam("topics/simulator/rangefinder", _topic_simulator_rangefinder_);
+  param_loader.loadParam("topics/simulator/actuators_cmd", _topic_simulator_actuators_cmd_);
+  param_loader.loadParam("topics/simulator/control_group_cmd", _topic_simulator_control_group_cmd_);
   param_loader.loadParam("topics/simulator/attitude_rate_cmd", _topic_simulator_attitude_rate_cmd_);
   param_loader.loadParam("topics/simulator/attitude_cmd", _topic_simulator_attitude_cmd_);
   param_loader.loadParam("topics/simulator/acceleration_cmd", _topic_simulator_acceleration_cmd_);
@@ -187,16 +193,40 @@ void Api::initialize(const ros::NodeHandle &parent_nh, std::shared_ptr<mrs_uav_h
 
   // | ----------------------- publishers ----------------------- |
 
-  ph_attitude_rate_cmd_ =
-      mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_attitude_rate_cmd_, 1);
-  ph_attitude_cmd_ =
-      mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_attitude_cmd_, 1);
-  ph_acceleration_cmd_ =
-      mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_acceleration_cmd_, 1);
-  ph_velocity_cmd_ =
-      mrs_lib::PublisherHandler<mrs_msgs::HwApiVelocityCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_velocity_cmd_, 1);
-  ph_position_cmd_ =
-      mrs_lib::PublisherHandler<mrs_msgs::HwApiPositionCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_position_cmd_, 1);
+  if (_input_mode_actuators_) {
+    ph_actuators_cmd_ =
+        mrs_lib::PublisherHandler<mrs_msgs::HwApiActuatorCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_actuators_cmd_, 1);
+  }
+
+  if (_input_mode_control_group_) {
+    ph_control_group_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiControlGroupCmd>(
+        nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_control_group_cmd_, 1);
+  }
+
+  if (_input_mode_attitude_rate_) {
+    ph_attitude_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd>(
+        nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_attitude_rate_cmd_, 1);
+  }
+
+  if (_input_mode_attitude_) {
+    ph_attitude_cmd_ =
+        mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_attitude_cmd_, 1);
+  }
+
+  if (_input_mode_acceleration_) {
+    ph_acceleration_cmd_ =
+        mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_acceleration_cmd_, 1);
+  }
+
+  if (_input_mode_velocity_) {
+    ph_velocity_cmd_ =
+        mrs_lib::PublisherHandler<mrs_msgs::HwApiVelocityCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_velocity_cmd_, 1);
+  }
+
+  if (_input_mode_acceleration_) {
+    ph_position_cmd_ =
+        mrs_lib::PublisherHandler<mrs_msgs::HwApiPositionCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_position_cmd_, 1);
+  }
 
   // | ------------------------- timers ------------------------- |
 
@@ -317,11 +347,11 @@ bool Api::callbackActuatorCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msg
     return false;
   }
 
-  ROS_INFO_ONCE("[Api]: getting actuator cmd");
+  ROS_INFO_ONCE("[Api]: getting actuators cmd");
 
-  // place for data processing
+  ph_actuators_cmd_.publish(wrp.getMsg());
 
-  return false;
+  return true;
 }
 
 //}
@@ -337,9 +367,9 @@ bool Api::callbackControlGroupCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs
 
   ROS_INFO_ONCE("[Api]: getting control group cmd");
 
-  // place for data processing
+  ph_control_group_cmd_.publish(wrp.getMsg());
 
-  return false;
+  return true;
 }
 
 //}
