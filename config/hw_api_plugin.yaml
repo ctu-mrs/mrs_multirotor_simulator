@@ -1,13 +1,31 @@
 hw_interface_plugin: "mrs_simulator_api_plugin/Api"
 
+gnss:
+  utm_x: 465710.758973
+  utm_y: 5249465.43086
+  amsl: 340.0
+
 input_mode:
   actuators: false
   control_group: false
   attitude_rate: true
   attitude: true
-  acceleration: true
-  velocity: true
+  acceleration_hdg_rate: true
+  acceleration_hdg: true
+  velocity_hdg_rate: true
+  velocity_hdg: true
   position: true
+
+outputs:
+  distance_sensor: true
+  gnss: true
+  imu: true
+  altitude: true
+  magnetometer_heading: true
+  odometry_local: true
+  rc_channels: true
+  orientation: true
+  battery_state: true
 
 topics:
   prefix: "multirotor_simulator"
