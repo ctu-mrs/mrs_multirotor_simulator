@@ -1,18 +1,47 @@
-#ifndef ACCELERATION_CONTROLLER_IMPL_H
-#define ACCELERATION_CONTROLLER_IMPL_H
+#ifndef ACCELERATION_CONTROLLER_H
+#define ACCELERATION_CONTROLLER_H
+
+#include "references.hpp"
+#include "../multirotor_model.hpp"
 
 namespace mrs_multirotor_simulator
 {
 
-// constructor
+class AccelerationController {
+
+public:
+  AccelerationController();
+  AccelerationController(const MultirotorModel::ModelParams& model_params);
+
+  reference::TiltHdgRate getControlSignal(const MultirotorModel::State& state, const reference::AccelerationHdgRate& reference, const double dt);
+  reference::Attitude    getControlSignal(const MultirotorModel::State& state, const reference::AccelerationHdg& reference, const double dt);
+
+private:
+  MultirotorModel::ModelParams model_params_;
+};
+
+// --------------------------------------------------------------
+// |                       implementation                       |
+// --------------------------------------------------------------
+
+/* AccelerationController() //{ */
+
 AccelerationController::AccelerationController() {
 }
+
+//}
+
+/* AccelerationController() //{ */
 
 AccelerationController::AccelerationController(const MultirotorModel::ModelParams& model_params) {
   model_params_ = model_params;
 }
 
-reference::Attitude AccelerationController::getControlSignal(const MultirotorModel::State& state, const reference::Acceleration& reference,
+//}
+
+/* getControlSignal(const MultirotorModel::State& state, const reference::AccelerationHdg& reference, const double dt) //{ */
+
+reference::Attitude AccelerationController::getControlSignal(const MultirotorModel::State& state, const reference::AccelerationHdg& reference,
                                                              [[maybe_unused]] const double dt) {
 
   const Eigen::Vector3d fd      = (reference.acceleration + Eigen::Vector3d(0, 0, model_params_.g)) * model_params_.mass;
@@ -67,6 +96,33 @@ reference::Attitude AccelerationController::getControlSignal(const MultirotorMod
   return output;
 }
 
+//}
+
+/* getControlSignal(const MultirotorModel::State& state, const reference::AccelerationHdg& reference, const double dt) //{ */
+
+reference::TiltHdgRate AccelerationController::getControlSignal(const MultirotorModel::State& state, const reference::AccelerationHdgRate& reference,
+                                                                [[maybe_unused]] const double dt) {
+
+  const Eigen::Vector3d fd      = (reference.acceleration + Eigen::Vector3d(0, 0, model_params_.g)) * model_params_.mass;
+  const Eigen::Vector3d fd_norm = fd.normalized();
+
+  // | ------------------------- result ------------------------- |
+
+  reference::TiltHdgRate output;
+
+  output.tilt_vector  = fd_norm;
+  output.heading_rate = reference.heading_rate;
+
+  double thrust_force = fd.dot(state.R.col(2));
+
+  output.throttle =
+      (sqrt(thrust_force / (model_params_.kf * model_params_.n_motors)) - model_params_.min_rpm) / (model_params_.max_rpm - model_params_.min_rpm);
+
+  return output;
+}
+
+//}
+
 }  // namespace mrs_multirotor_simulator
 
-#endif // ACCELERATION_CONTROLLER_IMPL_H
+#endif  // ACCELERATION_CONTROLLER_H

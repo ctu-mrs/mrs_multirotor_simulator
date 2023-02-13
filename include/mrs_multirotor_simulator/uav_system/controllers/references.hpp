@@ -2,6 +2,7 @@
 #define REFERENCES_H
 
 #include <iostream>
+#include <eigen3/Eigen/Core>
 
 namespace mrs_multirotor_simulator
 {
@@ -114,11 +115,56 @@ public:
 
 //}
 
-/* Acceleration //{ */
+/* TiltHdgRate //{ */
 
-class Acceleration {
+class TiltHdgRate {
 public:
-  Acceleration() {
+  TiltHdgRate() {
+    this->tilt_vector = Eigen::Vector3d::Identity();
+  }
+
+  Eigen::Vector3d tilt_vector;
+
+  double heading_rate = 0;
+
+  /**
+   * @brief the collective throttle along body-Z normalized to [-1, 1]
+   */
+  double throttle = 0;
+
+  friend std::ostream& operator<<(std::ostream& os, const TiltHdgRate& data) {
+    os << "Attitude: throttle " << data.throttle << ", tilt = " << std::endl << data.tilt_vector.transpose() << ", heading rate = " << data.heading_rate;
+    return os;
+  }
+};
+
+//}
+
+/* AccelerationHdgRate //{ */
+
+class AccelerationHdgRate {
+public:
+  AccelerationHdgRate() {
+    this->acceleration = Eigen::Vector3d::Zero();
+  }
+
+  Eigen::Vector3d acceleration;
+
+  double heading_rate = 0;
+
+  friend std::ostream& operator<<(std::ostream& os, const AccelerationHdgRate& data) {
+    os << "Acceleration: acc = " << data.acceleration.transpose() << ", heading rate = " << data.heading_rate;
+    return os;
+  }
+};
+
+//}
+
+/* AccelerationHdg //{ */
+
+class AccelerationHdg {
+public:
+  AccelerationHdg() {
     this->acceleration = Eigen::Vector3d::Zero();
   }
 
@@ -129,7 +175,7 @@ public:
    */
   double heading = 0;
 
-  friend std::ostream& operator<<(std::ostream& os, const Acceleration& data) {
+  friend std::ostream& operator<<(std::ostream& os, const AccelerationHdg& data) {
     os << "Acceleration: acc = " << data.acceleration.transpose() << ", heading = " << data.heading;
     return os;
   }
@@ -137,11 +183,34 @@ public:
 
 //}
 
-/* Velocity //{ */
+/* VelocityHdgRate //{ */
 
-class Velocity {
+class VelocityHdgRate {
 public:
-  Velocity() {
+  VelocityHdgRate() {
+    this->velocity = Eigen::Vector3d::Zero();
+  }
+
+  Eigen::Vector3d velocity;
+
+  /**
+   * @brief atan2 of body-x axis projected to the ground plane
+   */
+  double heading_rate = 0;
+
+  friend std::ostream& operator<<(std::ostream& os, const VelocityHdgRate& data) {
+    os << "Velocity: vel = " << data.velocity.transpose() << ", heading rate = " << data.heading_rate;
+    return os;
+  }
+};
+
+//}
+
+/* VelocityHdg //{ */
+
+class VelocityHdg {
+public:
+  VelocityHdg() {
     this->velocity = Eigen::Vector3d::Zero();
   }
 
@@ -152,8 +221,8 @@ public:
    */
   double heading = 0;
 
-  friend std::ostream& operator<<(std::ostream& os, const Velocity& data) {
-    os << "Velocity: vel = " << data.velocity.transpose() << ", heading = " << data.heading;
+  friend std::ostream& operator<<(std::ostream& os, const VelocityHdg& data) {
+    os << "Velocity: vel = " << data.velocity.transpose() << ", heading rate = " << data.heading;
     return os;
   }
 };

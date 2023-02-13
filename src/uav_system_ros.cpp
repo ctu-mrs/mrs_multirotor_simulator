@@ -161,15 +161,27 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string uav_name) {
   shopts.queue_size         = 10;
   shopts.transport_hints    = ros::TransportHints().tcpNoDelay();
 
+  sh_actuator_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiActuatorCmd>(shopts, uav_name + "/actuators_cmd", &UavSystemRos::callbackActuatorCmd, this);
+
+  sh_control_group_cmd_ =
+      mrs_lib::SubscribeHandler<mrs_msgs::HwApiControlGroupCmd>(shopts, uav_name + "/control_group_cmd", &UavSystemRos::callbackControlGroupCmd, this);
+
   sh_attitude_rate_cmd_ =
       mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>(shopts, uav_name + "/attitude_rate_cmd", &UavSystemRos::callbackAttitudeRateCmd, this);
 
   sh_attitude_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>(shopts, uav_name + "/attitude_cmd", &UavSystemRos::callbackAttitudeCmd, this);
 
-  sh_acceleration_cmd_ =
-      mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd>(shopts, uav_name + "/acceleration_cmd", &UavSystemRos::callbackAccelerationCmd, this);
+  sh_acceleration_hdg_cmd_ =
+      mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationHdgCmd>(shopts, uav_name + "/acceleration_hdg_cmd", &UavSystemRos::callbackAccelerationHdgCmd, this);
 
-  sh_velocity_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityCmd>(shopts, uav_name + "/velocity_cmd", &UavSystemRos::callbackVelocityCmd, this);
+  sh_acceleration_hdg_rate_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationHdgRateCmd>(shopts, uav_name + "/acceleration_hdg_rate_cmd",
+                                                                                                   &UavSystemRos::callbackAccelerationHdgRateCmd, this);
+
+  sh_velocity_hdg_cmd_ =
+      mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgCmd>(shopts, uav_name + "/velocity_hdg_cmd", &UavSystemRos::callbackVelocityHdgCmd, this);
+
+  sh_velocity_hdg_rate_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgRateCmd>(shopts, uav_name + "/velocity_hdg_rate_cmd",
+                                                                                           &UavSystemRos::callbackVelocityHdgRateCmd, this);
 
   sh_position_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>(shopts, uav_name + "/position_cmd", &UavSystemRos::callbackPositionCmd, this);
 
@@ -422,7 +434,7 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State& state) {
     tf.transform.translation.y = state.x[1];
     tf.transform.translation.z = state.x[2];
 
-    tf.transform.rotation = mrs_lib::AttitudeConverter(state.R.transpose());
+    tf.transform.rotation = mrs_lib::AttitudeConverter(state.R);
 
     tf_broadcaster_->sendTransform(tf);
   }
@@ -431,6 +443,79 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State& state) {
 //}
 
 // | ------------------------ callbacks ----------------------- |
+
+/* callbackActuatorCmd() //{ */
+
+void UavSystemRos::callbackActuatorCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiActuatorCmd>& wrp) {
+
+  if (!is_initialized_) {
+    return;
+  }
+
+  ROS_INFO_ONCE("[%s]: getting actuators command", _uav_name_.c_str());
+
+  mrs_msgs::HwApiActuatorCmd::ConstPtr msg = wrp.getMsg();
+
+  if (model_params_.n_motors != int(msg->motors.size())) {
+    ROS_ERROR("[%s]: the actuators message controls %d motors, but the model has %d motors", _uav_name_.c_str(), int(msg->motors.size()),
+              model_params_.n_motors);
+    return;
+  }
+
+  reference::Actuators cmd;
+
+  for (int i = 0; i < model_params_.n_motors; i++) {
+    cmd.motors[i] = msg->motors[i];
+  }
+
+  {
+    std::scoped_lock lock(mutex_uav_system_);
+
+    uav_system_.setInput(cmd);
+  }
+
+  {
+    std::scoped_lock lock(mutex_time_last_input_);
+
+    time_last_input_ = ros::Time::now();
+  }
+}
+
+//}
+
+/* callbackControlGroupCmd() //{ */
+
+void UavSystemRos::callbackControlGroupCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiControlGroupCmd>& wrp) {
+
+  if (!is_initialized_) {
+    return;
+  }
+
+  ROS_INFO_ONCE("[%s]: getting control group command", _uav_name_.c_str());
+
+  mrs_msgs::HwApiControlGroupCmd::ConstPtr msg = wrp.getMsg();
+
+  reference::ControlGroup cmd;
+
+  cmd.throttle = msg->throttle;
+  cmd.roll     = msg->roll;
+  cmd.pitch    = msg->pitch;
+  cmd.yaw      = msg->yaw;
+
+  {
+    std::scoped_lock lock(mutex_uav_system_);
+
+    uav_system_.setInput(cmd);
+  }
+
+  {
+    std::scoped_lock lock(mutex_time_last_input_);
+
+    time_last_input_ = ros::Time::now();
+  }
+}
+
+//}
 
 /* callbackAttitudeRateCmd() //{ */
 
@@ -499,19 +584,54 @@ void UavSystemRos::callbackAttitudeCmd([[maybe_unused]] mrs_lib::SubscribeHandle
 
 //}
 
-/* callbackAccelerationCmd() //{ */
+/* callbackAccelerationHdgRateCmd() //{ */
 
-void UavSystemRos::callbackAccelerationCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationCmd>& wrp) {
+void UavSystemRos::callbackAccelerationHdgRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationHdgRateCmd>& wrp) {
 
   if (!is_initialized_) {
     return;
   }
 
-  ROS_INFO_ONCE("[%s]: getting acceleration command", _uav_name_.c_str());
+  ROS_INFO_ONCE("[%s]: getting acceleration+hdg rate command", _uav_name_.c_str());
 
-  mrs_msgs::HwApiAccelerationCmd::ConstPtr msg = wrp.getMsg();
+  mrs_msgs::HwApiAccelerationHdgRateCmd::ConstPtr msg = wrp.getMsg();
 
-  reference::Acceleration cmd;
+  reference::AccelerationHdgRate cmd;
+
+  cmd.heading_rate = msg->heading_rate;
+
+  cmd.acceleration[0] = msg->acceleration.x;
+  cmd.acceleration[1] = msg->acceleration.y;
+  cmd.acceleration[2] = msg->acceleration.z;
+
+  {
+    std::scoped_lock lock(mutex_uav_system_);
+
+    uav_system_.setInput(cmd);
+  }
+
+  {
+    std::scoped_lock lock(mutex_time_last_input_);
+
+    time_last_input_ = ros::Time::now();
+  }
+}
+
+//}
+
+/* callbackAccelerationHdgCmd() //{ */
+
+void UavSystemRos::callbackAccelerationHdgCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationHdgCmd>& wrp) {
+
+  if (!is_initialized_) {
+    return;
+  }
+
+  ROS_INFO_ONCE("[%s]: getting acceleration+hdg command", _uav_name_.c_str());
+
+  mrs_msgs::HwApiAccelerationHdgCmd::ConstPtr msg = wrp.getMsg();
+
+  reference::AccelerationHdg cmd;
 
   cmd.heading = msg->heading;
 
@@ -534,19 +654,54 @@ void UavSystemRos::callbackAccelerationCmd([[maybe_unused]] mrs_lib::SubscribeHa
 
 //}
 
-/* callbackVelocityCmd() //{ */
+/* callbackVelocityHdgRateCmd() //{ */
 
-void UavSystemRos::callbackVelocityCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityCmd>& wrp) {
+void UavSystemRos::callbackVelocityHdgRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgRateCmd>& wrp) {
 
   if (!is_initialized_) {
     return;
   }
 
-  ROS_INFO_ONCE("[%s]: getting velocity command", _uav_name_.c_str());
+  ROS_INFO_ONCE("[%s]: getting velocity+hdg rate command", _uav_name_.c_str());
 
-  mrs_msgs::HwApiVelocityCmd::ConstPtr msg = wrp.getMsg();
+  mrs_msgs::HwApiVelocityHdgRateCmd::ConstPtr msg = wrp.getMsg();
 
-  reference::Velocity cmd;
+  reference::VelocityHdgRate cmd;
+
+  cmd.heading_rate = msg->heading_rate;
+
+  cmd.velocity[0] = msg->velocity.x;
+  cmd.velocity[1] = msg->velocity.y;
+  cmd.velocity[2] = msg->velocity.z;
+
+  {
+    std::scoped_lock lock(mutex_uav_system_);
+
+    uav_system_.setInput(cmd);
+  }
+
+  {
+    std::scoped_lock lock(mutex_time_last_input_);
+
+    time_last_input_ = ros::Time::now();
+  }
+}
+
+//}
+
+/* callbackVelocityHdgCmd() //{ */
+
+void UavSystemRos::callbackVelocityHdgCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgCmd>& wrp) {
+
+  if (!is_initialized_) {
+    return;
+  }
+
+  ROS_INFO_ONCE("[%s]: getting velocity+hdg command", _uav_name_.c_str());
+
+  mrs_msgs::HwApiVelocityHdgCmd::ConstPtr msg = wrp.getMsg();
+
+  reference::VelocityHdg cmd;
 
   cmd.heading = msg->heading;
 

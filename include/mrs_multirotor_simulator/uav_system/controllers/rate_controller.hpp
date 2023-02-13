@@ -1,8 +1,40 @@
-#ifndef RATE_CONTROLLER_IMPL_H
-#define RATE_CONTROLLER_IMPL_H
+#ifndef RATE_CONTROLLER_H
+#define RATE_CONTROLLER_H
+
+#include "pid.hpp"
+#include "references.hpp"
+#include "../multirotor_model.hpp"
 
 namespace mrs_multirotor_simulator
 {
+
+class RateController {
+
+public:
+  class Params {
+  public:
+    double kp = 4.0;
+    double kd = 0.04;
+    double ki = 0.0;
+  };
+
+  RateController();
+  RateController(const MultirotorModel::ModelParams& model_params);
+
+  void setParams(const Params& params);
+
+  reference::ControlGroup getControlSignal(const MultirotorModel::State& state, const reference::AttitudeRate& reference, const double& dt);
+
+private:
+  MultirotorModel::ModelParams model_params_;
+  Params                       params_;
+
+  void initializePIDs(void);
+
+  PIDController pid_x_;
+  PIDController pid_y_;
+  PIDController pid_z_;
+};
 
 // constructor
 RateController::RateController() {
@@ -50,4 +82,4 @@ reference::ControlGroup RateController::getControlSignal(const MultirotorModel::
 
 }  // namespace mrs_multirotor_simulator
 
-#endif // RATE_CONTROLLER_IMPL_H
+#endif  // RATE_CONTROLLER_H
