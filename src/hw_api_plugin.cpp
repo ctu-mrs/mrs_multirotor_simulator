@@ -391,7 +391,7 @@ bool Api::callbackControlGroupCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs
 
 bool Api::callbackAttitudeRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>& wrp) {
 
-  if (!_mode_.accepts_attitude_cmd) {
+  if (!_mode_.accepts_attitude_rate_cmd) {
     return false;
   }
 

@@ -1,7 +1,7 @@
 name: simulation
 root: ./
 pre_window: export UAV_NAME=uav1; export RUN_TYPE=simulation; export UAV_TYPE=x500; export WORLD_NAME=simulation; export SENSORS="garmin_down"; export ODOMETRY_TYPE="gps"
-startup_window: status
+startup_window: control
 windows:
   - roscore:
       layout: tiled
@@ -19,7 +19,7 @@ windows:
   - hw_api:
       layout: tiled
       panes:
-        - waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=`rospack find mrs_multirotor_simulator`/config/hw_api_plugin.yaml
+        - waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
   - status:
       layout: tiled
       panes:
@@ -27,7 +27,7 @@ windows:
   - control:
       layout: tiled
       panes:
-        - waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
+        - waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml DEBUG:=false
   - rviz:
       layout: tiled
       panes:
