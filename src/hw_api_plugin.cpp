@@ -314,25 +314,28 @@ std::tuple<bool, std::string> Api::callbackArming([[maybe_unused]] const bool& r
 
   std::stringstream ss;
 
-  if (request) {
-
-    ss << "Arming is not allowed using the companion computer.";
-    ROS_WARN_STREAM_THROTTLE(1.0, "[MrsSimulatorHwApi]: " << ss.str());
-    return std::tuple(false, ss.str());
-  }
-
-  if (!offboard_) {
-
+  if (!request && !offboard_) {
     ss << "can not disarm, not in OFFBOARD mode";
     ROS_WARN_STREAM_THROTTLE(1.0, "[MrsSimulatorHwApi]: " << ss.str());
     return std::tuple(false, ss.str());
   }
 
-  offboard_ = false;
+  if (request) {
 
-  ss << "disarmed";
-  ROS_INFO_STREAM_THROTTLE(1.0, "[MrsSimulatorHwApi]: " << ss.str());
-  return std::tuple(false, ss.str());
+    armed_ = true;
+
+    ss << "armed";
+    ROS_INFO_STREAM_THROTTLE(1.0, "[MrsSimulatorHwApi]: " << ss.str());
+    return std::tuple(true, ss.str());
+
+  } else {
+
+    armed_ = false;
+
+    ss << "disarmed";
+    ROS_INFO_STREAM_THROTTLE(1.0, "[MrsSimulatorHwApi]: " << ss.str());
+    return std::tuple(true, ss.str());
+  }
 }
 
 //}
@@ -341,9 +344,16 @@ std::tuple<bool, std::string> Api::callbackArming([[maybe_unused]] const bool& r
 
 std::tuple<bool, std::string> Api::callbackOffboard(void) {
 
+  std::stringstream ss;
+
+  if (!armed_) {
+    ss << "Cannot switch to offboard, not armed.";
+    ROS_INFO_THROTTLE(1.0, "[MrsSimulatorHwApi]: %s", ss.str().c_str());
+    return {false, ss.str()};
+  }
+
   offboard_ = true;
 
-  std::stringstream ss;
   ss << "Offboard set";
   ROS_INFO_THROTTLE(1.0, "[MrsSimulatorHwApi]: %s", ss.str().c_str());
   return {true, ss.str()};
