@@ -8,12 +8,11 @@ Panels:
         - /Status1
         - /TF1/Frames1
         - /TF1/Tree1
-        - /ControlManager1/cmd_odom1
         - /Odometry1/odom_main1
         - /Odometry1/odom_main1/Shape1
         - /MpcTracker1/MpcInnerReference1
       Splitter Ratio: 0.7053406834602356
-    Tree Height: 810
+    Tree Height: 368
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -223,22 +222,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        uav1/fcu/arms:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         uav1/fcu/arms_red:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        uav1/fcu/props:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        uav1/fcu/uav_marker:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -354,7 +338,7 @@ Visualization Manager:
             Value: true
           Enabled: true
           Keep: 1
-          Name: cmd_odom
+          Name: control_reference
           Position Tolerance: 0.009999999776482582
           Queue Size: 10
           Shape:
@@ -367,7 +351,7 @@ Visualization Manager:
             Shaft Length: 1
             Shaft Radius: 0.05000000074505806
             Value: Axes
-          Topic: /uav1/control_manager/cmd_odom
+          Topic: /uav1/control_manager/control_reference
           Unreliable: true
           Value: true
         - Class: rviz/Group
@@ -643,7 +627,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 40.3916015625
+      Distance: 6.062072277069092
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -659,9 +643,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.504798173904419
+      Pitch: 0.32979831099510193
       Target Frame: uav1/fcu
-      Yaw: 3.1572227478027344
+      Yaw: 2.777221202850342
     Saved: ~
 Window Geometry:
   Displays:
@@ -679,5 +663,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 936
-  X: 2886
+  X: 966
   Y: 32
