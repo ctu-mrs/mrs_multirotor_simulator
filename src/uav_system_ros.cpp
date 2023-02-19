@@ -464,6 +464,8 @@ void UavSystemRos::callbackActuatorCmd([[maybe_unused]] mrs_lib::SubscribeHandle
 
   reference::Actuators cmd;
 
+  cmd.motors = Eigen::VectorXd::Zero(model_params_.n_motors);
+
   for (int i = 0; i < model_params_.n_motors; i++) {
     cmd.motors[i] = msg->motors[i];
   }

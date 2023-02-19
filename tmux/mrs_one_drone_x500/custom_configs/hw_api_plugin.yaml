@@ -6,26 +6,26 @@ gnss:
   amsl: 340.0
 
 input_mode:
-  actuators: false
-  control_group: false
-  attitude_rate: true
-  attitude: true
+  actuators:             false
+  control_group:         false
+  attitude_rate:         false
+  attitude:              false
   acceleration_hdg_rate: false
-  acceleration_hdg: false
-  velocity_hdg_rate: false
-  velocity_hdg: false
-  position: false
+  acceleration_hdg:      false
+  velocity_hdg_rate:     false
+  velocity_hdg:          true
+  position:              false
 
 outputs:
-  distance_sensor: true
-  gnss: true
-  imu: true
-  altitude: true
+  distance_sensor:      true
+  gnss:                 true
+  imu:                  true
+  altitude:             true
   magnetometer_heading: true
-  odometry_local: true
-  rc_channels: true
-  orientation: true
-  battery_state: true
+  odometry_local:       true
+  rc_channels:          true
+  orientation:          true
+  battery_state:        true
 
 topics:
   prefix: "multirotor_simulator"

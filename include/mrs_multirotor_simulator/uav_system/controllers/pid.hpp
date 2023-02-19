@@ -69,9 +69,9 @@ double PIDController::update(double error, double dt) {
 
   if (saturation > 0) {
 
-    if (sum > saturation) {
+    if (sum >= saturation) {
       sum = saturation;
-    } else if (sum < -saturation) {
+    } else if (sum <= -saturation) {
       sum = -saturation;
     } else {
       integral_ += error * dt;

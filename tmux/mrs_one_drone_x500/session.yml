@@ -10,7 +10,7 @@ windows:
   - simulator:
       layout: tiled
       panes:
-        - waitForRos; export UAV_NAME=uav1; roslaunch mrs_multirotor_simulator multirotor_simulator.launch
+        - waitForRos; export UAV_NAME=uav1; roslaunch mrs_multirotor_simulator multirotor_simulator.launch custom_config:=./custom_configs/simulator.yaml
   - takeoff:
       layout: tiled
       panes:

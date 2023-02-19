@@ -2,8 +2,8 @@ position_controller:
 
   # PID gains
   kp: 1.0
-  kd: 0.5
-  ki: 0.01
+  kd: 0.1
+  ki: 0.05
 
   # output limit
-  max_velocity: 4.0 # m/s
+  max_velocity: 6.0 # m/s
