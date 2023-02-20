@@ -7,5 +7,5 @@ uav1:
   spawn:
     x: 10.0
     y: 15.0
-    z: 0.0
-    heading: 3.14
+    z: 2.0
+    heading: 1.57

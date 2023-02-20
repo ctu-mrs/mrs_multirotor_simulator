@@ -13,10 +13,10 @@ class PositionController {
 public:
   class Params {
   public:
-    double kp           = 1.0;
-    double kd           = 0.5;
-    double ki           = 0.01;
-    double max_velocity = 4.0;  // m/s
+    double kp           = 2.0;
+    double kd           = 0.15;
+    double ki           = 0.2;
+    double max_velocity = 6.0;  // m/s
   };
 
   PositionController();
@@ -97,9 +97,9 @@ void PositionController::initializePIDs(void) {
   pid_y_.reset();
   pid_z_.reset();
 
-  pid_x_.setParams(params_.kp, params_.kd, params_.ki, params_.max_velocity);
-  pid_y_.setParams(params_.kp, params_.kd, params_.ki, params_.max_velocity);
-  pid_z_.setParams(params_.kp, params_.kd, params_.ki, params_.max_velocity);
+  pid_x_.setParams(params_.kp, params_.kd, params_.ki, params_.max_velocity, 1.0);
+  pid_y_.setParams(params_.kp, params_.kd, params_.ki, params_.max_velocity, 1.0);
+  pid_z_.setParams(params_.kp, params_.kd, params_.ki, params_.max_velocity, 1.0);
 }
 
 //}

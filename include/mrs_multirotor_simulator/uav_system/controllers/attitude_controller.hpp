@@ -165,9 +165,9 @@ void AttitudeController::initializePIDS(void) {
   pid_y_.reset();
   pid_z_.reset();
 
-  pid_x_.setParams(params_.kp * model_params_.mass, params_.kd * model_params_.mass, params_.ki * model_params_.mass, params_.max_rate_roll_pitch);
-  pid_y_.setParams(params_.kp * model_params_.mass, params_.kd * model_params_.mass, params_.ki * model_params_.mass, params_.max_rate_roll_pitch);
-  pid_z_.setParams(params_.kp * model_params_.mass, params_.kd * model_params_.mass, params_.ki * model_params_.mass, params_.max_rate_yaw);
+  pid_x_.setParams(params_.kp * model_params_.mass, params_.kd * model_params_.mass, params_.ki * model_params_.mass, params_.max_rate_roll_pitch, 0.1);
+  pid_y_.setParams(params_.kp * model_params_.mass, params_.kd * model_params_.mass, params_.ki * model_params_.mass, params_.max_rate_roll_pitch, 0.1);
+  pid_z_.setParams(params_.kp * model_params_.mass, params_.kd * model_params_.mass, params_.ki * model_params_.mass, params_.max_rate_yaw, 0.1);
 }
 
 //}

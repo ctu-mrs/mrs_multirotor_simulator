@@ -59,9 +59,9 @@ void RateController::initializePIDs(void) {
   pid_y_.reset();
   pid_z_.reset();
 
-  pid_x_.setParams(params_.kp * model_params_.J(0, 0), params_.kd * model_params_.J(0, 0), params_.ki * model_params_.J(0, 0), 1.0);
-  pid_y_.setParams(params_.kp * model_params_.J(1, 1), params_.kd * model_params_.J(1, 1), params_.ki * model_params_.J(1, 1), 1.0);
-  pid_z_.setParams(params_.kp * model_params_.J(2, 2), params_.kd * model_params_.J(2, 2), params_.ki * model_params_.J(2, 2), 1.0);
+  pid_x_.setParams(params_.kp * model_params_.J(0, 0), params_.kd * model_params_.J(0, 0), params_.ki * model_params_.J(0, 0), -1, 1.0);
+  pid_y_.setParams(params_.kp * model_params_.J(1, 1), params_.kd * model_params_.J(1, 1), params_.ki * model_params_.J(1, 1), -1, 1.0);
+  pid_z_.setParams(params_.kp * model_params_.J(2, 2), params_.kd * model_params_.J(2, 2), params_.ki * model_params_.J(2, 2), -1, 1.0);
 }
 
 reference::ControlGroup RateController::getControlSignal(const MultirotorModel::State& state, const reference::AttitudeRate& reference, const double& dt) {

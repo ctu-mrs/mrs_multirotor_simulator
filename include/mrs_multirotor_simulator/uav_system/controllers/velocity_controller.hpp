@@ -113,9 +113,9 @@ void VelocityController::initializePIDs(void) {
   pid_y_.reset();
   pid_z_.reset();
 
-  pid_x_.setParams(params_.kp, params_.kd, params_.ki, params_.max_acceleration);
-  pid_y_.setParams(params_.kp, params_.kd, params_.ki, params_.max_acceleration);
-  pid_z_.setParams(params_.kp, params_.kd, params_.ki, params_.max_acceleration);
+  pid_x_.setParams(params_.kp, params_.kd, params_.ki, params_.max_acceleration, 1.0);
+  pid_y_.setParams(params_.kp, params_.kd, params_.ki, params_.max_acceleration, 1.0);
+  pid_z_.setParams(params_.kp, params_.kd, params_.ki, params_.max_acceleration, 1.0);
 }
 
 //}
