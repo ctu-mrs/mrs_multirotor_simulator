@@ -13,8 +13,8 @@ input_mode:
   acceleration_hdg_rate: false
   acceleration_hdg:      false
   velocity_hdg_rate:     false
-  velocity_hdg:          true
-  position:              false
+  velocity_hdg:          false
+  position:              true
 
 outputs:
   distance_sensor:      true
