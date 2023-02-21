@@ -223,6 +223,7 @@ void UavSystemRos::makeStep(const double dt) {
 
   if (time_last_input > ros::Time(0)) {
     if ((ros::Time::now() - time_last_input).toSec() > _input_timeout_) {
+
       ROS_WARN("[%s]: input timeouted", _uav_name_.c_str());
 
       {

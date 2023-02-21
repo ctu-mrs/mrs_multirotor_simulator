@@ -252,7 +252,11 @@ void UavSystem::makeStep(const double dt) {
 
   INPUT_MODE active_input = active_input_;
 
-  if (!crashed_) {
+  if (crashed_ || active_input_ == UavSystem::INPUT_UNKNOWN) {
+
+    actuators_cmd_.motors = Eigen::VectorXd::Zero(multirotor_model_.getParams().n_motors);
+
+  } else {
 
     if (active_input == UavSystem::POSITION_CMD) {
       velocity_hdg_cmd_ = position_controller_.getControlSignal(multirotor_model_.getState(), position_cmd_, dt);
@@ -292,9 +296,6 @@ void UavSystem::makeStep(const double dt) {
       actuators_cmd_ = mixer_.getControlSignal(control_group_cmd_);
       active_input   = ACTUATOR_CMD;
     }
-
-  } else {
-    actuators_cmd_.motors = Eigen::VectorXd::Zero(multirotor_model_.getParams().n_motors);
   }
 
   // set the motor input for the model
