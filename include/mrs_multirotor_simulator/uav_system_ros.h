@@ -55,6 +55,8 @@ private:
 
   // | ------------------------ UavSystem ----------------------- |
 
+  UavSystem::INPUT_MODE last_input_mode_;
+
   UavSystem  uav_system_;
   std::mutex mutex_uav_system_;
 
@@ -81,6 +83,8 @@ private:
   void publishOdometry(const MultirotorModel::State& state);
   void publishIMU(const MultirotorModel::State& state);
   void publishRangefinder(const MultirotorModel::State& state);
+
+  void timeoutInput(void);
 
   // | --------------------------- tf --------------------------- |
 

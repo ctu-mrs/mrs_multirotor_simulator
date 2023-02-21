@@ -226,10 +226,7 @@ void UavSystemRos::makeStep(const double dt) {
 
       ROS_WARN("[%s]: input timeouted", _uav_name_.c_str());
 
-      {
-        std::scoped_lock lock(mutex_uav_system_);
-        uav_system_.setInput();
-      }
+      timeoutInput();
 
       {
         std::scoped_lock lock(mutex_time_last_input_);
@@ -443,6 +440,183 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State& state) {
 
 //}
 
+// | ------------------------ routines ------------------------ |
+
+void UavSystemRos::timeoutInput(void) {
+
+  auto last_input_mode = mrs_lib::get_mutexed(mutex_time_last_input_, last_input_mode_);
+
+  MultirotorModel::State state = uav_system_.getState();
+
+  switch (last_input_mode) {
+
+    case UavSystem::POSITION_CMD: {
+
+      reference::Position cmd;
+
+      cmd.position = state.x;
+      cmd.heading  = mrs_lib::AttitudeConverter(state.R).getHeading();
+
+      {
+        std::scoped_lock lock(mutex_uav_system_);
+        uav_system_.setInput(cmd);
+      }
+
+      break;
+    }
+
+    case UavSystem::VELOCITY_HDG_CMD: {
+
+      reference::VelocityHdg cmd;
+
+      cmd.velocity = Eigen::Vector3d(0, 0, 0);
+      cmd.heading  = mrs_lib::AttitudeConverter(state.R).getHeading();
+
+      {
+        std::scoped_lock lock(mutex_uav_system_);
+        uav_system_.setInput(cmd);
+      }
+
+      break;
+    }
+
+    case UavSystem::VELOCITY_HDG_RATE_CMD: {
+
+      reference::VelocityHdgRate cmd;
+
+      cmd.velocity     = Eigen::Vector3d(0, 0, 0);
+      cmd.heading_rate = 0;
+
+      {
+        std::scoped_lock lock(mutex_uav_system_);
+        uav_system_.setInput(cmd);
+      }
+
+      break;
+    }
+
+    case UavSystem::ACCELERATION_HDG_CMD: {
+
+      reference::AccelerationHdg cmd;
+
+      cmd.acceleration = Eigen::Vector3d(0, 0, 0);
+      cmd.heading      = mrs_lib::AttitudeConverter(state.R).getHeading();
+
+      {
+        std::scoped_lock lock(mutex_uav_system_);
+        uav_system_.setInput(cmd);
+      }
+
+      break;
+    }
+
+    case UavSystem::ACCELERATION_HDG_RATE_CMD: {
+
+      reference::AccelerationHdgRate cmd;
+
+      cmd.acceleration = Eigen::Vector3d(0, 0, 0);
+      cmd.heading_rate = 0;
+
+      {
+        std::scoped_lock lock(mutex_uav_system_);
+        uav_system_.setInput(cmd);
+      }
+
+      break;
+    }
+
+    case UavSystem::ATTITUDE_CMD: {
+
+      reference::Attitude cmd;
+
+      double heading = mrs_lib::AttitudeConverter(state.R).getHeading();
+
+      cmd.orientation = mrs_lib::AttitudeConverter(0, 0, heading);
+      cmd.throttle    = 0.0;
+
+      {
+        std::scoped_lock lock(mutex_uav_system_);
+        uav_system_.setInput(cmd);
+      }
+
+      break;
+    }
+
+    case UavSystem::TILT_HDG_RATE_CMD: {
+
+      reference::TiltHdgRate cmd;
+
+      cmd.tilt_vector = Eigen::Vector3d(0, 0, 1);
+      cmd.throttle    = 0.0;
+
+      {
+        std::scoped_lock lock(mutex_uav_system_);
+        uav_system_.setInput(cmd);
+      }
+
+      break;
+    }
+
+    case UavSystem::ATTITUDE_RATE_CMD: {
+
+      reference::AttitudeRate cmd;
+
+      cmd.rate_x   = 0;
+      cmd.rate_y   = 0;
+      cmd.rate_z   = 0;
+      cmd.throttle = 0.0;
+
+      {
+        std::scoped_lock lock(mutex_uav_system_);
+        uav_system_.setInput(cmd);
+      }
+
+      break;
+    }
+
+    case UavSystem::CONTROL_GROUP_CMD: {
+
+      reference::ControlGroup cmd;
+
+      cmd.roll     = 0;
+      cmd.pitch    = 0;
+      cmd.yaw      = 0;
+      cmd.throttle = 0.0;
+
+      {
+        std::scoped_lock lock(mutex_uav_system_);
+        uav_system_.setInput(cmd);
+      }
+
+      break;
+    }
+
+    case UavSystem::ACTUATOR_CMD: {
+
+      reference::Actuators cmd;
+
+      cmd.motors = Eigen::VectorXd::Zero(model_params_.n_motors);
+
+      {
+        std::scoped_lock lock(mutex_uav_system_);
+        uav_system_.setInput(cmd);
+      }
+
+      break;
+    }
+
+    case UavSystem::INPUT_UNKNOWN: {
+
+      {
+        std::scoped_lock lock(mutex_uav_system_);
+        uav_system_.setInput();
+      }
+
+      break;
+    }
+  }
+}
+
 // | ------------------------ callbacks ----------------------- |
 
 /* callbackActuatorCmd() //{ */
@@ -481,6 +655,7 @@ void UavSystemRos::callbackActuatorCmd([[maybe_unused]] mrs_lib::SubscribeHandle
     std::scoped_lock lock(mutex_time_last_input_);
 
     time_last_input_ = ros::Time::now();
+    last_input_mode_ = UavSystem::ACTUATOR_CMD;
   }
 }
 
@@ -515,6 +690,7 @@ void UavSystemRos::callbackControlGroupCmd([[maybe_unused]] mrs_lib::SubscribeHa
     std::scoped_lock lock(mutex_time_last_input_);
 
     time_last_input_ = ros::Time::now();
+    last_input_mode_ = UavSystem::CONTROL_GROUP_CMD;
   }
 }
 
@@ -549,6 +725,7 @@ void UavSystemRos::callbackAttitudeRateCmd([[maybe_unused]] mrs_lib::SubscribeHa
     std::scoped_lock lock(mutex_time_last_input_);
 
     time_last_input_ = ros::Time::now();
+    last_input_mode_ = UavSystem::ATTITUDE_RATE_CMD;
   }
 }
 
@@ -582,6 +759,7 @@ void UavSystemRos::callbackAttitudeCmd([[maybe_unused]] mrs_lib::SubscribeHandle
     std::scoped_lock lock(mutex_time_last_input_);
 
     time_last_input_ = ros::Time::now();
+    last_input_mode_ = UavSystem::ATTITUDE_CMD;
   }
 }
 
@@ -617,6 +795,7 @@ void UavSystemRos::callbackAccelerationHdgRateCmd([[maybe_unused]] mrs_lib::Subs
     std::scoped_lock lock(mutex_time_last_input_);
 
     time_last_input_ = ros::Time::now();
+    last_input_mode_ = UavSystem::ACCELERATION_HDG_RATE_CMD;
   }
 }
 
@@ -652,6 +831,7 @@ void UavSystemRos::callbackAccelerationHdgCmd([[maybe_unused]] mrs_lib::Subscrib
     std::scoped_lock lock(mutex_time_last_input_);
 
     time_last_input_ = ros::Time::now();
+    last_input_mode_ = UavSystem::ACCELERATION_HDG_CMD;
   }
 }
 
@@ -687,6 +867,7 @@ void UavSystemRos::callbackVelocityHdgRateCmd([[maybe_unused]] mrs_lib::Subscrib
     std::scoped_lock lock(mutex_time_last_input_);
 
     time_last_input_ = ros::Time::now();
+    last_input_mode_ = UavSystem::VELOCITY_HDG_RATE_CMD;
   }
 }
 
@@ -722,6 +903,7 @@ void UavSystemRos::callbackVelocityHdgCmd([[maybe_unused]] mrs_lib::SubscribeHan
     std::scoped_lock lock(mutex_time_last_input_);
 
     time_last_input_ = ros::Time::now();
+    last_input_mode_ = UavSystem::VELOCITY_HDG_CMD;
   }
 }
 
@@ -757,6 +939,7 @@ void UavSystemRos::callbackPositionCmd([[maybe_unused]] mrs_lib::SubscribeHandle
     std::scoped_lock lock(mutex_time_last_input_);
 
     time_last_input_ = ros::Time::now();
+    last_input_mode_ = UavSystem::POSITION_CMD;
   }
 }
 

@@ -46,6 +46,7 @@ public:
   void setInput(const reference::ControlGroup& control_group);
   void setInput(const reference::AttitudeRate& attitude_rate);
   void setInput(const reference::Attitude& attitude);
+  void setInput(const reference::TiltHdgRate& tilt);
   void setInput(const reference::AccelerationHdgRate& acceleration);
   void setInput(const reference::AccelerationHdg& acceleration);
   void setInput(const reference::VelocityHdgRate& velocity);
@@ -176,6 +177,13 @@ void UavSystem::setInput(const reference::Attitude& cmd) {
   attitude_cmd_ = cmd;
 
   active_input_ = ATTITUDE_CMD;
+}
+
+void UavSystem::setInput(const reference::TiltHdgRate& cmd) {
+
+  tilt_hdg_rate_cmd_ = cmd;
+
+  active_input_ = TILT_HDG_RATE_CMD;
 }
 
 void UavSystem::setInput(const reference::AccelerationHdgRate& cmd) {
