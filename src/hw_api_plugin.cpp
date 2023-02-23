@@ -116,7 +116,7 @@ private:
 
   // | ------------------------ variables ----------------------- |
 
-  std::atomic<bool> offboard_ = true;
+  std::atomic<bool> offboard_ = false;
   std::string       mode_;
   std::atomic<bool> armed_     = true;
   std::atomic<bool> connected_ = false;
