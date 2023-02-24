@@ -92,6 +92,8 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("collisions/crash", drs_params_.collisions_crash);
   param_loader.loadParam("collisions/rebounce", drs_params_.collisions_rebounce);
 
+  drs_params_.paused = false;
+
   std::vector<std::string> uav_names;
 
   param_loader.loadParam("uav_names", uav_names);
@@ -175,10 +177,26 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
 void MultirotorSimulator::callbackDrs(mrs_multirotor_simulator::multirotor_simulatorConfig& config, [[maybe_unused]] uint32_t level) {
 
   {
+    // | ----------------- pausing the simulation ----------------- |
+
+    auto old_params = mrs_lib::get_mutexed(mutex_drs_params_, drs_params_);
+
+    if (!old_params.paused && config.paused) {
+      timer_main_.stop();
+    } else if (old_params.paused && !config.paused) {
+      timer_main_.start();
+    }
+  }
+
+  // | --------------------- save the params -------------------- |
+
+  {
     std::scoped_lock lock(mutex_drs_params_);
 
     drs_params_ = config;
   }
+
+  // | ----------------- set the realtime factor ---------------- |
 
   timer_main_.setPeriod(ros::WallDuration(1.0 / (_simulation_rate_ * config.realtime_factor)), true);
 
