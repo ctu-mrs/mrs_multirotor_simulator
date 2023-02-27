@@ -35,7 +35,7 @@ public:
 
   // | ------------------------- params ------------------------- |
 
-  mrs_msgs::HwApiMode _mode_;
+  mrs_msgs::HwApiCapabilities _capabilities_;
 
   double _utm_x_;
   double _utm_y_;
@@ -43,8 +43,8 @@ public:
 
   // | --------------------- status methods --------------------- |
 
-  mrs_msgs::HwApiDiagnostics getDiagnostics();
-  mrs_msgs::HwApiMode        getMode();
+  mrs_msgs::HwApiStatus       getStatus();
+  mrs_msgs::HwApiCapabilities getCapabilities();
 
   // | --------------------- topic callbacks -------------------- |
 
@@ -120,7 +120,7 @@ private:
   std::string       mode_;
   std::atomic<bool> armed_     = true;
   std::atomic<bool> connected_ = false;
-  std::mutex        mutex_diagnostics_;
+  std::mutex        mutex_status_;
 
   // | ------------------------- methods ------------------------ |
 
@@ -146,7 +146,7 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
 
   common_handlers_ = common_handlers;
 
-  _mode_.api_name = "MrsSimulator";
+  _capabilities_.api_name = "MrsSimulator";
 
   // | ------------------- loading parameters ------------------- |
 
@@ -156,25 +156,28 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
   param_loader.loadParam("gnss/utm_y", _utm_y_);
   param_loader.loadParam("gnss/amsl", _amsl_);
 
-  param_loader.loadParam("input_mode/actuators", (bool&)_mode_.accepts_actuator_cmd);
-  param_loader.loadParam("input_mode/control_group", (bool&)_mode_.accepts_control_group_cmd);
-  param_loader.loadParam("input_mode/attitude_rate", (bool&)_mode_.accepts_attitude_rate_cmd);
-  param_loader.loadParam("input_mode/attitude", (bool&)_mode_.accepts_attitude_cmd);
-  param_loader.loadParam("input_mode/acceleration_hdg_rate", (bool&)_mode_.accepts_acceleration_hdg_rate_cmd);
-  param_loader.loadParam("input_mode/acceleration_hdg", (bool&)_mode_.accepts_acceleration_hdg_cmd);
-  param_loader.loadParam("input_mode/velocity_hdg_rate", (bool&)_mode_.accepts_velocity_hdg_rate_cmd);
-  param_loader.loadParam("input_mode/velocity_hdg", (bool&)_mode_.accepts_velocity_hdg_cmd);
-  param_loader.loadParam("input_mode/position", (bool&)_mode_.accepts_position_cmd);
+  param_loader.loadParam("input_mode/actuators", (bool&)_capabilities_.accepts_actuator_cmd);
+  param_loader.loadParam("input_mode/control_group", (bool&)_capabilities_.accepts_control_group_cmd);
+  param_loader.loadParam("input_mode/attitude_rate", (bool&)_capabilities_.accepts_attitude_rate_cmd);
+  param_loader.loadParam("input_mode/attitude", (bool&)_capabilities_.accepts_attitude_cmd);
+  param_loader.loadParam("input_mode/acceleration_hdg_rate", (bool&)_capabilities_.accepts_acceleration_hdg_rate_cmd);
+  param_loader.loadParam("input_mode/acceleration_hdg", (bool&)_capabilities_.accepts_acceleration_hdg_cmd);
+  param_loader.loadParam("input_mode/velocity_hdg_rate", (bool&)_capabilities_.accepts_velocity_hdg_rate_cmd);
+  param_loader.loadParam("input_mode/velocity_hdg", (bool&)_capabilities_.accepts_velocity_hdg_cmd);
+  param_loader.loadParam("input_mode/position", (bool&)_capabilities_.accepts_position_cmd);
 
-  param_loader.loadParam("outputs/distance_sensor", (bool&)_mode_.produces_distance_sensor);
-  param_loader.loadParam("outputs/gnss", (bool&)_mode_.produces_gnss);
-  param_loader.loadParam("outputs/imu", (bool&)_mode_.produces_imu);
-  param_loader.loadParam("outputs/altitude", (bool&)_mode_.produces_altitude);
-  param_loader.loadParam("outputs/magnetometer_heading", (bool&)_mode_.produces_magnetometer_heading);
-  param_loader.loadParam("outputs/odometry_local", (bool&)_mode_.produces_odometry_local);
-  param_loader.loadParam("outputs/rc_channels", (bool&)_mode_.produces_rc_channels);
-  param_loader.loadParam("outputs/orientation", (bool&)_mode_.produces_orientation);
-  param_loader.loadParam("outputs/battery_state", (bool&)_mode_.produces_battery_state);
+  param_loader.loadParam("outputs/distance_sensor", (bool&)_capabilities_.produces_distance_sensor);
+  param_loader.loadParam("outputs/gnss", (bool&)_capabilities_.produces_gnss);
+  param_loader.loadParam("outputs/imu", (bool&)_capabilities_.produces_imu);
+  param_loader.loadParam("outputs/altitude", (bool&)_capabilities_.produces_altitude);
+  param_loader.loadParam("outputs/magnetometer_heading", (bool&)_capabilities_.produces_magnetometer_heading);
+  param_loader.loadParam("outputs/rc_channels", (bool&)_capabilities_.produces_rc_channels);
+  param_loader.loadParam("outputs/battery_state", (bool&)_capabilities_.produces_battery_state);
+  param_loader.loadParam("outputs/position", (bool&)_capabilities_.produces_position);
+  param_loader.loadParam("outputs/orientation", (bool&)_capabilities_.produces_orientation);
+  param_loader.loadParam("outputs/velocity", (bool&)_capabilities_.produces_velocity);
+  param_loader.loadParam("outputs/angular_velocity", (bool&)_capabilities_.produces_angular_velocity);
+  param_loader.loadParam("outputs/odometry", (bool&)_capabilities_.produces_odometry);
 
   param_loader.loadParam("topics/prefix", _simulator_prefix_);
   param_loader.loadParam("topics/simulator/odom", _topic_simulator_odom_);
@@ -217,47 +220,47 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
 
   // | ----------------------- publishers ----------------------- |
 
-  if (_mode_.accepts_actuator_cmd) {
+  if (_capabilities_.accepts_actuator_cmd) {
     ph_actuators_cmd_ =
         mrs_lib::PublisherHandler<mrs_msgs::HwApiActuatorCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_actuators_cmd_, 1);
   }
 
-  if (_mode_.accepts_control_group_cmd) {
+  if (_capabilities_.accepts_control_group_cmd) {
     ph_control_group_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiControlGroupCmd>(
         nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_control_group_cmd_, 1);
   }
 
-  if (_mode_.accepts_attitude_rate_cmd) {
+  if (_capabilities_.accepts_attitude_rate_cmd) {
     ph_attitude_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd>(
         nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_attitude_rate_cmd_, 1);
   }
 
-  if (_mode_.accepts_attitude_cmd) {
+  if (_capabilities_.accepts_attitude_cmd) {
     ph_attitude_cmd_ =
         mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_attitude_cmd_, 1);
   }
 
-  if (_mode_.accepts_acceleration_hdg_rate_cmd) {
+  if (_capabilities_.accepts_acceleration_hdg_rate_cmd) {
     ph_acceleration_hdg_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationHdgRateCmd>(
         nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_acceleration_hdg_rate_cmd_, 1);
   }
 
-  if (_mode_.accepts_acceleration_hdg_cmd) {
+  if (_capabilities_.accepts_acceleration_hdg_cmd) {
     ph_acceleration_hdg_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationHdgCmd>(
         nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_acceleration_hdg_cmd_, 1);
   }
 
-  if (_mode_.accepts_velocity_hdg_rate_cmd) {
+  if (_capabilities_.accepts_velocity_hdg_rate_cmd) {
     ph_velocity_hdg_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiVelocityHdgRateCmd>(
         nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_velocity_hdg_rate_cmd_, 1);
   }
 
-  if (_mode_.accepts_velocity_hdg_cmd) {
+  if (_capabilities_.accepts_velocity_hdg_cmd) {
     ph_velocity_hdg_cmd_ =
         mrs_lib::PublisherHandler<mrs_msgs::HwApiVelocityHdgCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_velocity_hdg_cmd_, 1);
   }
 
-  if (_mode_.accepts_position_cmd) {
+  if (_capabilities_.accepts_position_cmd) {
     ph_position_cmd_ =
         mrs_lib::PublisherHandler<mrs_msgs::HwApiPositionCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_position_cmd_, 1);
   }
@@ -275,35 +278,35 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
 
 //}
 
-/* getDiagnostics() //{ */
+/* getStatus() //{ */
 
-mrs_msgs::HwApiDiagnostics Api::getDiagnostics() {
+mrs_msgs::HwApiStatus Api::getStatus() {
 
-  mrs_msgs::HwApiDiagnostics diag;
+  mrs_msgs::HwApiStatus status;
 
-  diag.stamp = ros::Time::now();
+  status.stamp = ros::Time::now();
 
   {
-    std::scoped_lock lock(mutex_diagnostics_);
+    std::scoped_lock lock(mutex_status_);
 
-    diag.armed     = armed_;
-    diag.offboard  = offboard_;
-    diag.connected = connected_;
-    diag.mode      = mode_;
+    status.armed     = armed_;
+    status.offboard  = offboard_;
+    status.connected = connected_;
+    status.mode      = mode_;
   }
 
-  return diag;
+  return status;
 }
 
 //}
 
-/* getMode() //{ */
+/* getCapabilities() //{ */
 
-mrs_msgs::HwApiMode Api::getMode() {
+mrs_msgs::HwApiCapabilities Api::getCapabilities() {
 
-  _mode_.stamp = ros::Time::now();
+  _capabilities_.stamp = ros::Time::now();
 
-  return _mode_;
+  return _capabilities_;
 }
 
 //}
@@ -367,7 +370,7 @@ std::tuple<bool, std::string> Api::callbackOffboard(void) {
 
 bool Api::callbackActuatorCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiActuatorCmd>& wrp) {
 
-  if (!_mode_.accepts_actuator_cmd) {
+  if (!_capabilities_.accepts_actuator_cmd) {
     return false;
   }
 
@@ -384,7 +387,7 @@ bool Api::callbackActuatorCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msg
 
 bool Api::callbackControlGroupCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiControlGroupCmd>& wrp) {
 
-  if (!_mode_.accepts_control_group_cmd) {
+  if (!_capabilities_.accepts_control_group_cmd) {
     return false;
   }
 
@@ -401,7 +404,7 @@ bool Api::callbackControlGroupCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs
 
 bool Api::callbackAttitudeRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>& wrp) {
 
-  if (!_mode_.accepts_attitude_rate_cmd) {
+  if (!_capabilities_.accepts_attitude_rate_cmd) {
     return false;
   }
 
@@ -418,7 +421,7 @@ bool Api::callbackAttitudeRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs
 
 bool Api::callbackAttitudeCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>& wrp) {
 
-  if (!_mode_.accepts_attitude_cmd) {
+  if (!_capabilities_.accepts_attitude_cmd) {
     return false;
   }
 
@@ -435,7 +438,7 @@ bool Api::callbackAttitudeCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msg
 
 bool Api::callbackAccelerationHdgRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationHdgRateCmd>& wrp) {
 
-  if (!_mode_.accepts_acceleration_hdg_rate_cmd) {
+  if (!_capabilities_.accepts_acceleration_hdg_rate_cmd) {
     return false;
   }
 
@@ -452,7 +455,7 @@ bool Api::callbackAccelerationHdgRateCmd([[maybe_unused]] mrs_lib::SubscribeHand
 
 bool Api::callbackAccelerationHdgCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationHdgCmd>& wrp) {
 
-  if (!_mode_.accepts_acceleration_hdg_cmd) {
+  if (!_capabilities_.accepts_acceleration_hdg_cmd) {
 
     return false;
   }
@@ -470,7 +473,7 @@ bool Api::callbackAccelerationHdgCmd([[maybe_unused]] mrs_lib::SubscribeHandler<
 
 bool Api::callbackVelocityHdgRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgRateCmd>& wrp) {
 
-  if (!_mode_.accepts_velocity_hdg_rate_cmd) {
+  if (!_capabilities_.accepts_velocity_hdg_rate_cmd) {
     return false;
   }
 
@@ -487,7 +490,7 @@ bool Api::callbackVelocityHdgRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<
 
 bool Api::callbackVelocityHdgCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgCmd>& wrp) {
 
-  if (!_mode_.accepts_velocity_hdg_cmd) {
+  if (!_capabilities_.accepts_velocity_hdg_cmd) {
     return false;
   }
 
@@ -504,7 +507,7 @@ bool Api::callbackVelocityHdgCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_
 
 bool Api::callbackPositionCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>& wrp) {
 
-  if (!_mode_.accepts_position_cmd) {
+  if (!_capabilities_.accepts_position_cmd) {
     return false;
   }
 
@@ -527,41 +530,91 @@ void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry>& wrp) {
     return;
   }
 
-  ROS_INFO_ONCE("[Api]: getting simulater odom");
+  ROS_INFO_ONCE("[Api]: getting simulator odometry");
 
   auto odom = wrp.getMsg();
 
   {
-    std::scoped_lock lock(mutex_diagnostics_);
+    std::scoped_lock lock(mutex_status_);
 
     connected_ = true;
   }
 
   // | ----------------- publish the diagnostics ---------------- |
 
-  mrs_msgs::HwApiDiagnostics diag;
+  mrs_msgs::HwApiStatus status;
 
   {
-    std::scoped_lock lock(mutex_diagnostics_);
+    std::scoped_lock lock(mutex_status_);
 
-    diag.stamp     = ros::Time::now();
-    diag.armed     = armed_;
-    diag.offboard  = offboard_;
-    diag.connected = connected_;
-    diag.mode      = mode_;
+    status.stamp     = ros::Time::now();
+    status.armed     = armed_;
+    status.offboard  = offboard_;
+    status.connected = connected_;
+    status.mode      = mode_;
   }
 
-  common_handlers_->publishers.publishDiagnostics(diag);
+  common_handlers_->publishers.publishStatus(status);
 
-  // | ----------------- publish local odometry ----------------- |
+  // | -------------------- publish position -------------------- |
 
-  if (_mode_.produces_odometry_local) {
-    common_handlers_->publishers.publishOdometryLocal(*odom);
+  if (_capabilities_.produces_position) {
+
+    geometry_msgs::PointStamped position;
+
+    position.header = odom->header;
+    position.point  = odom->pose.pose.position;
+
+    common_handlers_->publishers.publishPosition(position);
+  }
+
+  // | ------------------- publish orientation ------------------ |
+
+  if (_capabilities_.produces_orientation) {
+
+    geometry_msgs::QuaternionStamped orientation;
+
+    orientation.header     = odom->header;
+    orientation.quaternion = odom->pose.pose.orientation;
+
+    common_handlers_->publishers.publishOrientation(orientation);
+  }
+
+  // | -------------------- publish velocity -------------------- |
+
+  if (_capabilities_.produces_velocity) {
+
+    geometry_msgs::Vector3Stamped velocity;
+
+    velocity.header.stamp    = odom->header.stamp;
+    velocity.header.frame_id = odom->child_frame_id;
+    velocity.vector          = odom->twist.twist.linear;
+
+    common_handlers_->publishers.publishVelocity(velocity);
+  }
+
+  // | ---------------- publish angular velocity ---------------- |
+
+  if (_capabilities_.produces_angular_velocity) {
+
+    geometry_msgs::Vector3Stamped angular_velocity;
+
+    angular_velocity.header.stamp    = odom->header.stamp;
+    angular_velocity.header.frame_id = odom->child_frame_id;
+    angular_velocity.vector          = odom->twist.twist.angular;
+
+    common_handlers_->publishers.publishAngularVelocity(angular_velocity);
+  }
+
+  // | -------------------- publish odometry -------------------- |
+
+  if (_capabilities_.produces_odometry) {
+    common_handlers_->publishers.publishOdometry(*odom);
   }
 
   // | ---------------------- publish gnss ---------------------- |
 
-  if (_mode_.produces_gnss) {
+  if (_capabilities_.produces_gnss) {
 
     double lat;
     double lon;
@@ -579,7 +632,9 @@ void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry>& wrp) {
     common_handlers_->publishers.publishGNSS(gnss);
   }
 
-  if (_mode_.produces_altitude) {
+  // | ------------------ publish amsl altitude ----------------- |
+
+  if (_capabilities_.produces_altitude) {
 
     mrs_msgs::HwApiAltitude altitude;
 
@@ -592,7 +647,8 @@ void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry>& wrp) {
 
   // | --------------------- publish heading -------------------- |
 
-  if (_mode_.produces_magnetometer_heading) {
+  if (_capabilities_.produces_magnetometer_heading) {
+
     double heading = mrs_lib::AttitudeConverter(odom->pose.pose.orientation).getHeading();
 
     mrs_msgs::Float64Stamped hdg;
@@ -616,7 +672,7 @@ void Api::callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu>& wrp) {
 
   ROS_INFO_ONCE("[Api]: getting IMU");
 
-  if (_mode_.produces_imu) {
+  if (_capabilities_.produces_imu) {
     sensor_msgs::ImuConstPtr imu = wrp.getMsg();
 
     common_handlers_->publishers.publishIMU(*imu);
@@ -635,7 +691,7 @@ void Api::callbackRangefinder(mrs_lib::SubscribeHandler<sensor_msgs::Range>& wrp
 
   ROS_INFO_ONCE("[Api]: getting rangefinder");
 
-  if (_mode_.produces_distance_sensor) {
+  if (_capabilities_.produces_distance_sensor) {
     sensor_msgs::RangeConstPtr range = wrp.getMsg();
 
     common_handlers_->publishers.publishDistanceSensor(*range);
@@ -669,7 +725,7 @@ void Api::timerMain([[maybe_unused]] const ros::TimerEvent& event) {
 
 void Api::publishBatteryState(void) {
 
-  if (_mode_.produces_battery_state) {
+  if (_capabilities_.produces_battery_state) {
 
     sensor_msgs::BatteryState msg;
 
@@ -688,7 +744,7 @@ void Api::publishBatteryState(void) {
 
 void Api::publishRC(void) {
 
-  if (_mode_.produces_rc_channels) {
+  if (_capabilities_.produces_rc_channels) {
 
     mrs_msgs::HwApiRcChannels rc;
 

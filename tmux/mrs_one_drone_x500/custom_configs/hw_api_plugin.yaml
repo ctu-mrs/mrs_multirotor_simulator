@@ -22,10 +22,13 @@ outputs:
   imu:                  true
   altitude:             true
   magnetometer_heading: true
-  odometry_local:       true
   rc_channels:          true
-  orientation:          true
   battery_state:        true
+  position:             true
+  orientation:          true
+  velocity:             true
+  angular_velocity:     true
+  odometry:             true
 
 topics:
   prefix: "multirotor_simulator"
