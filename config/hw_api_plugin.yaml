@@ -1,6 +1,7 @@
 hw_interface_plugin: "mrs_simulator_api_plugin/Api"
 
 gnss:
+  utm_zone: "32T"
   utm_x: 465710.758973
   utm_y: 5249465.43086
   amsl: 340.0

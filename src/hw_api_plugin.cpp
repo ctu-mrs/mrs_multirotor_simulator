@@ -37,9 +37,10 @@ public:
 
   mrs_msgs::HwApiCapabilities _capabilities_;
 
-  double _utm_x_;
-  double _utm_y_;
-  double _amsl_;
+  double      _utm_x_;
+  double      _utm_y_;
+  std::string _utm_zone_;
+  double      _amsl_;
 
   // | --------------------- status methods --------------------- |
 
@@ -154,6 +155,7 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
 
   param_loader.loadParam("gnss/utm_x", _utm_x_);
   param_loader.loadParam("gnss/utm_y", _utm_y_);
+  param_loader.loadParam("gnss/utm_zone", _utm_zone_);
   param_loader.loadParam("gnss/amsl", _amsl_);
 
   param_loader.loadParam("input_mode/actuators", (bool&)_capabilities_.accepts_actuator_cmd);
@@ -619,7 +621,7 @@ void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry>& wrp) {
     double lat;
     double lon;
 
-    mrs_lib::UTMtoLL(odom->pose.pose.position.y + _utm_y_, odom->pose.pose.position.x + _utm_x_, "32T", lat, lon);
+    mrs_lib::UTMtoLL(odom->pose.pose.position.y + _utm_y_, odom->pose.pose.position.x + _utm_x_, _utm_zone_, lat, lon);
 
     sensor_msgs::NavSatFix gnss;
 

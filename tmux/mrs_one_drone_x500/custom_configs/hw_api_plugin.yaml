@@ -3,12 +3,13 @@ hw_interface_plugin: "mrs_simulator_api_plugin/Api"
 gnss:
   utm_x: 465710.758973
   utm_y: 5249465.43086
+  utm_zone: "32T"
   amsl: 340.0
 
 input_mode:
   actuators:             false
   control_group:         false
-  attitude_rate:         true
+  attitude_rate:         false
   attitude:              true
   acceleration_hdg_rate: false
   acceleration_hdg:      false
