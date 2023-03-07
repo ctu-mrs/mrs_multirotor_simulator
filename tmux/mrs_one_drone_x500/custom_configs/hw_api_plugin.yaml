@@ -9,7 +9,7 @@ gnss:
 input_mode:
   actuators:             false
   control_group:         false
-  attitude_rate:         false
+  attitude_rate:         true
   attitude:              true
   acceleration_hdg_rate: false
   acceleration_hdg:      false
