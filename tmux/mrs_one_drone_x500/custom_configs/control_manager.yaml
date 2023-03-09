@@ -1,3 +1,8 @@
+safety:
+
+  # after not receiving odometry for more than this, the failsafe landing will trigger
+  odometry_max_missing_time: 1.0 # [s]
+
 MpcTracker:
   address: "mrs_uav_trackers/MpcTracker"
   human_switchable: true
