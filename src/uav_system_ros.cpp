@@ -185,6 +185,8 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string uav_name) {
 
   sh_position_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>(shopts, uav_name + "/position_cmd", &UavSystemRos::callbackPositionCmd, this);
 
+  sh_tracker_cmd_ = mrs_lib::SubscribeHandler<mrs_msgs::TrackerCommand>(shopts, uav_name + "/tracker_cmd", &UavSystemRos::callbackTrackerCmd, this);
+
   // | --------------------- tf broadcaster --------------------- |
 
   tf_broadcaster_ = std::make_shared<mrs_lib::TransformBroadcaster>();
@@ -442,6 +444,8 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State& state) {
 
 // | ------------------------ routines ------------------------ |
 
+/* timeoutInput() //{ */
+
 void UavSystemRos::timeoutInput(void) {
 
   auto last_input_mode = mrs_lib::get_mutexed(mutex_time_last_input_, last_input_mode_);
@@ -616,6 +620,8 @@ void UavSystemRos::timeoutInput(void) {
     }
   }
 }
+
+//}
 
 // | ------------------------ callbacks ----------------------- |
 
@@ -941,6 +947,49 @@ void UavSystemRos::callbackPositionCmd([[maybe_unused]] mrs_lib::SubscribeHandle
     time_last_input_ = ros::Time::now();
     last_input_mode_ = UavSystem::POSITION_CMD;
   }
+}
+
+//}
+
+/* callbackTrackerCmd() //{ */
+
+void UavSystemRos::callbackTrackerCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::TrackerCommand>& wrp) {
+
+  if (!is_initialized_) {
+    return;
+  }
+
+  ROS_INFO_ONCE("[%s]: getting tracker command", _uav_name_.c_str());
+
+  mrs_msgs::TrackerCommand::ConstPtr msg = wrp.getMsg();
+
+  Eigen::Vector3d velocity(0, 0, 0);
+  Eigen::Vector3d acceleration(0, 0, 0);
+  double          heading_rate = 0;
+
+  if (msg->use_velocity_horizontal) {
+    velocity[0] = msg->velocity.x;
+    velocity[1] = msg->velocity.y;
+  }
+
+  if (msg->use_velocity_vertical) {
+    velocity[2] = msg->velocity.z;
+  }
+
+  if (msg->use_heading_rate) {
+    heading_rate = msg->heading_rate;
+  }
+
+  if (msg->use_acceleration) {
+    acceleration[0] = msg->acceleration.x;
+    acceleration[1] = msg->acceleration.y;
+    acceleration[2] = msg->acceleration.z;
+  }
+
+  uav_system_.setFeedforward(reference::VelocityHdg(velocity, 0));
+  uav_system_.setFeedforward(reference::VelocityHdgRate(velocity, heading_rate));
+  uav_system_.setFeedforward(reference::AccelerationHdg(acceleration, 0));
+  uav_system_.setFeedforward(reference::AccelerationHdgRate(acceleration, heading_rate));
 }
 
 //}

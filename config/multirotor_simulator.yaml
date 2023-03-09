@@ -1,5 +1,5 @@
 simulation_rate: 100.0 # Hz
-clock_rate: 20.0 # Hz
+clock_rate: 100.0 # Hz
 realtime_factor: 1.0 # [-]
 
 g: 9.81 # [ms^-2]

@@ -1,0 +1,192 @@
+collisions:
+  crash: false
+
+clock_rate: 20.0 # Hz
+
+takeoff_patch:
+  enabled: true
+
+uav_names: [
+  "uav1",
+  "uav2",
+  "uav3",
+  "uav4",
+  "uav5",
+  "uav6",
+  "uav7",
+  "uav8",
+  "uav9",
+  "uav10",
+  "uav11",
+  "uav12",
+  "uav13",
+  "uav14",
+  "uav15",
+  "uav16",
+  "uav17",
+  "uav18",
+  "uav19",
+  "uav20",
+]
+
+# 100
+
+uav1:
+  type: "x500"
+  spawn:
+    x: 0.0
+    y: 0.0
+    z: 3.0
+    heading: 0
+
+uav2:
+  type: "x500"
+  spawn:
+    x: 4.0
+    y: 0.0
+    z: 3.0
+    heading: 0
+
+uav3:
+  type: "x500"
+  spawn:
+    x: 8.0
+    y: 0.0
+    z: 3.0
+    heading: 0
+
+uav4:
+  type: "x500"
+  spawn:
+    x: 12.0
+    y: 0.0
+    z: 3.0
+    heading: 0
+
+uav5:
+  type: "x500"
+  spawn:
+    x: 16.0
+    y: 0.0
+    z: 3.0
+    heading: 0
+
+uav6:
+  type: "x500"
+  spawn:
+    x: 20.0
+    y: 0.0
+    z: 3.0
+    heading: 0
+
+uav7:
+  type: "x500"
+  spawn:
+    x: 24.0
+    y: 0.0
+    z: 3.0
+    heading: 0
+
+uav8:
+  type: "x500"
+  spawn:
+    x: 28.0
+    y: 0.0
+    z: 3.0
+    heading: 0
+
+uav9:
+  type: "x500"
+  spawn:
+    x: 32.0
+    y: 0.0
+    z: 3.0
+    heading: 0
+
+uav10:
+  type: "x500"
+  spawn:
+    x: 36.0
+    y: 0.0
+    z: 3.0
+    heading: 0
+
+uav11:
+  type: "x500"
+  spawn:
+    x: 0.0
+    y: 4.0
+    z: 3.0
+    heading: 0
+
+uav12:
+  type: "x500"
+  spawn:
+    x: 4.0
+    y: 4.0
+    z: 3.0
+    heading: 0
+
+uav13:
+  type: "x500"
+  spawn:
+    x: 8.0
+    y: 4.0
+    z: 3.0
+    heading: 0
+
+uav14:
+  type: "x500"
+  spawn:
+    x: 12.0
+    y: 4.0
+    z: 3.0
+    heading: 0
+
+uav15:
+  type: "x500"
+  spawn:
+    x: 16.0
+    y: 4.0
+    z: 3.0
+    heading: 0
+
+uav16:
+  type: "x500"
+  spawn:
+    x: 20.0
+    y: 4.0
+    z: 3.0
+    heading: 0
+
+uav17:
+  type: "x500"
+  spawn:
+    x: 24.0
+    y: 4.0
+    z: 3.0
+    heading: 0
+
+uav18:
+  type: "x500"
+  spawn:
+    x: 28.0
+    y: 4.0
+    z: 3.0
+    heading: 0
+
+uav19:
+  type: "x500"
+  spawn:
+    x: 32.0
+    y: 4.0
+    z: 3.0
+    heading: 0
+
+uav20:
+  type: "x500"
+  spawn:
+    x: 36.0
+    y: 4.0
+    z: 3.0
+    heading: 0

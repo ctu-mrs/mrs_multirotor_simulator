@@ -7,6 +7,8 @@
 
 #include <rosgraph_msgs/Clock.h>
 
+#include <geometry_msgs/PoseArray.h>
+
 #include <mrs_lib/param_loader.h>
 #include <mrs_lib/publisher_handler.h>
 #include <mrs_lib/subscribe_handler.h>
@@ -37,19 +39,32 @@ private:
 
   // | ------------------------- params ------------------------- |
 
-  double    _simulation_rate_;
-  ros::Time sim_time_;
+  double _simulation_rate_;
+
+  ros::Time  sim_time_;
+  std::mutex mutex_sim_time_;
 
   double _clock_min_dt_;
+
+  std::string _world_frame_name_;
 
   // | ------------------------- timers ------------------------- |
 
   ros::WallTimer timer_main_;
   void           timerMain(const ros::WallTimerEvent& event);
 
+  ros::WallTimer timer_status_;
+  void           timerStatus(const ros::WallTimerEvent& event);
+
+  // | ------------------------ rtf check ----------------------- |
+
+  double    actual_rtf_ = 1.0;
+  ros::Time last_sim_time_status_;
+
   // | ----------------------- publishers ----------------------- |
 
-  mrs_lib::PublisherHandler<rosgraph_msgs::Clock> ph_clock_;
+  mrs_lib::PublisherHandler<rosgraph_msgs::Clock>     ph_clock_;
+  mrs_lib::PublisherHandler<geometry_msgs::PoseArray> ph_poses_;
 
   // | ------------------------- system ------------------------- |
 
@@ -62,6 +77,8 @@ private:
   // | ------------------------- methods ------------------------ |
 
   void handleCollisions(void);
+
+  void publishPoses(void);
 
   // | --------------- dynamic reconfigure server --------------- |
 
@@ -98,6 +115,7 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("collisions/enabled", drs_params_.collisions_enabled);
   param_loader.loadParam("collisions/crash", drs_params_.collisions_crash);
   param_loader.loadParam("collisions/rebounce", drs_params_.collisions_rebounce);
+  param_loader.loadParam("frames/world/name", _world_frame_name_);
 
   double clock_rate;
   param_loader.loadParam("clock_rate", clock_rate);
@@ -135,9 +153,13 @@ void MultirotorSimulator::onInit() {
 
   ph_clock_ = mrs_lib::PublisherHandler<rosgraph_msgs::Clock>(nh_, "clock_out", 10, false);
 
+  ph_poses_ = mrs_lib::PublisherHandler<geometry_msgs::PoseArray>(nh_, "uav_poses_out", 10, false);
+
   // | ------------------------- timers ------------------------- |
 
   timer_main_ = nh_.createWallTimer(ros::WallDuration(1.0 / (_simulation_rate_ * drs_params_.realtime_factor)), &MultirotorSimulator::timerMain, this);
+
+  timer_status_ = nh_.createWallTimer(ros::WallDuration(1.0), &MultirotorSimulator::timerStatus, this);
 
   // | ----------------------- finish init ---------------------- |
 
@@ -169,7 +191,7 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
     uavs_[i]->makeStep(simulation_step_size);
   }
 
-  // | ----------------------- collisions ----------------------- |
+  publishPoses();
 
   handleCollisions();
 
@@ -185,6 +207,30 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
 
     last_published_time_ = sim_time_;
   }
+}
+
+//}
+
+/* timeStatus() //{ */
+
+void MultirotorSimulator::timerStatus([[maybe_unused]] const ros::WallTimerEvent& event) {
+
+  if (!is_initialized_) {
+    return;
+  }
+
+  auto sim_time   = mrs_lib::get_mutexed(mutex_sim_time_, sim_time_);
+  auto drs_params = mrs_lib::get_mutexed(mutex_drs_params_, drs_params_);
+
+  ros::Duration last_sec_sim_dt = sim_time - last_sim_time_status_;
+
+  last_sim_time_status_ = sim_time;
+
+  double last_sec_rtf = last_sec_sim_dt.toSec() / 1.0;
+
+  actual_rtf_ = 0.9 * actual_rtf_ + 0.1 * last_sec_rtf;
+
+  ROS_INFO("[MultirotorSimulator]: desired RTF = %.2f, actual RTF = %.2f", drs_params.realtime_factor, actual_rtf_);
 }
 
 //}
@@ -221,8 +267,6 @@ void MultirotorSimulator::callbackDrs(mrs_multirotor_simulator::multirotor_simul
 }
 
 //}
-
-// | ------------------------- methods ------------------------ |
 
 /* handleCollisions() //{ */
 
@@ -286,6 +330,36 @@ void MultirotorSimulator::handleCollisions(void) {
   for (size_t i = 0; i < uavs_.size(); i++) {
     uavs_[i]->applyForce(forces[i]);
   }
+}
+
+//}
+
+/* publishPoses() //{ */
+
+void MultirotorSimulator::publishPoses(void) {
+
+  auto sim_time = mrs_lib::get_mutexed(mutex_sim_time_, sim_time_);
+
+  geometry_msgs::PoseArray pose_array;
+
+  pose_array.header.stamp    = sim_time;
+  pose_array.header.frame_id = _world_frame_name_;
+
+  for (size_t i = 0; i < uavs_.size(); i++) {
+
+    auto state = uavs_[i]->getState();
+
+    geometry_msgs::Pose pose;
+
+    pose.position.x  = state.x[0];
+    pose.position.y  = state.x[1];
+    pose.position.z  = state.x[2];
+    pose.orientation = mrs_lib::AttitudeConverter(state.R);
+
+    pose_array.poses.push_back(pose);
+  }
+
+  ph_poses_.publish(pose_array);
 }
 
 //}

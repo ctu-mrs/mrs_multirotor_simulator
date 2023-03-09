@@ -144,6 +144,11 @@ public:
 
 class AccelerationHdgRate {
 public:
+  AccelerationHdgRate(const Eigen::Vector3d& acceleration, const double& heading_rate) {
+    this->acceleration = acceleration;
+    this->heading_rate = heading_rate;
+  }
+
   AccelerationHdgRate() {
     this->acceleration = Eigen::Vector3d::Zero();
   }
@@ -164,6 +169,11 @@ public:
 
 class AccelerationHdg {
 public:
+  AccelerationHdg(const Eigen::Vector3d& acceleration, const double& heading) {
+    this->acceleration = acceleration;
+    this->heading      = heading;
+  }
+
   AccelerationHdg() {
     this->acceleration = Eigen::Vector3d::Zero();
   }
@@ -187,6 +197,11 @@ public:
 
 class VelocityHdgRate {
 public:
+  VelocityHdgRate(const Eigen::Vector3d& velocity, const double& heading_rate) {
+    this->velocity     = velocity;
+    this->heading_rate = heading_rate;
+  }
+
   VelocityHdgRate() {
     this->velocity = Eigen::Vector3d::Zero();
   }
@@ -210,6 +225,11 @@ public:
 
 class VelocityHdg {
 public:
+  VelocityHdg(const Eigen::Vector3d& velocity, const double& heading) {
+    this->velocity = velocity;
+    this->heading  = heading;
+  }
+
   VelocityHdg() {
     this->velocity = Eigen::Vector3d::Zero();
   }

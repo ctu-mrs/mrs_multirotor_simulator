@@ -27,6 +27,7 @@
 #include <mrs_msgs/HwApiVelocityHdgRateCmd.h>
 #include <mrs_msgs/HwApiVelocityHdgCmd.h>
 #include <mrs_msgs/HwApiPositionCmd.h>
+#include <mrs_msgs/TrackerCommand.h>
 
 namespace mrs_multirotor_simulator
 {
@@ -101,6 +102,7 @@ private:
   void callbackVelocityHdgRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgRateCmd>& wrp);
   void callbackVelocityHdgCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgCmd>& wrp);
   void callbackPositionCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>& wrp);
+  void callbackTrackerCmd(mrs_lib::SubscribeHandler<mrs_msgs::TrackerCommand>& wrp);
 
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiActuatorCmd>            sh_actuator_cmd_;
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiControlGroupCmd>        sh_control_group_cmd_;
@@ -111,6 +113,7 @@ private:
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgRateCmd>     sh_velocity_hdg_rate_cmd_;
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgCmd>         sh_velocity_hdg_cmd_;
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>            sh_position_cmd_;
+  mrs_lib::SubscribeHandler<mrs_msgs::TrackerCommand>              sh_tracker_cmd_;
 };
 
 }  // namespace mrs_multirotor_simulator

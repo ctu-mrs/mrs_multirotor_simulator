@@ -36,6 +36,7 @@
     <remap from="~imu_out" to="~imu" />
     <remap from="~odom_out" to="~odom" />
     <remap from="~clock_out" to="/clock" />
+    <remap from="~uav_poses_out" to="~uav_poses" />
 
     <remap from="~actuator_cmd_in" to="~actuator_cmd" />
     <remap from="~control_group_cmd_in" to="~control_group_cmd" />

@@ -1,0 +1,4 @@
+publish_rate:
+  main: 20.0 # [Hz] main and aux odometry
+
+altitude_estimator: "BARO"

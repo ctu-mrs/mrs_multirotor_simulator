@@ -23,6 +23,7 @@
   <depend>rosgraph_msgs</depend>
   <depend>mrs_uav_hw_api</depend>
   <depend>dynamic_reconfigure</depend>
+  <depend>geometry_msgs</depend>
 
   <export>
     <nodelet plugin="${prefix}/nodelets.xml" />

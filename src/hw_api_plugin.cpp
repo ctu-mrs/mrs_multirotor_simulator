@@ -37,6 +37,8 @@ public:
 
   mrs_msgs::HwApiCapabilities _capabilities_;
 
+  bool _feedforward_enabled_;
+
   double      _utm_x_;
   double      _utm_y_;
   std::string _utm_zone_;
@@ -58,6 +60,8 @@ public:
   bool callbackVelocityHdgRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgRateCmd>& wrp);
   bool callbackVelocityHdgCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgCmd>& wrp);
   bool callbackPositionCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>& wrp);
+
+  void callbackTrackerCmd(mrs_lib::SubscribeHandler<mrs_msgs::TrackerCommand>& wrp);
 
   // | -------------------- service callbacks ------------------- |
 
@@ -86,6 +90,7 @@ private:
   std::string _topic_simulator_velocity_hdg_rate_cmd_;
   std::string _topic_simulator_velocity_hdg_cmd_;
   std::string _topic_simulator_position_cmd_;
+  std::string _topic_simulator_tracker_cmd_;
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -108,6 +113,7 @@ private:
   mrs_lib::PublisherHandler<mrs_msgs::HwApiVelocityHdgRateCmd>     ph_velocity_hdg_rate_cmd_;
   mrs_lib::PublisherHandler<mrs_msgs::HwApiVelocityHdgCmd>         ph_velocity_hdg_cmd_;
   mrs_lib::PublisherHandler<mrs_msgs::HwApiPositionCmd>            ph_position_cmd_;
+  mrs_lib::PublisherHandler<mrs_msgs::TrackerCommand>              ph_tracker_cmd_;
 
   // | ------------------------- timers ------------------------- |
 
@@ -167,6 +173,7 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
   param_loader.loadParam("input_mode/velocity_hdg_rate", (bool&)_capabilities_.accepts_velocity_hdg_rate_cmd);
   param_loader.loadParam("input_mode/velocity_hdg", (bool&)_capabilities_.accepts_velocity_hdg_cmd);
   param_loader.loadParam("input_mode/position", (bool&)_capabilities_.accepts_position_cmd);
+  param_loader.loadParam("input_mode/feedforward", _feedforward_enabled_);
 
   param_loader.loadParam("outputs/distance_sensor", (bool&)_capabilities_.produces_distance_sensor);
   param_loader.loadParam("outputs/gnss", (bool&)_capabilities_.produces_gnss);
@@ -194,6 +201,7 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
   param_loader.loadParam("topics/simulator/velocity_hdg_rate_cmd", _topic_simulator_velocity_hdg_rate_cmd_);
   param_loader.loadParam("topics/simulator/velocity_hdg_cmd", _topic_simulator_velocity_hdg_cmd_);
   param_loader.loadParam("topics/simulator/position_cmd", _topic_simulator_position_cmd_);
+  param_loader.loadParam("topics/simulator/tracker_cmd", _topic_simulator_tracker_cmd_);
 
   if (!param_loader.loadedSuccessfully()) {
     ROS_ERROR("[MrsUavHwDummyApi]: Could not load all parameters!");
@@ -265,6 +273,11 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
   if (_capabilities_.accepts_position_cmd) {
     ph_position_cmd_ =
         mrs_lib::PublisherHandler<mrs_msgs::HwApiPositionCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_position_cmd_, 1);
+  }
+
+  if (_feedforward_enabled_) {
+    ph_tracker_cmd_ =
+        mrs_lib::PublisherHandler<mrs_msgs::TrackerCommand>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_tracker_cmd_, 1);
   }
 
   // | ------------------------- timers ------------------------- |
@@ -518,6 +531,17 @@ bool Api::callbackPositionCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msg
   ph_position_cmd_.publish(wrp.getMsg());
 
   return true;
+}
+
+//}
+
+/* callbackTrackerCmd() //{ */
+
+void Api::callbackTrackerCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::TrackerCommand>& wrp) {
+
+  ROS_INFO_ONCE("[Api]: getting tracker cmd");
+
+  ph_tracker_cmd_.publish(wrp.getMsg());
 }
 
 //}

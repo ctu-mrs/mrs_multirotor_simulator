@@ -54,6 +54,11 @@ public:
   void setInput(const reference::Position& position);
   void setInput(void);
 
+  void setFeedforward(const reference::AccelerationHdgRate& cmd);
+  void setFeedforward(const reference::AccelerationHdg& cmd);
+  void setFeedforward(const reference::VelocityHdg& cmd);
+  void setFeedforward(const reference::VelocityHdgRate& cmd);
+
   MultirotorModel::State       getState(void);
   MultirotorModel::ModelParams getParams(void);
 
@@ -87,6 +92,8 @@ private:
 
   INPUT_MODE active_input_ = INPUT_UNKNOWN;
 
+  // | ------------- inputs for feedback controllers ------------ |
+
   reference::Actuators           actuators_cmd_;
   reference::ControlGroup        control_group_cmd_;
   reference::AttitudeRate        attitude_rate_cmd_;
@@ -97,6 +104,13 @@ private:
   reference::VelocityHdgRate     velocity_hdg_rate_cmd_;
   reference::VelocityHdg         velocity_hdg_cmd_;
   reference::Position            position_cmd_;
+
+  // | ------------------- feedforward inputs ------------------- |
+
+  std::optional<reference::VelocityHdgRate>     velocity_hdg_rate_ff_;
+  std::optional<reference::VelocityHdg>         velocity_hdg_ff_;
+  std::optional<reference::AccelerationHdgRate> acceleration_hdg_rate_ff_;
+  std::optional<reference::AccelerationHdg>     acceleration_hdg_ff_;
 
   void initializeControllers(void);
 };
@@ -228,6 +242,30 @@ void UavSystem::setInput(void) {
 
 //}
 
+/* setFeedforward() //{ */
+
+void UavSystem::setFeedforward(const reference::AccelerationHdgRate& cmd) {
+
+  acceleration_hdg_rate_ff_ = cmd;
+}
+
+void UavSystem::setFeedforward(const reference::AccelerationHdg& cmd) {
+
+  acceleration_hdg_ff_ = cmd;
+}
+
+void UavSystem::setFeedforward(const reference::VelocityHdgRate& cmd) {
+
+  velocity_hdg_rate_ff_ = cmd;
+}
+
+void UavSystem::setFeedforward(const reference::VelocityHdg& cmd) {
+
+  velocity_hdg_ff_ = cmd;
+}
+
+//}
+
 /* crash() //{ */
 
 void UavSystem::crash(void) {
@@ -269,14 +307,36 @@ void UavSystem::makeStep(const double dt) {
     if (active_input == UavSystem::POSITION_CMD) {
       velocity_hdg_cmd_ = position_controller_.getControlSignal(multirotor_model_.getState(), position_cmd_, dt);
       active_input      = VELOCITY_HDG_CMD;
+
+      if (velocity_hdg_ff_) {
+        velocity_hdg_cmd_.velocity += velocity_hdg_ff_->velocity;
+      } else if (velocity_hdg_rate_ff_) {
+        velocity_hdg_cmd_.velocity += velocity_hdg_rate_ff_->velocity;
+      }
     }
 
     if (active_input == UavSystem::VELOCITY_HDG_CMD) {
+
       acceleration_hdg_cmd_ = velocity_controller_.getControlSignal(multirotor_model_.getState(), velocity_hdg_cmd_, dt);
       active_input          = ACCELERATION_HDG_CMD;
+
+      if (acceleration_hdg_ff_) {
+        acceleration_hdg_cmd_.acceleration += acceleration_hdg_ff_->acceleration;
+      } else if (acceleration_hdg_rate_ff_) {
+        acceleration_hdg_cmd_.acceleration += acceleration_hdg_rate_ff_->acceleration;
+      }
+
     } else if (active_input == UavSystem::VELOCITY_HDG_RATE_CMD) {
+
       acceleration_hdg_rate_cmd_ = velocity_controller_.getControlSignal(multirotor_model_.getState(), velocity_hdg_rate_cmd_, dt);
       active_input               = ACCELERATION_HDG_RATE_CMD;
+
+      if (acceleration_hdg_rate_ff_) {
+        acceleration_hdg_rate_cmd_.acceleration += acceleration_hdg_rate_ff_->acceleration;
+        acceleration_hdg_rate_cmd_.heading_rate += acceleration_hdg_rate_ff_->heading_rate;
+      } else if (acceleration_hdg_ff_) {
+        acceleration_hdg_rate_cmd_.acceleration += acceleration_hdg_ff_->acceleration;
+      }
     }
 
     if (active_input == UavSystem::ACCELERATION_HDG_CMD) {
