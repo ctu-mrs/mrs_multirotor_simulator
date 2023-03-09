@@ -40,6 +40,8 @@ private:
   double    _simulation_rate_;
   ros::Time sim_time_;
 
+  double _clock_min_dt_;
+
   // | ------------------------- timers ------------------------- |
 
   ros::WallTimer timer_main_;
@@ -52,6 +54,10 @@ private:
   // | ------------------------- system ------------------------- |
 
   std::vector<std::unique_ptr<UavSystemRos>> uavs_;
+
+  // | -------------------------- time -------------------------- |
+
+  ros::Time last_published_time_;
 
   // | ------------------------- methods ------------------------ |
 
@@ -82,7 +88,8 @@ void MultirotorSimulator::onInit() {
     nh_.setParam("/use_sim_time", true);
   }
 
-  sim_time_ = ros::Time(0);
+  sim_time_            = ros::Time(0);
+  last_published_time_ = ros::Time(0);
 
   mrs_lib::ParamLoader param_loader(nh_, "MultirotorSimulator");
 
@@ -91,6 +98,9 @@ void MultirotorSimulator::onInit() {
   param_loader.loadParam("collisions/enabled", drs_params_.collisions_enabled);
   param_loader.loadParam("collisions/crash", drs_params_.collisions_crash);
   param_loader.loadParam("collisions/rebounce", drs_params_.collisions_rebounce);
+
+  double clock_rate;
+  param_loader.loadParam("clock_rate", clock_rate);
 
   drs_params_.paused = false;
 
@@ -118,6 +128,8 @@ void MultirotorSimulator::onInit() {
     ROS_ERROR("[MultirotorSimulator]: could not load all parameters!");
     ros::shutdown();
   }
+
+  _clock_min_dt_ = 1.0 / clock_rate;
 
   // | ----------------------- publishers ----------------------- |
 
@@ -163,11 +175,16 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
 
   // | ---------------------- publish time ---------------------- |
 
-  rosgraph_msgs::Clock ros_time;
+  if ((sim_time_ - last_published_time_).toSec() >= _clock_min_dt_) {
 
-  ros_time.clock.fromSec(sim_time_.toSec());
+    rosgraph_msgs::Clock ros_time;
 
-  ph_clock_.publish(ros_time);
+    ros_time.clock.fromSec(sim_time_.toSec());
+
+    ph_clock_.publish(ros_time);
+
+    last_published_time_ = sim_time_;
+  }
 }
 
 //}

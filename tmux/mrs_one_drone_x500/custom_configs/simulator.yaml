@@ -1,3 +1,5 @@
+clock_rate: 100
+
 iterate_without_input: true
 
 takeoff_patch:
