@@ -3,6 +3,8 @@ collisions:
 
 clock_rate: 20.0 # Hz
 
+realtime_factor: 1.0
+
 takeoff_patch:
   enabled: true
 
@@ -17,16 +19,16 @@ uav_names: [
   "uav8",
   "uav9",
   "uav10",
-  "uav11",
-  "uav12",
-  "uav13",
-  "uav14",
-  "uav15",
-  "uav16",
-  "uav17",
-  "uav18",
-  "uav19",
-  "uav20",
+  # "uav11",
+  # "uav12",
+  # "uav13",
+  # "uav14",
+  # "uav15",
+  # "uav16",
+  # "uav17",
+  # "uav18",
+  # "uav19",
+  # "uav20",
 ]
 
 # 100

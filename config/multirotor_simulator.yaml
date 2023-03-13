@@ -6,7 +6,7 @@ g: 9.81 # [ms^-2]
 
 iterate_without_input: false
 
-input_timeout: 0.25 # [s]
+input_timeout: 1.0 # [s]
 
 frames:
   world:

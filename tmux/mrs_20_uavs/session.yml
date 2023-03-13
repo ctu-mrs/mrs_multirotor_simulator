@@ -15,26 +15,26 @@ windows:
   - takeoff:
       layout: tiled
       panes:
-        -  export UAV_NAME=uav1; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav2; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav3; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav4; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav5; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav6; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav7; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav8; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav9; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav10; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav11; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav12; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav13; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav14; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav15; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav16; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav17; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav18; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav19; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
-        -  export UAV_NAME=uav20; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
+        -  export UAV_NAME=uav1; waitForControl; sleep 3;  rosservice call /$UAV_NAME/uav_manager/midair_activation && exit
+        -  export UAV_NAME=uav2; waitForControl; sleep 3;  rosservice call /$UAV_NAME/uav_manager/midair_activation && exit
+        -  export UAV_NAME=uav3; waitForControl; sleep 3;  rosservice call /$UAV_NAME/uav_manager/midair_activation && exit
+        -  export UAV_NAME=uav4; waitForControl; sleep 3;  rosservice call /$UAV_NAME/uav_manager/midair_activation && exit
+        -  export UAV_NAME=uav5; waitForControl; sleep 3;  rosservice call /$UAV_NAME/uav_manager/midair_activation && exit
+        -  export UAV_NAME=uav6; waitForControl; sleep 3;  rosservice call /$UAV_NAME/uav_manager/midair_activation && exit
+        -  export UAV_NAME=uav7; waitForControl; sleep 3;  rosservice call /$UAV_NAME/uav_manager/midair_activation && exit
+        -  export UAV_NAME=uav8; waitForControl; sleep 3;  rosservice call /$UAV_NAME/uav_manager/midair_activation && exit
+        -  export UAV_NAME=uav9; waitForControl; sleep 3;  rosservice call /$UAV_NAME/uav_manager/midair_activation && exit
+        -  export UAV_NAME=uav10; waitForControl; sleep 3;  rosservice call /$UAV_NAME/uav_manager/midair_activation && exit
+        # -  export UAV_NAME=uav11; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
+        # -  export UAV_NAME=uav12; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
+        # -  export UAV_NAME=uav13; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
+        # -  export UAV_NAME=uav14; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
+        # -  export UAV_NAME=uav15; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
+        # -  export UAV_NAME=uav16; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
+        # -  export UAV_NAME=uav17; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
+        # -  export UAV_NAME=uav18; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
+        # -  export UAV_NAME=uav19; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
+        # -  export UAV_NAME=uav20; waitForControl; rosservice call /$UAV_NAME/uav_manager/midair_activation; exit
   - hw_api:
       layout: tiled
       panes:
@@ -48,16 +48,20 @@ windows:
         - export UAV_NAME=uav8; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
         - export UAV_NAME=uav9; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
         - export UAV_NAME=uav10; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
-        - export UAV_NAME=uav11; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
-        - export UAV_NAME=uav12; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
-        - export UAV_NAME=uav13; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
-        - export UAV_NAME=uav14; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
-        - export UAV_NAME=uav15; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
-        - export UAV_NAME=uav16; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
-        - export UAV_NAME=uav17; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
-        - export UAV_NAME=uav18; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
-        - export UAV_NAME=uav19; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
-        - export UAV_NAME=uav20; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
+        # - export UAV_NAME=uav11; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
+        # - export UAV_NAME=uav12; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
+        # - export UAV_NAME=uav13; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
+        # - export UAV_NAME=uav14; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
+        # - export UAV_NAME=uav15; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
+        # - export UAV_NAME=uav16; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
+        # - export UAV_NAME=uav17; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
+        # - export UAV_NAME=uav18; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
+        # - export UAV_NAME=uav19; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
+        # - export UAV_NAME=uav20; waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
+  - nodelet_manager:
+      layout: tiled
+      panes:
+        - waitForRos; roslaunch mrs_uav_general nodelet_manager.launch n_threads:=32
   - control:
       layout: tiled
       panes:
@@ -71,16 +75,16 @@ windows:
         - export UAV_NAME=uav8; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
         - export UAV_NAME=uav9; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
         - export UAV_NAME=uav10; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
-        - export UAV_NAME=uav11; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
-        - export UAV_NAME=uav12; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
-        - export UAV_NAME=uav13; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
-        - export UAV_NAME=uav14; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
-        - export UAV_NAME=uav15; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
-        - export UAV_NAME=uav16; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
-        - export UAV_NAME=uav17; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
-        - export UAV_NAME=uav18; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
-        - export UAV_NAME=uav19; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
-        - export UAV_NAME=uav20; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
+        # - export UAV_NAME=uav11; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
+        # - export UAV_NAME=uav12; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
+        # - export UAV_NAME=uav13; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
+        # - export UAV_NAME=uav14; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
+        # - export UAV_NAME=uav15; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
+        # - export UAV_NAME=uav16; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
+        # - export UAV_NAME=uav17; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
+        # - export UAV_NAME=uav18; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
+        # - export UAV_NAME=uav19; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
+        # - export UAV_NAME=uav20; waitForRos; roslaunch mrs_uav_general core.launch config_odometry:=./custom_configs/odometry.yaml config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml
   - rviz:
       layout: tiled
       panes:

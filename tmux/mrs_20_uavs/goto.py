@@ -21,8 +21,6 @@ class Goto:
 
         rospy.sleep(2.0)
 
-        rate = rospy.Rate(6)
-
         xs = []
         ys = []
 
@@ -32,20 +30,18 @@ class Goto:
             # xs.append(0)
             # ys.append(0)
 
-        while not rospy.is_shutdown():
+        msg = ReferenceStamped();
+        msg.reference.position.z = 3;
+        msg.reference.heading = 0;
 
-            msg = ReferenceStamped();
-            msg.reference.position.z = 3;
-            msg.reference.heading = 0;
+        for i in range(0, n_uavs):
 
-            for i in range(0, n_uavs):
+            msg.reference.position.x = xs[i]
+            msg.reference.position.y = ys[i]
 
-                msg.reference.position.x = xs[i]
-                msg.reference.position.y = ys[i]
+            publishers[i].publish(msg)
 
-                publishers[i].publish(msg)
-
-            rate.sleep();
+        rospy.sleep(2.0)
 
 if __name__ == '__main__':
     try:
