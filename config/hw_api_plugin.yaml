@@ -7,15 +7,15 @@ gnss:
   amsl: 340.0
 
 input_mode:
-  actuators: false
-  control_group: false
-  attitude_rate: true
-  attitude: true
+  actuators:             false
+  control_group:         false
+  attitude_rate:         true
+  attitude:              true
   acceleration_hdg_rate: false
-  acceleration_hdg: false
-  velocity_hdg_rate: false
-  velocity_hdg: false
-  position: false
+  acceleration_hdg:      false
+  velocity_hdg_rate:     false
+  velocity_hdg:          false
+  position:              false
 
   feedforward: true
 

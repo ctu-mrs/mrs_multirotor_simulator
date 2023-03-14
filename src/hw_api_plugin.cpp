@@ -125,7 +125,7 @@ private:
 
   std::atomic<bool> offboard_ = false;
   std::string       mode_;
-  std::atomic<bool> armed_     = true;
+  std::atomic<bool> armed_     = false;
   std::atomic<bool> connected_ = false;
   std::mutex        mutex_status_;
 

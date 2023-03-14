@@ -4,7 +4,7 @@ realtime_factor: 1.0 # [-]
 
 g: 9.81 # [ms^-2]
 
-iterate_without_input: false
+iterate_without_input: true
 
 input_timeout: 1.0 # [s]
 
