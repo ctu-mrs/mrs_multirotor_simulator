@@ -1,5 +1,5 @@
 clock_rate: 100
-realtime_factor: 0.1
+realtime_factor: 1.0
 
 iterate_without_input: true
 
