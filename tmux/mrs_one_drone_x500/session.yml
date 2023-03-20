@@ -11,24 +11,24 @@ windows:
       layout: tiled
       panes:
         - waitForRos; roslaunch mrs_multirotor_simulator multirotor_simulator.launch custom_config:=./custom_configs/simulator.yaml
-  - takeoff:
-      layout: tiled
-      panes:
-        - waitForRos; roslaunch mrs_uav_general automatic_start.launch
-        - waitForControl; rosservice call /$UAV_NAME/hw_api/arming 1; sleep 2; rosservice call /$UAV_NAME/hw_api/offboard
-        # - waitForControl; read; rosservice call /uav1/uav_manager/midair_activation
   - hw_api:
       layout: tiled
       panes:
         - waitForRos; roslaunch mrs_multirotor_simulator hw_api.launch custom_config:=./custom_configs/hw_api.yaml
+  - takeoff:
+      layout: tiled
+      panes:
+        - waitForHw; roslaunch mrs_uav_general automatic_start.launch
+        - waitForControl; rosservice call /$UAV_NAME/hw_api/arming 1; sleep 2; rosservice call /$UAV_NAME/hw_api/offboard
+        # - waitForControl; read; rosservice call /uav1/uav_manager/midair_activation
   - status:
       layout: tiled
       panes:
-        - waitForRos; roslaunch mrs_uav_status status.launch
+        - waitForHw; roslaunch mrs_uav_status status.launch
   - control:
       layout: tiled
       panes:
-        - waitForRos; ulimit -c unlimited; roslaunch mrs_uav_general core.launch config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml config_active_estimators:=./custom_configs/active_estimators.yaml
+        - waitForHw; ulimit -c unlimited; roslaunch mrs_uav_general core.launch config_mpc_tracker:=./custom_configs/mpc_tracker.yaml config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_se3_controller:=./custom_configs/se3_controller.yaml config_active_estimators:=./custom_configs/active_estimators.yaml
   - rviz:
       layout: tiled
       panes:
