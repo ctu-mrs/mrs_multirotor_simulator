@@ -8,8 +8,6 @@ Panels:
         - /Status1
         - /TF1/Frames1
         - /TF1/Tree1
-        - /Odometry1/odom_main1
-        - /Odometry1/odom_main1/Shape1
       Splitter Ratio: 0.7053406834602356
     Tree Height: 810
   - Class: rviz/Selection
@@ -299,7 +297,7 @@ Visualization Manager:
           Marker Topic: /uav1/control_manager/safety_area_markers
           Name: SafetyhArea
           Namespaces:
-            {}
+            "": true
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -307,7 +305,7 @@ Visualization Manager:
           Marker Topic: /uav1/control_manager/disturbances_markers
           Name: Disturbances
           Namespaces:
-            {}
+            control_manager: true
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -315,7 +313,7 @@ Visualization Manager:
           Marker Topic: /uav1/control_manager/safety_area_coordinates_markers
           Name: SafetyAreaCoordinates
           Namespaces:
-            {}
+            "": true
           Queue Size: 100
           Value: true
         - Angle Tolerance: 0.009999999776482582
@@ -400,45 +398,10 @@ Visualization Manager:
           Unreliable: false
           Value: true
           Vertical collision threshold: 1
-      Enabled: false
+      Enabled: true
       Name: ControlManager
     - Class: rviz/Group
       Displays:
-        - Angle Tolerance: 0.009999999776482582
-          Class: rviz/Odometry
-          Covariance:
-            Orientation:
-              Alpha: 0.5
-              Color: 255; 255; 127
-              Color Style: Unique
-              Frame: Local
-              Offset: 1
-              Scale: 1
-              Value: true
-            Position:
-              Alpha: 0.30000001192092896
-              Color: 204; 51; 204
-              Scale: 1
-              Value: true
-            Value: true
-          Enabled: false
-          Keep: 1
-          Name: position_cmd
-          Position Tolerance: 0.009999999776482582
-          Queue Size: 10
-          Shape:
-            Alpha: 1
-            Axes Length: 1
-            Axes Radius: 0.10000000149011612
-            Color: 255; 0; 0
-            Head Length: 0.30000001192092896
-            Head Radius: 0.10000000149011612
-            Shaft Length: 1
-            Shaft Radius: 0.05000000074505806
-            Value: Arrow
-          Topic: /uav1/control_manager/cmd_odom
-          Unreliable: true
-          Value: false
         - Angle Tolerance: 0.009999999776482582
           Class: rviz/Odometry
           Covariance:
@@ -470,11 +433,11 @@ Visualization Manager:
             Head Radius: 0.30000001192092896
             Shaft Length: 1
             Shaft Radius: 0.05000000074505806
-            Value: Arrow
-          Topic: /uav1/odometry/odom_main
+            Value: Axes
+          Topic: /uav1/estimation_manager/odom_main
           Unreliable: true
           Value: true
-      Enabled: false
+      Enabled: true
       Name: Odometry
     - Class: rviz/Group
       Displays:
@@ -642,9 +605,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5697982907295227
+      Pitch: 0.5547983050346375
       Target Frame: uav1/fcu
-      Yaw: 2.367206335067749
+      Yaw: 2.8872172832489014
     Saved: ~
 Window Geometry:
   Displays:
@@ -662,5 +625,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 936
-  X: 966
+  X: 4806
   Y: 32

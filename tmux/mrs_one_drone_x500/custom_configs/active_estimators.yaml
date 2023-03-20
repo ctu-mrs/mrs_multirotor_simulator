@@ -1,7 +1,7 @@
 # loaded state estimator plugins
 state_estimators: [
-  # "gps_garmin",
-  # "gps_baro",
+  "gps_garmin",
+  "gps_baro",
   "ground_truth",
 ]
 
