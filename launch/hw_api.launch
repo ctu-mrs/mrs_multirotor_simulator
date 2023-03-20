@@ -65,6 +65,7 @@
         <!-- Publishers (DO NOT CHANGE) -->
       <remap from="~capabilities_out" to="~capabilities" />
       <remap from="~status_out" to="~status" />
+      <remap from="~connected_out" to="~connected" />
       <remap from="~gnss_out" to="~gnss" />
       <remap from="~gnss_status_out" to="~gnss_status" />
       <remap from="~rtk_out" to="~rtk" />

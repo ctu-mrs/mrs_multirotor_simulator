@@ -261,7 +261,7 @@ mrs_msgs::HwApiStatus Api::getStatus() {
 
     status.armed     = armed_;
     status.offboard  = offboard_;
-    status.connected = connected_;
+    status.connected = sh_odom_.hasMsg();
     status.mode      = mode_;
   }
 
