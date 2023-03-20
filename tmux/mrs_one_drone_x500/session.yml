@@ -7,21 +7,20 @@ windows:
       layout: tiled
       panes:
         - roscore
-        - waitForRos; rosparam set use_sim_time true
   - simulator:
       layout: tiled
       panes:
-        - waitForRos; export UAV_NAME=uav1; roslaunch mrs_multirotor_simulator multirotor_simulator.launch custom_config:=./custom_configs/simulator.yaml
+        - waitForRos; roslaunch mrs_multirotor_simulator multirotor_simulator.launch custom_config:=./custom_configs/simulator.yaml
   - takeoff:
       layout: tiled
       panes:
-        - waitForControl; roslaunch mrs_uav_general automatic_start.launch
+        - waitForRos; roslaunch mrs_uav_general automatic_start.launch
         - waitForControl; rosservice call /$UAV_NAME/hw_api/arming 1; sleep 2; rosservice call /$UAV_NAME/hw_api/offboard
         # - waitForControl; read; rosservice call /uav1/uav_manager/midair_activation
   - hw_api:
       layout: tiled
       panes:
-        - waitForRos; roslaunch mrs_multirotor_simulator hw_api.launch
+        - waitForRos; roslaunch mrs_multirotor_simulator hw_api.launch custom_config:=./custom_configs/hw_api.yaml
   - status:
       layout: tiled
       panes:
