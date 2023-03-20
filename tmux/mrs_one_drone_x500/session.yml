@@ -21,7 +21,7 @@ windows:
   - hw_api:
       layout: tiled
       panes:
-        - waitForRos; roslaunch mrs_uav_hw_api api.launch custom_config:=./custom_configs/hw_api_plugin.yaml
+        - waitForRos; roslaunch mrs_multirotor_simulator hw_api.launch
   - status:
       layout: tiled
       panes:

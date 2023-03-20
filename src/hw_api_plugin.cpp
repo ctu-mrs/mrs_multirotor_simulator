@@ -73,25 +73,6 @@ private:
 
   std::shared_ptr<mrs_uav_hw_api::CommonHandlers_t> common_handlers_;
 
-  // | ----------------------- parameters ----------------------- |
-
-  std::string _simulator_prefix_;
-
-  std::string _topic_simulator_odom_;
-  std::string _topic_simulator_imu_;
-  std::string _topic_simulator_rangefinder_;
-
-  std::string _topic_simulator_actuators_cmd_;
-  std::string _topic_simulator_control_group_cmd_;
-  std::string _topic_simulator_attitude_rate_cmd_;
-  std::string _topic_simulator_attitude_cmd_;
-  std::string _topic_simulator_acceleration_hdg_rate_cmd_;
-  std::string _topic_simulator_acceleration_hdg_cmd_;
-  std::string _topic_simulator_velocity_hdg_rate_cmd_;
-  std::string _topic_simulator_velocity_hdg_cmd_;
-  std::string _topic_simulator_position_cmd_;
-  std::string _topic_simulator_tracker_cmd_;
-
   // | ----------------------- subscribers ---------------------- |
 
   mrs_lib::SubscribeHandler<nav_msgs::Odometry> sh_odom_;
@@ -177,6 +158,7 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
 
   param_loader.loadParam("outputs/distance_sensor", (bool&)_capabilities_.produces_distance_sensor);
   param_loader.loadParam("outputs/gnss", (bool&)_capabilities_.produces_gnss);
+  param_loader.loadParam("outputs/rtk", (bool&)_capabilities_.produces_rtk);
   param_loader.loadParam("outputs/imu", (bool&)_capabilities_.produces_imu);
   param_loader.loadParam("outputs/altitude", (bool&)_capabilities_.produces_altitude);
   param_loader.loadParam("outputs/magnetometer_heading", (bool&)_capabilities_.produces_magnetometer_heading);
@@ -187,21 +169,7 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
   param_loader.loadParam("outputs/velocity", (bool&)_capabilities_.produces_velocity);
   param_loader.loadParam("outputs/angular_velocity", (bool&)_capabilities_.produces_angular_velocity);
   param_loader.loadParam("outputs/odometry", (bool&)_capabilities_.produces_odometry);
-
-  param_loader.loadParam("topics/prefix", _simulator_prefix_);
-  param_loader.loadParam("topics/simulator/odom", _topic_simulator_odom_);
-  param_loader.loadParam("topics/simulator/imu", _topic_simulator_imu_);
-  param_loader.loadParam("topics/simulator/rangefinder", _topic_simulator_rangefinder_);
-  param_loader.loadParam("topics/simulator/actuators_cmd", _topic_simulator_actuators_cmd_);
-  param_loader.loadParam("topics/simulator/control_group_cmd", _topic_simulator_control_group_cmd_);
-  param_loader.loadParam("topics/simulator/attitude_rate_cmd", _topic_simulator_attitude_rate_cmd_);
-  param_loader.loadParam("topics/simulator/attitude_cmd", _topic_simulator_attitude_cmd_);
-  param_loader.loadParam("topics/simulator/acceleration_hdg_rate_cmd", _topic_simulator_acceleration_hdg_rate_cmd_);
-  param_loader.loadParam("topics/simulator/acceleration_hdg_cmd", _topic_simulator_acceleration_hdg_cmd_);
-  param_loader.loadParam("topics/simulator/velocity_hdg_rate_cmd", _topic_simulator_velocity_hdg_rate_cmd_);
-  param_loader.loadParam("topics/simulator/velocity_hdg_cmd", _topic_simulator_velocity_hdg_cmd_);
-  param_loader.loadParam("topics/simulator/position_cmd", _topic_simulator_position_cmd_);
-  param_loader.loadParam("topics/simulator/tracker_cmd", _topic_simulator_tracker_cmd_);
+  param_loader.loadParam("outputs/ground_truth", (bool&)_capabilities_.produces_ground_truth);
 
   if (!param_loader.loadedSuccessfully()) {
     ROS_ERROR("[MrsUavHwDummyApi]: Could not load all parameters!");
@@ -219,65 +187,52 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
   shopts.queue_size         = 10;
   shopts.transport_hints    = ros::TransportHints().tcpNoDelay();
 
-  sh_odom_ =
-      mrs_lib::SubscribeHandler<nav_msgs::Odometry>(shopts, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_odom_, &Api::callbackOdom, this);
+  sh_odom_ = mrs_lib::SubscribeHandler<nav_msgs::Odometry>(shopts, "simulator_odom_in", &Api::callbackOdom, this);
 
-  sh_imu_ =
-      mrs_lib::SubscribeHandler<sensor_msgs::Imu>(shopts, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_imu_, &Api::callbackImu, this);
+  sh_imu_ = mrs_lib::SubscribeHandler<sensor_msgs::Imu>(shopts, "simulator_imu_in", &Api::callbackImu, this);
 
-  sh_range_ = mrs_lib::SubscribeHandler<sensor_msgs::Range>(shopts, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_rangefinder_,
-                                                            &Api::callbackRangefinder, this);
+  sh_range_ = mrs_lib::SubscribeHandler<sensor_msgs::Range>(shopts, "simulator_rangefinder_in", &Api::callbackRangefinder, this);
 
   // | ----------------------- publishers ----------------------- |
 
   if (_capabilities_.accepts_actuator_cmd) {
-    ph_actuators_cmd_ =
-        mrs_lib::PublisherHandler<mrs_msgs::HwApiActuatorCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_actuators_cmd_, 1);
+    ph_actuators_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiActuatorCmd>(nh_, "simulator_actuators_cmd_out", 1);
   }
 
   if (_capabilities_.accepts_control_group_cmd) {
-    ph_control_group_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiControlGroupCmd>(
-        nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_control_group_cmd_, 1);
+    ph_control_group_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiControlGroupCmd>(nh_, "simulator_control_group_cmd_out", 1);
   }
 
   if (_capabilities_.accepts_attitude_rate_cmd) {
-    ph_attitude_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd>(
-        nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_attitude_rate_cmd_, 1);
+    ph_attitude_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeRateCmd>(nh_, "simulator_attitude_rate_cmd_out", 1);
   }
 
   if (_capabilities_.accepts_attitude_cmd) {
-    ph_attitude_cmd_ =
-        mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_attitude_cmd_, 1);
+    ph_attitude_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAttitudeCmd>(nh_, "simulator_attitude_cmd_out", 1);
   }
 
   if (_capabilities_.accepts_acceleration_hdg_rate_cmd) {
-    ph_acceleration_hdg_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationHdgRateCmd>(
-        nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_acceleration_hdg_rate_cmd_, 1);
+    ph_acceleration_hdg_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationHdgRateCmd>(nh_, "simulator_acceleration_hdg_rate_cmd_out", 1);
   }
 
   if (_capabilities_.accepts_acceleration_hdg_cmd) {
-    ph_acceleration_hdg_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationHdgCmd>(
-        nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_acceleration_hdg_cmd_, 1);
+    ph_acceleration_hdg_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiAccelerationHdgCmd>(nh_, "simulator_acceleration_hdg_cmd_out", 1);
   }
 
   if (_capabilities_.accepts_velocity_hdg_rate_cmd) {
-    ph_velocity_hdg_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiVelocityHdgRateCmd>(
-        nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_velocity_hdg_rate_cmd_, 1);
+    ph_velocity_hdg_rate_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiVelocityHdgRateCmd>(nh_, "simulator_velocity_hdg_rate_cmd_out", 1);
   }
 
   if (_capabilities_.accepts_velocity_hdg_cmd) {
-    ph_velocity_hdg_cmd_ =
-        mrs_lib::PublisherHandler<mrs_msgs::HwApiVelocityHdgCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_velocity_hdg_cmd_, 1);
+    ph_velocity_hdg_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiVelocityHdgCmd>(nh_, "simulator_velocity_hdg_cmd_out", 1);
   }
 
   if (_capabilities_.accepts_position_cmd) {
-    ph_position_cmd_ =
-        mrs_lib::PublisherHandler<mrs_msgs::HwApiPositionCmd>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_position_cmd_, 1);
+    ph_position_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::HwApiPositionCmd>(nh_, "simulator_position_cmd_out", 1);
   }
 
   if (_feedforward_enabled_) {
-    ph_tracker_cmd_ =
-        mrs_lib::PublisherHandler<mrs_msgs::TrackerCommand>(nh_, "/" + _simulator_prefix_ + "/" + uav_name + "/" + _topic_simulator_tracker_cmd_, 1);
+    ph_tracker_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::TrackerCommand>(nh_, "simulator_tracker_cmd_out", 1);
   }
 
   // | ------------------------- timers ------------------------- |
@@ -638,6 +593,12 @@ void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry>& wrp) {
     common_handlers_->publishers.publishOdometry(*odom);
   }
 
+  // | ------------------ publish ground truth ------------------ |
+
+  if (_capabilities_.produces_ground_truth) {
+    common_handlers_->publishers.publishGroundTruth(*odom);
+  }
+
   // | ---------------------- publish gnss ---------------------- |
 
   if (_capabilities_.produces_gnss) {
@@ -656,6 +617,26 @@ void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry>& wrp) {
     gnss.altitude  = odom->pose.pose.position.z + _amsl_;
 
     common_handlers_->publishers.publishGNSS(gnss);
+  }
+
+  // | ----------------------- publish rtk ---------------------- |
+
+  if (_capabilities_.produces_rtk) {
+
+    double lat;
+    double lon;
+
+    mrs_lib::UTMtoLL(odom->pose.pose.position.y + _utm_y_, odom->pose.pose.position.x + _utm_x_, _utm_zone_, lat, lon);
+
+    mrs_msgs::RtkGps rtk;
+
+    rtk.header.stamp = odom->header.stamp;
+
+    rtk.gps.latitude  = lat;
+    rtk.gps.longitude = lon;
+    rtk.gps.altitude  = odom->pose.pose.position.z + _amsl_;
+
+    common_handlers_->publishers.publishRTK(rtk);
   }
 
   // | ------------------ publish amsl altitude ----------------- |

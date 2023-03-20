@@ -1,0 +1,93 @@
+<launch>
+
+  <!-- args corresponding to environment variables -->
+  <arg name="UAV_NAME" default="$(optenv UAV_NAME)" />
+  <arg name="LOGGER_DEBUG" default="$(optenv LOGGER_DEBUG false)" />
+  <arg name="RUN_TYPE" default="$(optenv RUN_TYPE uav)" />
+
+    <!-- other args -->
+  <arg name="debug" default="false" />
+  <arg name="standalone" default="true" />
+  <arg name="custom_config" default="" />
+
+  <env name="ROSCONSOLE_CONFIG_FILE" if="$(eval arg('LOGGER_DEBUG'))" value="$(find mrs_uav_hw_api)/config/debug_verbosity.yaml" />
+
+  <arg     if="$(eval arg('standalone') or arg('debug'))" name="nodelet" value="standalone" />
+  <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet" value="load" />
+  <arg     if="$(eval arg('standalone') or arg('debug'))" name="nodelet_manager" value="" />
+  <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet_manager" value="$(arg UAV_NAME)_nodelet_manager" />
+
+  <arg     if="$(arg debug)" name="launch_prefix" value="debug_roslaunch" />
+  <arg unless="$(arg debug)" name="launch_prefix" value="" />
+
+  <group ns="$(arg UAV_NAME)">
+
+    <node pkg="nodelet" type="nodelet" name="hw_api" args="$(arg nodelet) mrs_uav_hw_api/HwApiManager $(arg nodelet_manager)" output="screen" launch-prefix="$(arg launch_prefix)">
+
+      <rosparam file="$(find mrs_uav_hw_api)/config/hw_api.yaml" />
+      <rosparam file="$(find mrs_multirotor_simulator)/config/hw_api.yaml" />
+
+        <!-- Load a user param file -->
+      <rosparam if="$(eval not arg('custom_config') == '')" file="$(arg custom_config)" />
+
+        <!-- Parameters -->
+      <param name="topic_prefix" type="string" value="/$(arg UAV_NAME)/" />
+      <param name="uav_name" type="string" value="$(arg UAV_NAME)" />
+      <param name="simulation" type="bool" value="$(eval arg('RUN_TYPE') == 'simulation')" />
+
+        <!-- custom remaps -->
+      <remap from="~simulator_imu_in" to="/multirotor_simulator/$(arg UAV_NAME)/imu" />
+      <remap from="~simulator_odom_in" to="/multirotor_simulator/$(arg UAV_NAME)/odom" />
+      <remap from="~simulator_rangefinder_in" to="/multirotor_simulator/$(arg UAV_NAME)/rangefinder" />
+      <remap from="~simulator_actuators_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/actuators_cmd" />
+      <remap from="~simulator_control_group_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/control_group_cmd" />
+      <remap from="~simulator_attitude_rate_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/attitude_rate_cmd" />
+      <remap from="~simulator_attitude_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/attitude_cmd" />
+      <remap from="~simulator_acceleration_hdg_rate_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/acceleration_hdg_rate_cmd" />
+      <remap from="~simulator_acceleration_hdg_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/acceleration_hdg_cmd" />
+      <remap from="~simulator_velocity_hdg_rate_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/velocity_hdg_rate_cmd" />
+      <remap from="~simulator_velocity_hdg_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/velocity_hdg_cmd" />
+      <remap from="~simulator_position_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/position_cmd" />
+      <remap from="~simulator_tracker_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/tracker_cmd" />
+
+        <!-- Subscribers (DO NOT CHANGE) -->
+      <remap from="~actuator_cmd_in" to="~actuator_cmd" />
+      <remap from="~control_group_cmd_in" to="~control_group_cmd" />
+      <remap from="~attitude_cmd_in" to="~attitude_cmd" />
+      <remap from="~attitude_rate_cmd_in" to="~attitude_rate_cmd" />
+      <remap from="~acceleration_hdg_rate_cmd_in" to="~acceleration_hdg_rate_cmd" />
+      <remap from="~acceleration_hdg_cmd_in" to="~acceleration_hdg_cmd" />
+      <remap from="~velocity_hdg_rate_cmd_in" to="~velocity_hdg_rate_cmd" />
+      <remap from="~velocity_hdg_cmd_in" to="~velocity_hdg_cmd" />
+      <remap from="~position_cmd_in" to="~position_cmd" />
+      <remap from="~tracker_cmd_in" to="control_manager/tracker_cmd" />
+
+        <!-- Publishers (DO NOT CHANGE) -->
+      <remap from="~capabilities_out" to="~capabilities" />
+      <remap from="~status_out" to="~status" />
+      <remap from="~gnss_out" to="~gnss" />
+      <remap from="~gnss_status_out" to="~gnss_status" />
+      <remap from="~rtk_out" to="~rtk" />
+      <remap from="~rtk_fix_type_out" to="~rtk_fix_type" />
+      <remap from="~odometry_out" to="~odometry" />
+      <remap from="~ground_truth_out" to="~ground_truth" />
+      <remap from="~position_out" to="~position" />
+      <remap from="~orientation_out" to="~orientation" />
+      <remap from="~velocity_out" to="~velocity" />
+      <remap from="~angular_velocity_out" to="~angular_velocity" />
+      <remap from="~distance_sensor_out" to="~distance_sensor" />
+      <remap from="~mag_heading_out" to="~mag_heading" />
+      <remap from="~altitude_out" to="~altitude" />
+      <remap from="~imu_out" to="~imu" />
+      <remap from="~rc_channels_out" to="~rc_channels" />
+      <remap from="~battery_state_out" to="~battery_state" />
+
+        <!-- Services (DO NOT CHANGE) -->
+      <remap from="~arming_in" to="~arming" />
+      <remap from="~offboard_in" to="~offboard" />
+
+    </node>
+
+  </group>
+
+</launch>
