@@ -256,12 +256,14 @@ mrs_msgs::HwApiStatus Api::getStatus() {
 
   status.stamp = ros::Time::now();
 
+  bool has_odom = sh_odom_.hasMsg();
+
   {
     std::scoped_lock lock(mutex_status_);
 
     status.armed     = armed_;
     status.offboard  = offboard_;
-    status.connected = sh_odom_.hasMsg();
+    status.connected = has_odom;
     status.mode      = mode_;
   }
 
