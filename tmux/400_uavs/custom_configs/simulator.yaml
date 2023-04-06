@@ -1,6 +1,17 @@
 collisions:
   crash: false
 
+frames:
+  world:
+    name: "simulator_origin"
+    prefix_with_uav_name: false
+  fcu:
+    name: "fcu"
+    publish_tf: true
+  rangefinder:
+    name: "garmin"
+    publish_tf: true
+
 uav_names: [
   "uav1",
   "uav2",
