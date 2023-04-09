@@ -20,6 +20,7 @@
   <node pkg="nodelet" type="nodelet" name="multirotor_simulator" args="$(arg nodelet) mrs_multirotor_simulator/MultirotorSimulator $(arg nodelet_manager)" output="screen" launch-prefix="$(arg launch_prefix)">
 
     <rosparam file="$(find mrs_multirotor_simulator)/config/multirotor_simulator.yaml" />
+    <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/f450.yaml" />
     <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/f550.yaml" />
     <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/x500.yaml" />
     <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/t650.yaml" />
