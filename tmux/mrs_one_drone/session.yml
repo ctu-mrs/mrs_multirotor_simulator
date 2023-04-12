@@ -28,7 +28,7 @@ windows:
   - control:
       layout: tiled
       panes:
-        - waitForHw; ulimit -c unlimited; roslaunch mrs_uav_general core.launch config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_active_estimators:=./custom_configs/active_estimators.yaml
+        - waitForHw; roslaunch mrs_uav_general core.launch config_uav_manager:=./custom_configs/uav_manager.yaml config_control_manager:=./custom_configs/control_manager.yaml config_active_estimators:=./custom_configs/active_estimators.yaml
   - rviz:
       layout: tiled
       panes:

@@ -19,3 +19,7 @@ windows:
       layout: tiled
       panes:
         - waitForRos; rosrun rviz rviz -d ./rviz.rviz
+  - layout:
+      layout: tiled
+      panes:
+        - sleep 5.0; ~/.i3/layout_manager.sh ./layout.json

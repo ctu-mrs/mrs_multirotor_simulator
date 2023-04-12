@@ -9,13 +9,16 @@ windows:
   - simulator:
       layout: tiled
       panes:
-        - waitForRos; roslaunch mrs_multirotor_simulator multirotor_simulator.launch
+        - waitForRos; roslaunch mrs_multirotor_simulator multirotor_simulator.launch custom_config:=./custom_configs/simulator.yaml
   - goto:
       layout: tiled
       panes:
         - 'history -s ./goto.sh'
-        - 'history -s ./vel_hdg_rate.sh'
   - rviz:
       layout: tiled
       panes:
         - waitForRos; rosrun rviz rviz -d ./rviz.rviz
+  - layout:
+      layout: tiled
+      panes:
+        - sleep 5.0; ~/.i3/layout_manager.sh ./layout.json
