@@ -31,14 +31,14 @@ public:
       n_motors             = 4;
       g                    = 9.81;
       mass                 = 2.0;
-      kf                   = 0.00000022970;
+      kf                   = 0.00000027087;
       km                   = 0.07;
       prop_radius          = 0.15;
       arm_length           = 0.25;
       body_height          = 0.1;
       motor_time_constant  = 0.03;
-      max_rpm              = 8951;
-      min_rpm              = 895;
+      max_rpm              = 7800;
+      min_rpm              = 1170;
       air_resistance_coeff = 0.30;
 
       J       = Eigen::Matrix3d::Zero();
