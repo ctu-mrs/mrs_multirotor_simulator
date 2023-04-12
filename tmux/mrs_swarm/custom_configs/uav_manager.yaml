@@ -16,4 +16,10 @@ midair_activation:
 
   after_activation:
     controller: "Se3Controller"
-    tracker: "LineTracker"
+    tracker: "MpcTracker"
+
+min_height_checking:
+  enabled: false
+
+max_height_checking:
+  enabled: false

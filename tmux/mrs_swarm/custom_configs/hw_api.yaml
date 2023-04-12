@@ -13,16 +13,16 @@ input_mode:
 
 outputs:
   distance_sensor:      true
-  gnss:                 true
+  gnss:                 false
   rtk:                  false
   imu:                  false
-  altitude:             true
+  altitude:             false
   magnetometer_heading: false
   rc_channels:          false
   battery_state:        false
-  position:             true
-  orientation:          true
-  velocity:             true
-  angular_velocity:     true
-  odometry:             true
+  position:             false
+  orientation:          false
+  velocity:             false
+  angular_velocity:     false
+  odometry:             false
   ground_truth:         true
