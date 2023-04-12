@@ -3,7 +3,7 @@ uav_names: [
 ]
 
 uav1:
-  type: "f550"
+  type: "x500"
   spawn:
     x: 10.0
     y: 15.0

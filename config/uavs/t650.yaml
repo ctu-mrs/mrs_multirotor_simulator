@@ -10,7 +10,7 @@ t650:
   propulsion:
 
     # force [N] = force_constant * rpm^2
-    force_constant: 0.00000067623
+    force_constant: 0.00000073385
 
     # moment [Nm] = moment_constant * force [N]
     moment_constant: 0.07
@@ -46,5 +46,5 @@ t650:
     ]
 
     rpm:
-      min: 583  # [revolutions/minute]
+      min: 875  # [revolutions/minute]
       max: 5832 # [revolutions/minute]

@@ -165,9 +165,9 @@ void AttitudeController::initializePIDS(void) {
   pid_y_.reset();
   pid_z_.reset();
 
-  pid_x_.setParams(params_.kp * model_params_.mass, params_.kd * model_params_.mass, params_.ki * model_params_.mass, params_.max_rate_roll_pitch, 0.1);
-  pid_y_.setParams(params_.kp * model_params_.mass, params_.kd * model_params_.mass, params_.ki * model_params_.mass, params_.max_rate_roll_pitch, 0.1);
-  pid_z_.setParams(params_.kp * model_params_.mass, params_.kd * model_params_.mass, params_.ki * model_params_.mass, params_.max_rate_yaw, 0.1);
+  pid_x_.setParams(params_.kp, params_.kd, params_.ki, params_.max_rate_roll_pitch, 0.1);
+  pid_y_.setParams(params_.kp, params_.kd, params_.ki, params_.max_rate_roll_pitch, 0.1);
+  pid_z_.setParams(params_.kp, params_.kd, params_.ki, params_.max_rate_yaw, 0.1);
 }
 
 //}
@@ -228,7 +228,6 @@ double AttitudeController::getYawRateIntrinsic(const Eigen::Matrix3d& R, const d
 
   // project the body yaw orbital velocity vector base onto the heading orbital velocity vector subspace
   Eigen::Vector3d projected = P * R.col(1);
-
 
   double orbital_velocity_norm = orbital_velocity.norm();
   double projected_norm        = projected.norm();
