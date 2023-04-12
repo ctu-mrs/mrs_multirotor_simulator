@@ -5,16 +5,16 @@ realtime_factor: 1.0
 iterate_without_input: true
 
 takeoff_patch:
-  enabled: false
+  enabled: true
 
 uav_names: [
   "uav1",
 ]
 
 uav1:
-  type: "f330"
+  type: "x500"
   spawn:
     x: 10.0
     y: 15.0
-    z: 0.0
+    z: 2.0
     heading: 1.57
