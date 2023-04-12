@@ -1,7 +1,7 @@
 attitude_controller:
 
   # PID gains
-  kp: 4.0
+  kp: 6.0
   kd: 0.05
   ki: 0.01
 

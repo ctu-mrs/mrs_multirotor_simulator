@@ -13,7 +13,7 @@ class AttitudeController {
 public:
   class Params {
   public:
-    double kp                  = 4.0;
+    double kp                  = 6.0;
     double kd                  = 0.05;
     double ki                  = 0.01;
     double max_rate_roll_pitch = 10.0;  // rad/s

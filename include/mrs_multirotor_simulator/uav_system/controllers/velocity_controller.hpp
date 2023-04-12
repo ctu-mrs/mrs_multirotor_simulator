@@ -13,8 +13,8 @@ class VelocityController {
 public:
   struct Params
   {
-    double kp               = 1.0;
-    double kd               = 0.025;
+    double kp               = 2.0;
+    double kd               = 0.05;
     double ki               = 0.01;
     double max_acceleration = 2.0;  // m/s^2;
   };

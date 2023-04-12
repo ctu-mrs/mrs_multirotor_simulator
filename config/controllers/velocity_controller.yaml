@@ -1,8 +1,8 @@
 velocity_controller:
 
   # PID gains
-  kp: 1.0
-  kd: 0.025
+  kp: 2.0
+  kd: 0.05
   ki: 0.01
 
   # output limit
