@@ -7,22 +7,29 @@
 
     <!-- other args -->
   <arg name="debug" default="false" />
-  <arg name="standalone" default="true" />
+  <arg name="bond" default="$(optenv BOND true)" />
+  <arg name="nodelet_manager_name" default="$(optenv NODELET_MANAGER)" />
   <arg name="custom_config" default="" />
 
+  <arg if="$(eval arg('nodelet_manager_name') != '')" name="standalone" value="false" />
+  <arg if="$(eval arg('nodelet_manager_name') == '')" name="standalone" value="true" />
+
   <env name="ROSCONSOLE_CONFIG_FILE" if="$(eval arg('LOGGER_DEBUG'))" value="$(find mrs_uav_hw_api)/config/debug_verbosity.yaml" />
+
+  <arg     if="$(arg bond)" name="bond_suffix" value="" />
+  <arg unless="$(arg bond)" name="bond_suffix" value="--no-bond" />
 
   <arg     if="$(eval arg('standalone') or arg('debug'))" name="nodelet" value="standalone" />
   <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet" value="load" />
   <arg     if="$(eval arg('standalone') or arg('debug'))" name="nodelet_manager" value="" />
-  <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet_manager" value="$(arg UAV_NAME)_nodelet_manager" />
+  <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet_manager" value="$(arg nodelet_manager_name)" />
 
   <arg     if="$(arg debug)" name="launch_prefix" value="debug_roslaunch" />
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
 
   <group ns="$(arg UAV_NAME)">
 
-    <node pkg="nodelet" type="nodelet" name="hw_api" args="$(arg nodelet) mrs_uav_hw_api/HwApiManager $(arg nodelet_manager)" output="screen" launch-prefix="$(arg launch_prefix)">
+    <node pkg="nodelet" type="nodelet" name="hw_api" args="$(arg nodelet) mrs_uav_hw_api/HwApiManager $(arg nodelet_manager) $(arg bond_suffix)" output="screen" launch-prefix="$(arg launch_prefix)">
 
       <rosparam file="$(find mrs_uav_hw_api)/config/hw_api.yaml" />
       <rosparam file="$(find mrs_multirotor_simulator)/config/hw_api.yaml" />

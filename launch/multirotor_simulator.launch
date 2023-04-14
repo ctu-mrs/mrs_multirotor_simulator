@@ -2,13 +2,18 @@
 
   <arg name="debug" default="false" />
   <arg name="standalone" default="true" />
+  <arg name="bond" default="$(optenv BOND true)" />
+  <arg name="nodelet_manager_name" default="$(optenv NODELET_MANAGER)" />
   <arg name="use_sim_time" default="true" />
   <arg name="custom_config" default="" />
+
+  <arg     if="$(arg bond)" name="bond_suffix" value="" />
+  <arg unless="$(arg bond)" name="bond_suffix" value="--no-bond" />
 
   <arg     if="$(eval arg('standalone') or arg('debug'))" name="nodelet" value="standalone" />
   <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet" value="load" />
   <arg     if="$(eval arg('standalone') or arg('debug'))" name="nodelet_manager" value="" />
-  <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet_manager" value="mrs_simulator_nodelet_manager" />
+  <arg unless="$(eval arg('standalone') or arg('debug'))" name="nodelet_manager" value="$(arg nodelet_manager_name)" />
 
   <arg     if="$(arg debug)" name="launch_prefix" value="debug_roslaunch" />
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
@@ -17,7 +22,7 @@
     <param name="/use_sim_time" value="true" />
   </group>
 
-  <node pkg="nodelet" type="nodelet" name="multirotor_simulator" args="$(arg nodelet) mrs_multirotor_simulator/MultirotorSimulator $(arg nodelet_manager)" output="screen" launch-prefix="$(arg launch_prefix)">
+  <node pkg="nodelet" type="nodelet" name="multirotor_simulator" args="$(arg nodelet) mrs_multirotor_simulator/MultirotorSimulator $(arg nodelet_manager) $(arg bond_suffix)" output="screen" launch-prefix="$(arg launch_prefix)">
 
     <rosparam file="$(find mrs_multirotor_simulator)/config/multirotor_simulator.yaml" />
     <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/f330.yaml" />
