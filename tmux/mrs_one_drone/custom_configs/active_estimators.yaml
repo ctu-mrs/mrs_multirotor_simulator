@@ -1,9 +1,9 @@
 # loaded state estimator plugins
 state_estimators: [
-  # "gps_garmin",
-  # "gps_baro",
+  "gps_garmin",
+  "gps_baro",
   "ground_truth",
 ]
 
-initial_state_estimator: "ground_truth" # will be used as the first state estimator
+initial_state_estimator: "gps_baro" # will be used as the first state estimator
 agl_height_estimator: "" # only slightly filtered height for checking min height (not used in control feedback)

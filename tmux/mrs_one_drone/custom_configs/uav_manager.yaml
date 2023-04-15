@@ -1,7 +1,7 @@
 takeoff:
 
   during_takeoff:
-    controller: "Se3Controller"
+    controller: "MpcController"
     tracker: "LandoffTracker"
 
   after_takeoff:
@@ -16,4 +16,4 @@ midair_activation:
 
   after_activation:
     controller: "Se3Controller"
-    tracker: "LineTracker"
+    tracker: "MpcTracker"

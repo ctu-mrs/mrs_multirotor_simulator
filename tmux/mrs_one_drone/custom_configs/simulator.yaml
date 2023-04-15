@@ -5,7 +5,7 @@ realtime_factor: 1.0
 iterate_without_input: true
 
 takeoff_patch:
-  enabled: true
+  enabled: false
 
 uav_names: [
   "uav1",
@@ -17,4 +17,4 @@ uav1:
     x: 10.0
     y: 15.0
     z: 2.0
-    heading: 1.57
+    heading: 0
