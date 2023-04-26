@@ -30,8 +30,7 @@ class Api : public mrs_uav_hw_api::MrsUavHwApi {
 public:
   ~Api(){};
 
-  void initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_hw_api::CommonHandlers_t> common_handlers, const std::string& topic_prefix,
-                  const std::string& uav_name);
+  void initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_hw_api::CommonHandlers_t> common_handlers);
 
   // | ------------------------- params ------------------------- |
 
@@ -43,6 +42,10 @@ public:
   double      _utm_y_;
   std::string _utm_zone_;
   double      _amsl_;
+
+  std::string _uav_name_;
+  std::string _world_frame_name_;
+  std::string _body_frame_name_;
 
   // | --------------------- status methods --------------------- |
 
@@ -127,14 +130,17 @@ private:
 
 /* initialize() //{ */
 
-void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_hw_api::CommonHandlers_t> common_handlers,
-                     [[maybe_unused]] const std::string& topic_prefix, [[maybe_unused]] const std::string& uav_name) {
+void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_hw_api::CommonHandlers_t> common_handlers) {
 
   ros::NodeHandle nh_(parent_nh);
 
   common_handlers_ = common_handlers;
 
   _capabilities_.api_name = "MrsSimulator";
+
+  _uav_name_         = common_handlers->getUavName();
+  _body_frame_name_  = common_handlers->getBodyFrameName();
+  _world_frame_name_ = common_handlers->getWorldFrameName();
 
   // | ------------------- loading parameters ------------------- |
 
@@ -545,8 +551,9 @@ void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry>& wrp) {
 
     geometry_msgs::PointStamped position;
 
-    position.header = odom->header;
-    position.point  = odom->pose.pose.position;
+    position.header.stamp    = odom->header.stamp;
+    position.header.frame_id = _uav_name_ + "/" + _world_frame_name_;
+    position.point           = odom->pose.pose.position;
 
     common_handlers_->publishers.publishPosition(position);
   }
@@ -557,8 +564,9 @@ void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry>& wrp) {
 
     geometry_msgs::QuaternionStamped orientation;
 
-    orientation.header     = odom->header;
-    orientation.quaternion = odom->pose.pose.orientation;
+    orientation.header.stamp    = odom->header.stamp;
+    orientation.header.frame_id = _uav_name_ + "/" + _world_frame_name_;
+    orientation.quaternion      = odom->pose.pose.orientation;
 
     common_handlers_->publishers.publishOrientation(orientation);
   }
@@ -570,7 +578,7 @@ void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry>& wrp) {
     geometry_msgs::Vector3Stamped velocity;
 
     velocity.header.stamp    = odom->header.stamp;
-    velocity.header.frame_id = odom->child_frame_id;
+    velocity.header.frame_id = _uav_name_ + "/" + _body_frame_name_;
     velocity.vector          = odom->twist.twist.linear;
 
     common_handlers_->publishers.publishVelocity(velocity);
@@ -583,7 +591,7 @@ void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry>& wrp) {
     geometry_msgs::Vector3Stamped angular_velocity;
 
     angular_velocity.header.stamp    = odom->header.stamp;
-    angular_velocity.header.frame_id = odom->child_frame_id;
+    angular_velocity.header.frame_id = _uav_name_ + "/" + _body_frame_name_;
     angular_velocity.vector          = odom->twist.twist.angular;
 
     common_handlers_->publishers.publishAngularVelocity(angular_velocity);
