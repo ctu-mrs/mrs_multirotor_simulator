@@ -16,7 +16,7 @@ public:
     double kp               = 2.0;
     double kd               = 0.05;
     double ki               = 0.01;
-    double max_acceleration = 2.0;  // m/s^2;
+    double max_acceleration = 4.0;  // m/s^2;
   };
 
   VelocityController();
