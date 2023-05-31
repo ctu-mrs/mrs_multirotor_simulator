@@ -70,6 +70,18 @@ UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string uav_name) {
   param_loader.loadParam(uav_name + "/spawn/z", spawn_z);
   param_loader.loadParam(uav_name + "/spawn/heading", spawn_heading);
 
+  param_loader.loadParam("randomization/enabled", _randomization_enabled_);
+  param_loader.loadParam("randomization/bounds/x", _randomization_bounds_x_);
+  param_loader.loadParam("randomization/bounds/y", _randomization_bounds_y_);
+  param_loader.loadParam("randomization/bounds/z", _randomization_bounds_z_);
+
+  if (_randomization_enabled_) {
+    spawn_x += randd(-_randomization_bounds_x_, _randomization_bounds_x_);
+    spawn_y += randd(-_randomization_bounds_y_, _randomization_bounds_y_);
+    spawn_z += randd(-_randomization_bounds_z_, _randomization_bounds_z_);
+    spawn_heading += randd(-3.14, 3.14);
+  }
+
   // create the inertia matrix
   model_params_.J = Eigen::Matrix3d::Zero();
   model_params_.J(0, 0) =
@@ -619,6 +631,17 @@ void UavSystemRos::timeoutInput(void) {
       break;
     }
   }
+}
+
+//}
+
+/* randd() //{ */
+
+double UavSystemRos::randd(double from, double to) {
+
+  double zero_to_one = double((float)rand()) / double(RAND_MAX);
+
+  return floor(to - from) * zero_to_one + from;
 }
 
 //}

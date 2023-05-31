@@ -105,6 +105,8 @@ void MultirotorSimulator::onInit() {
     nh_.setParam("/use_sim_time", true);
   }
 
+  srand(time(NULL));
+
   sim_time_            = ros::Time(0);
   last_published_time_ = ros::Time(0);
 

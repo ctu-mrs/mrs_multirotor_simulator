@@ -54,6 +54,13 @@ private:
   std::atomic<bool> is_initialized_ = false;
   std::string       _uav_name_;
 
+  double randd(double from, double to);
+
+  bool   _randomization_enabled_;
+  double _randomization_bounds_x_;
+  double _randomization_bounds_y_;
+  double _randomization_bounds_z_;
+
   // | ------------------------ UavSystem ----------------------- |
 
   UavSystem::INPUT_MODE last_input_mode_;

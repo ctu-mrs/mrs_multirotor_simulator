@@ -26,6 +26,16 @@ collisions:
   # if crash==false, then the collisions are elastic
   rebounce: 100.0
 
+# randomization of the initial conditions around the desired spawn point
+randomization:
+
+  enabled: false
+
+  bounds:
+    x: 15.0
+    y: 15.0
+    z: 15.0
+
 ground:
   enabled: true
   z: 0.0 # [m]
