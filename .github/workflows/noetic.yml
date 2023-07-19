@@ -2,14 +2,12 @@ name: Noetic
 
 on:
   push:
-    branches: [ hw_api_ci ]
+    branches: [ master ]
     paths-ignore:
       - '**/README.md'
-      - '**.yaml'
-      - '**.yml'
-      - '**.launch'
+
   pull_request:
-    branches: [ hw_api_ci ]
+    branches: [ master ]
 
   # schedule:
   #   - cron:  '0 0 * * *' # at the end of every day
