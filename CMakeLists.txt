@@ -116,7 +116,6 @@ install(DIRECTORY include/mrs_multirotor_simulator/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   )
 
-install(DIRECTORY
+install(FILES nodelets.xml plugins.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-  FILES_MATCHING PATTERN "*.xml"
   )
