@@ -112,7 +112,7 @@ install(DIRECTORY launch config tmux
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
   )
 
-install(DIRECTORY include/mrs_multirotor_simulator/*
+install(DIRECTORY include/mrs_multirotor_simulator/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   )
 
