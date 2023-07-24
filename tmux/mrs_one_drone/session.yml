@@ -2,6 +2,7 @@ name: simulation
 root: ./
 pre_window: export UAV_NAME=uav1; export RUN_TYPE=simulation; export UAV_TYPE=x500; export WORLD_NAME=simulation; export SENSORS="garmin_down"; export LOGGER_DEBUG=false; export DEBUG=false; export STANDALONE=false
 startup_window: control
+on_project_start: [ -e /etc/ctu-mrs/tmux.conf ] && tmux source /etc/ctu-mrs/tmux.conf || echo "Missing MRS tmux.conf from mrs-uav-shell-additions"
 windows:
   - roscore:
       layout: tiled
