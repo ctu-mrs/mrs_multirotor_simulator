@@ -1,6 +1,7 @@
 name: simulation
 root: ./
 startup_window: goto
+tmux_options: -f /etc/ctu-mrs/tmux.conf -L mrs
 windows:
   - roscore:
       layout: tiled
