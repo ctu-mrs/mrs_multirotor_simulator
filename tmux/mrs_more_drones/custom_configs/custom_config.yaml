@@ -1,0 +1,39 @@
+mrs_uav_managers:
+
+  estimation_manager:
+
+    # loaded state estimator plugins
+    state_estimators: [
+      "ground_truth",
+    ]
+
+    initial_state_estimator: "ground_truth" # will be used as the first state estimator
+    agl_height_estimator: "" # only slightly filtered height for checking min height (not used in control feedback)
+
+  uav_manager:
+
+    takeoff:
+
+      during_takeoff:
+        controller: "Se3Controller"
+        tracker: "LandoffTracker"
+
+      after_takeoff:
+        controller: "Se3Controller"
+        tracker: "MpcTracker"
+
+    midair_activation:
+
+      during_activation:
+        controller: "MidairActivationController"
+        tracker: "MidairActivationTracker"
+
+      after_activation:
+        controller: "Se3Controller"
+        tracker: "MpcTracker"
+
+    min_height_checking:
+      enabled: false
+
+    max_height_checking:
+      enabled: false
