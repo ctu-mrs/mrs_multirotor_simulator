@@ -1,7 +1,0 @@
-# loaded state estimator plugins
-state_estimators: [
-  "ground_truth",
-]
-
-initial_state_estimator: "ground_truth" # will be used as the first state estimator
-agl_height_estimator: "garmin_agl" # only slightly filtered height for checking min height (not used in control feedback)

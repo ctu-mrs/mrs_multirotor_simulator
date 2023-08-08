@@ -2,34 +2,59 @@
 
 import rospy
 import rosnode
+import random
 
-from mrs_msgs.msg import HwApiVelocityCmd as HwApiVelocityCmd
+from mrs_msgs.msg import HwApiVelocityHdgRateCmd as HwApiVelocityHdgRateCmd
 
 class Up:
 
     def __init__(self):
 
-        rospy.init_node('Up', anonymous=True)
+        rospy.init_node('velocity_cmd', anonymous=True)
+
+        rospy.loginfo('ros node initialized')
 
         publishers = []
         n_uavs = 400
 
-        for i in range(0, n_uavs):
-            publishers.append(rospy.Publisher('/multirotor_simulator/uav{}/velocity_cmd'.format(i+1), HwApiVelocityCmd, queue_size=1))
+        rospy.loginfo('setting up publishers')
 
-        rospy.sleep(2.0)
+        for i in range(0, n_uavs):
+            publishers.append(rospy.Publisher('/multirotor_simulator/uav{}/velocity_hdg_rate_cmd'.format(i+1), HwApiVelocityHdgRateCmd, queue_size=1))
 
         rate = rospy.Rate(10)
 
+        xvel = []
+        yvel = []
+        zvel = []
+        hdgvel = []
+
+        for i in range(0, n_uavs):
+
+            # random position
+            xvel.append(random.uniform(-2, 2))
+            yvel.append(random.uniform(-2, 2))
+            zvel.append(random.uniform(0, 2))
+            hdgvel.append(random.uniform(-1, 1))
+
+            # # particular position
+            # xvel.append(1.0)
+            # yvel.append(0.0)
+            # zvel.append(0.0)
+            # hdgvel.append(0.0)
+
+        rospy.loginfo('publishing')
+
         while not rospy.is_shutdown():
 
-            msg = HwApiVelocityCmd();
-            msg.velocity.x = 1;
-            msg.velocity.y = 0;
-            msg.velocity.z = 0;
-            msg.heading = 0;
-
             for i in range(0, n_uavs):
+
+                msg = HwApiVelocityHdgRateCmd();
+                msg.velocity.x = xvel[i];
+                msg.velocity.y = yvel[i];
+                msg.velocity.z = zvel[i];
+                msg.heading_rate = hdgvel[i];
+
                 publishers[i].publish(msg)
 
             rate.sleep();

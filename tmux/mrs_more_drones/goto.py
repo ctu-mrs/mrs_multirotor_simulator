@@ -5,7 +5,7 @@ import rosnode
 import random
 import os
 
-from mrs_msgs.msg import HwApiPositionCmd as HwApiPositionCmd
+from mrs_msgs.msg import ReferenceStamped as ReferenceStamped
 
 class Goto:
 
@@ -16,12 +16,14 @@ class Goto:
         rospy.loginfo('ros not initialized')
 
         publishers = []
-        n_uavs = 400
+        n_uavs = 10
 
         rospy.loginfo('setting up publishers')
 
         for i in range(0, n_uavs):
-            publishers.append(rospy.Publisher('/multirotor_simulator/uav{}/position_cmd'.format(i+1), HwApiPositionCmd, queue_size=1))
+            publishers.append(rospy.Publisher('/uav{}/control_manager/reference'.format(i+1), ReferenceStamped, queue_size=1))
+
+        rospy.sleep(2.0)
 
         xs = []
         ys = []
@@ -31,9 +33,9 @@ class Goto:
         for i in range(0, n_uavs):
 
             # random position
-            xs.append(random.uniform(-40, 40))
-            ys.append(random.uniform(-40, 40))
-            zs.append(random.uniform(2, 20))
+            xs.append(random.uniform(-20, 20))
+            ys.append(random.uniform(-20, 20))
+            zs.append(random.uniform(2, 8))
             hdgs.append(random.uniform(-3.14, 3.14))
 
             # # particular position
@@ -44,22 +46,19 @@ class Goto:
 
         rospy.loginfo('publishing')
 
-        msg = HwApiPositionCmd();
+        msg = ReferenceStamped();
 
-        rate = rospy.Rate(10)
+        for i in range(0, n_uavs):
 
-        while not rospy.is_shutdown():
+            msg.header.stamp = rospy.Time.now()
+            msg.header.frame_id = "world_origin"
 
-            for i in range(0, n_uavs):
+            msg.reference.position.x = xs[i]
+            msg.reference.position.y = ys[i]
+            msg.reference.position.z = zs[i]
+            msg.reference.heading = hdgs[i]
 
-                msg.position.x = xs[i]
-                msg.position.y = ys[i]
-                msg.position.z = zs[i]
-                msg.heading = hdgs[i]
-
-                publishers[i].publish(msg)
-
-            rate.sleep();
+            publishers[i].publish(msg)
 
 if __name__ == '__main__':
     try:

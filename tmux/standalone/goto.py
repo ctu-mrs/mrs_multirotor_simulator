@@ -16,7 +16,7 @@ class Goto:
         rospy.loginfo('ros not initialized')
 
         publishers = []
-        n_uavs = 400
+        n_uavs = 1
 
         rospy.loginfo('setting up publishers')
 
