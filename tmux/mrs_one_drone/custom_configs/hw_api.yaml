@@ -15,7 +15,7 @@ outputs:
   distance_sensor:      true
   gnss:                 true
   rtk:                  false
-  imu:                  false
+  imu:                  true
   altitude:             true
   magnetometer_heading: true
   rc_channels:          false
