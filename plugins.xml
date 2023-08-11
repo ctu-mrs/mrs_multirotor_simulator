@@ -1,4 +1,4 @@
-<library path="lib/libMrsSimulatorApiPlugin">
+<library path="lib/libMrsMultirotorSimulator_HwApiPlugin">
   <class name="mrs_simulator_api_plugin/Api" type="mrs_uav_simulator_hw_api_plugin::Api" base_class_type="mrs_uav_hw_api::MrsUavHwApi">
     <description>MRS Multirotor simulator API plugin for the MRS UAV System</description>
   </class>

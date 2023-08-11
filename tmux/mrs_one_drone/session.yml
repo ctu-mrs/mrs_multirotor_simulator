@@ -19,7 +19,7 @@ windows:
   - hw_api:
       layout: tiled
       panes:
-        - waitForRos; roslaunch mrs_multirotor_simulator hw_api.launch custom_config:=./custom_configs/hw_api.yaml
+        - waitForTime; roslaunch mrs_multirotor_simulator hw_api.launch custom_config:=./custom_configs/hw_api.yaml
   - takeoff:
       layout: tiled
       panes:

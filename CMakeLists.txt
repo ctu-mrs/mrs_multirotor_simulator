@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.2)
+cmake_minimum_required(VERSION 3.5)
 project(mrs_multirotor_simulator)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -6,10 +6,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
-# add_compile_options("-Og")
-
 set(CATKIN_DEPENDENCIES
-  roscpp mrs_msgs mrs_lib nodelet std_msgs std_srvs sensor_msgs nav_msgs mrs_uav_hw_api rosgraph_msgs dynamic_reconfigure geometry_msgs
+  cmake_modules
+  dynamic_reconfigure
+  geometry_msgs
+  mrs_lib
+  mrs_msgs
+  mrs_uav_hw_api
+  nav_msgs
+  nodelet
+  roscpp
+  rosgraph_msgs
+  sensor_msgs
+  std_msgs
+  std_srvs
   )
 
 find_package(catkin REQUIRED COMPONENTS
@@ -21,9 +31,9 @@ generate_dynamic_reconfigure_options(
   )
 
 set(LIBRARIES
-  MrsMultirotorSimulator
-  MrsMultirotorSimSystemRos
-  MrsSimulatorApiPlugin
+  MrsMultirotorSimulator_Simulator
+  MrsMultirotorSimulator_SimulatorSystemRos
+  MrsMultirotorSimulator_HwApiPlugin
   )
 
 catkin_package(
@@ -43,16 +53,16 @@ include_directories(
 
 # ROS Wrapper for the Multirotor UAV System + controllers
 
-add_library(MrsMultirotorSimSystemRos
+add_library(MrsMultirotorSimulator_SimulatorSystemRos
   src/uav_system_ros.cpp
   )
 
-add_dependencies(MrsMultirotorSimSystemRos
+add_dependencies(MrsMultirotorSimulator_SimulatorSystemRos
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
   )
 
-target_link_libraries(MrsMultirotorSimSystemRos
+target_link_libraries(MrsMultirotorSimulator_SimulatorSystemRos
   ${catkin_LIBRARIES}
   ${Eigen_LIBRARIES}
   )
@@ -60,17 +70,17 @@ target_link_libraries(MrsMultirotorSimSystemRos
 # Multirotor simulator
 # - ROS node with the MRS Multirotor Simulator
 
-add_library(MrsMultirotorSimulator
+add_library(MrsMultirotorSimulator_Simulator
   src/multirotor_simulator.cpp
   )
 
-add_dependencies(MrsMultirotorSimulator
+add_dependencies(MrsMultirotorSimulator_Simulator
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
   )
 
-target_link_libraries(MrsMultirotorSimulator
-  MrsMultirotorSimSystemRos
+target_link_libraries(MrsMultirotorSimulator_Simulator
+  MrsMultirotorSimulator_SimulatorSystemRos
   ${catkin_LIBRARIES}
   ${Eigen_LIBRARIES}
   )
@@ -78,16 +88,16 @@ target_link_libraries(MrsMultirotorSimulator
 # Hw API Plugin
 # - pluginlib library for interfacing the Simulator with the MRS UAV System
 
-add_library(MrsSimulatorApiPlugin
+add_library(MrsMultirotorSimulator_HwApiPlugin
   src/hw_api_plugin.cpp
   )
 
-add_dependencies(MrsSimulatorApiPlugin
+add_dependencies(MrsMultirotorSimulator_HwApiPlugin
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
   )
 
-target_link_libraries(MrsSimulatorApiPlugin
+target_link_libraries(MrsMultirotorSimulator_HwApiPlugin
   ${catkin_LIBRARIES}
   ${Eigen_LIBRARIES}
   )

@@ -23,7 +23,7 @@ windows:
   - rviz:
       layout: tiled
       panes:
-        - waitForRos; rosrun rviz rviz -d ./rviz.rviz
+        - waitForTime; rosrun rviz rviz -d ./rviz.rviz
   - layout:
       layout: tiled
       panes:
