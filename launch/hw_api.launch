@@ -57,43 +57,6 @@
       <remap from="~simulator_position_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/position_cmd" />
       <remap from="~simulator_tracker_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/tracker_cmd" />
 
-        <!-- Subscribers (DO NOT CHANGE) -->
-      <remap from="~actuator_cmd_in" to="~actuator_cmd" />
-      <remap from="~control_group_cmd_in" to="~control_group_cmd" />
-      <remap from="~attitude_cmd_in" to="~attitude_cmd" />
-      <remap from="~attitude_rate_cmd_in" to="~attitude_rate_cmd" />
-      <remap from="~acceleration_hdg_rate_cmd_in" to="~acceleration_hdg_rate_cmd" />
-      <remap from="~acceleration_hdg_cmd_in" to="~acceleration_hdg_cmd" />
-      <remap from="~velocity_hdg_rate_cmd_in" to="~velocity_hdg_rate_cmd" />
-      <remap from="~velocity_hdg_cmd_in" to="~velocity_hdg_cmd" />
-      <remap from="~position_cmd_in" to="~position_cmd" />
-      <remap from="~tracker_cmd_in" to="control_manager/tracker_cmd" />
-
-        <!-- Publishers (DO NOT CHANGE) -->
-      <remap from="~capabilities_out" to="~capabilities" />
-      <remap from="~status_out" to="~status" />
-      <remap from="~connected_out" to="~connected" />
-      <remap from="~gnss_out" to="~gnss" />
-      <remap from="~gnss_status_out" to="~gnss_status" />
-      <remap from="~rtk_out" to="~rtk" />
-      <remap from="~rtk_fix_type_out" to="~rtk_fix_type" />
-      <remap from="~odometry_out" to="~odometry" />
-      <remap from="~ground_truth_out" to="~ground_truth" />
-      <remap from="~position_out" to="~position" />
-      <remap from="~orientation_out" to="~orientation" />
-      <remap from="~velocity_out" to="~velocity" />
-      <remap from="~angular_velocity_out" to="~angular_velocity" />
-      <remap from="~distance_sensor_out" to="~distance_sensor" />
-      <remap from="~mag_heading_out" to="~mag_heading" />
-      <remap from="~altitude_out" to="~altitude" />
-      <remap from="~imu_out" to="~imu" />
-      <remap from="~rc_channels_out" to="~rc_channels" />
-      <remap from="~battery_state_out" to="~battery_state" />
-
-        <!-- Services (DO NOT CHANGE) -->
-      <remap from="~arming_in" to="~arming" />
-      <remap from="~offboard_in" to="~offboard" />
-
     </node>
 
   </group>

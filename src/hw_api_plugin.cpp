@@ -177,6 +177,8 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
   param_loader.loadParam("outputs/odometry", (bool&)_capabilities_.produces_odometry);
   param_loader.loadParam("outputs/ground_truth", (bool&)_capabilities_.produces_ground_truth);
 
+  _capabilities_.produces_magnetic_field = false;
+
   if (!param_loader.loadedSuccessfully()) {
     ROS_ERROR("[MrsUavHwDummyApi]: Could not load all parameters!");
     ros::shutdown();
