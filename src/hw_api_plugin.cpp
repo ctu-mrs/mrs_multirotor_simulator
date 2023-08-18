@@ -54,17 +54,17 @@ public:
 
   // | --------------------- topic callbacks -------------------- |
 
-  bool callbackActuatorCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiActuatorCmd>& wrp);
-  bool callbackControlGroupCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiControlGroupCmd>& wrp);
-  bool callbackAttitudeRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>& wrp);
-  bool callbackAttitudeCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>& wrp);
-  bool callbackAccelerationHdgRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationHdgRateCmd>& wrp);
-  bool callbackAccelerationHdgCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationHdgCmd>& wrp);
-  bool callbackVelocityHdgRateCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgRateCmd>& wrp);
-  bool callbackVelocityHdgCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgCmd>& wrp);
-  bool callbackPositionCmd(mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>& wrp);
+  bool callbackActuatorCmd(const mrs_msgs::HwApiActuatorCmd::ConstPtr msg);
+  bool callbackControlGroupCmd(const mrs_msgs::HwApiControlGroupCmd::ConstPtr msg);
+  bool callbackAttitudeRateCmd(const mrs_msgs::HwApiAttitudeRateCmd::ConstPtr msg);
+  bool callbackAttitudeCmd(const mrs_msgs::HwApiAttitudeCmd::ConstPtr msg);
+  bool callbackAccelerationHdgRateCmd(const mrs_msgs::HwApiAccelerationHdgRateCmd::ConstPtr msg);
+  bool callbackAccelerationHdgCmd(const mrs_msgs::HwApiAccelerationHdgCmd::ConstPtr msg);
+  bool callbackVelocityHdgRateCmd(const mrs_msgs::HwApiVelocityHdgRateCmd::ConstPtr msg);
+  bool callbackVelocityHdgCmd(const mrs_msgs::HwApiVelocityHdgCmd::ConstPtr msg);
+  bool callbackPositionCmd(const mrs_msgs::HwApiPositionCmd::ConstPtr msg);
 
-  void callbackTrackerCmd(mrs_lib::SubscribeHandler<mrs_msgs::TrackerCommand>& wrp);
+  void callbackTrackerCmd(const mrs_msgs::TrackerCommand::ConstPtr msg);
 
   // | -------------------- service callbacks ------------------- |
 
@@ -82,9 +82,9 @@ private:
   mrs_lib::SubscribeHandler<sensor_msgs::Imu>   sh_imu_;
   mrs_lib::SubscribeHandler<sensor_msgs::Range> sh_range_;
 
-  void callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry>& wrp);
-  void callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu>& wrp);
-  void callbackRangefinder(mrs_lib::SubscribeHandler<sensor_msgs::Range>& wrp);
+  void callbackOdom(const nav_msgs::Odometry::ConstPtr msg);
+  void callbackImu(const sensor_msgs::Imu::ConstPtr msg);
+  void callbackRangefinder(const sensor_msgs::Range::ConstPtr msg);
 
   // | ----------------------- publishers ----------------------- |
 
@@ -348,7 +348,7 @@ std::tuple<bool, std::string> Api::callbackOffboard(void) {
 
 /* callbackActuatorCmd() //{ */
 
-bool Api::callbackActuatorCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiActuatorCmd>& wrp) {
+bool Api::callbackActuatorCmd(const mrs_msgs::HwApiActuatorCmd::ConstPtr msg) {
 
   if (!_capabilities_.accepts_actuator_cmd) {
     return false;
@@ -356,7 +356,7 @@ bool Api::callbackActuatorCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msg
 
   ROS_INFO_ONCE("[Api]: getting actuators cmd");
 
-  ph_actuators_cmd_.publish(wrp.getMsg());
+  ph_actuators_cmd_.publish(msg);
 
   return true;
 }
@@ -365,7 +365,7 @@ bool Api::callbackActuatorCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msg
 
 /* callbackControlGroupCmd() //{ */
 
-bool Api::callbackControlGroupCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiControlGroupCmd>& wrp) {
+bool Api::callbackControlGroupCmd(const mrs_msgs::HwApiControlGroupCmd::ConstPtr msg) {
 
   if (!_capabilities_.accepts_control_group_cmd) {
     return false;
@@ -373,7 +373,7 @@ bool Api::callbackControlGroupCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs
 
   ROS_INFO_ONCE("[Api]: getting control group cmd");
 
-  ph_control_group_cmd_.publish(wrp.getMsg());
+  ph_control_group_cmd_.publish(msg);
 
   return true;
 }
@@ -382,7 +382,7 @@ bool Api::callbackControlGroupCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs
 
 /* callbackAttitudeRateCmd() //{ */
 
-bool Api::callbackAttitudeRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>& wrp) {
+bool Api::callbackAttitudeRateCmd(const mrs_msgs::HwApiAttitudeRateCmd::ConstPtr msg) {
 
   if (!_capabilities_.accepts_attitude_rate_cmd) {
     return false;
@@ -390,7 +390,7 @@ bool Api::callbackAttitudeRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs
 
   ROS_INFO_ONCE("[Api]: getting attitude rate cmd");
 
-  ph_attitude_rate_cmd_.publish(wrp.getMsg());
+  ph_attitude_rate_cmd_.publish(msg);
 
   return true;
 }
@@ -399,7 +399,7 @@ bool Api::callbackAttitudeRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs
 
 /* callbackAttitudeCmd() //{ */
 
-bool Api::callbackAttitudeCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>& wrp) {
+bool Api::callbackAttitudeCmd(const mrs_msgs::HwApiAttitudeCmd::ConstPtr msg) {
 
   if (!_capabilities_.accepts_attitude_cmd) {
     return false;
@@ -407,7 +407,7 @@ bool Api::callbackAttitudeCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msg
 
   ROS_INFO_ONCE("[Api]: getting attitude cmd");
 
-  ph_attitude_cmd_.publish(wrp.getMsg());
+  ph_attitude_cmd_.publish(msg);
 
   return true;
 }
@@ -416,7 +416,7 @@ bool Api::callbackAttitudeCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msg
 
 /* callbackAccelerationHdgRateCmd() //{ */
 
-bool Api::callbackAccelerationHdgRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationHdgRateCmd>& wrp) {
+bool Api::callbackAccelerationHdgRateCmd(const mrs_msgs::HwApiAccelerationHdgRateCmd::ConstPtr msg) {
 
   if (!_capabilities_.accepts_acceleration_hdg_rate_cmd) {
     return false;
@@ -424,7 +424,7 @@ bool Api::callbackAccelerationHdgRateCmd([[maybe_unused]] mrs_lib::SubscribeHand
 
   ROS_INFO_ONCE("[Api]: getting acceleration+hdg rate cmd");
 
-  ph_acceleration_hdg_rate_cmd_.publish(wrp.getMsg());
+  ph_acceleration_hdg_rate_cmd_.publish(msg);
 
   return true;
 }
@@ -433,7 +433,7 @@ bool Api::callbackAccelerationHdgRateCmd([[maybe_unused]] mrs_lib::SubscribeHand
 
 /* callbackAccelerationHdgCmd() //{ */
 
-bool Api::callbackAccelerationHdgCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationHdgCmd>& wrp) {
+bool Api::callbackAccelerationHdgCmd(const mrs_msgs::HwApiAccelerationHdgCmd::ConstPtr msg) {
 
   if (!_capabilities_.accepts_acceleration_hdg_cmd) {
 
@@ -442,7 +442,7 @@ bool Api::callbackAccelerationHdgCmd([[maybe_unused]] mrs_lib::SubscribeHandler<
 
   ROS_INFO_ONCE("[Api]: getting acceleration+hdg cmd");
 
-  ph_acceleration_hdg_cmd_.publish(wrp.getMsg());
+  ph_acceleration_hdg_cmd_.publish(msg);
 
   return true;
 }
@@ -451,7 +451,7 @@ bool Api::callbackAccelerationHdgCmd([[maybe_unused]] mrs_lib::SubscribeHandler<
 
 /* callbackVelocityHdgRateCmd() //{ */
 
-bool Api::callbackVelocityHdgRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgRateCmd>& wrp) {
+bool Api::callbackVelocityHdgRateCmd(const mrs_msgs::HwApiVelocityHdgRateCmd::ConstPtr msg) {
 
   if (!_capabilities_.accepts_velocity_hdg_rate_cmd) {
     return false;
@@ -459,7 +459,7 @@ bool Api::callbackVelocityHdgRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<
 
   ROS_INFO_ONCE("[Api]: getting velocity+hdg rate cmd");
 
-  ph_velocity_hdg_rate_cmd_.publish(wrp.getMsg());
+  ph_velocity_hdg_rate_cmd_.publish(msg);
 
   return true;
 }
@@ -468,7 +468,7 @@ bool Api::callbackVelocityHdgRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<
 
 /* callbackVelocityHdgCmd() //{ */
 
-bool Api::callbackVelocityHdgCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgCmd>& wrp) {
+bool Api::callbackVelocityHdgCmd(const mrs_msgs::HwApiVelocityHdgCmd::ConstPtr msg) {
 
   if (!_capabilities_.accepts_velocity_hdg_cmd) {
     return false;
@@ -476,7 +476,7 @@ bool Api::callbackVelocityHdgCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_
 
   ROS_INFO_ONCE("[Api]: getting velocity+hdg cmd");
 
-  ph_velocity_hdg_cmd_.publish(wrp.getMsg());
+  ph_velocity_hdg_cmd_.publish(msg);
 
   return true;
 }
@@ -485,7 +485,7 @@ bool Api::callbackVelocityHdgCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_
 
 /* callbackPositionCmd() //{ */
 
-bool Api::callbackPositionCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>& wrp) {
+bool Api::callbackPositionCmd(const mrs_msgs::HwApiPositionCmd::ConstPtr msg) {
 
   if (!_capabilities_.accepts_position_cmd) {
     return false;
@@ -493,7 +493,7 @@ bool Api::callbackPositionCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msg
 
   ROS_INFO_ONCE("[Api]: getting position cmd");
 
-  ph_position_cmd_.publish(wrp.getMsg());
+  ph_position_cmd_.publish(msg);
 
   return true;
 }
@@ -502,11 +502,11 @@ bool Api::callbackPositionCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msg
 
 /* callbackTrackerCmd() //{ */
 
-void Api::callbackTrackerCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::TrackerCommand>& wrp) {
+void Api::callbackTrackerCmd(const mrs_msgs::TrackerCommand::ConstPtr msg) {
 
   ROS_INFO_ONCE("[Api]: getting tracker cmd");
 
-  ph_tracker_cmd_.publish(wrp.getMsg());
+  ph_tracker_cmd_.publish(msg);
 }
 
 //}
@@ -515,7 +515,7 @@ void Api::callbackTrackerCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs
 
 /* //{ callbackOdom() */
 
-void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry>& wrp) {
+void Api::callbackOdom(const nav_msgs::Odometry::ConstPtr msg) {
 
   if (!is_initialized_) {
     return;
@@ -523,7 +523,7 @@ void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry>& wrp) {
 
   ROS_INFO_ONCE("[Api]: getting simulator odometry");
 
-  auto odom = wrp.getMsg();
+  auto odom = msg;
 
   {
     std::scoped_lock lock(mutex_status_);
@@ -683,7 +683,7 @@ void Api::callbackOdom(mrs_lib::SubscribeHandler<nav_msgs::Odometry>& wrp) {
 
 /* callbackImu() //{ */
 
-void Api::callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu>& wrp) {
+void Api::callbackImu(const sensor_msgs::Imu::ConstPtr msg) {
 
   if (!is_initialized_) {
     return;
@@ -692,9 +692,8 @@ void Api::callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu>& wrp) {
   ROS_INFO_ONCE("[Api]: getting IMU");
 
   if (_capabilities_.produces_imu) {
-    sensor_msgs::ImuConstPtr imu = wrp.getMsg();
 
-    common_handlers_->publishers.publishIMU(*imu);
+    common_handlers_->publishers.publishIMU(*msg);
   }
 }
 
@@ -702,7 +701,7 @@ void Api::callbackImu(mrs_lib::SubscribeHandler<sensor_msgs::Imu>& wrp) {
 
 /* callbackRangefinder() //{ */
 
-void Api::callbackRangefinder(mrs_lib::SubscribeHandler<sensor_msgs::Range>& wrp) {
+void Api::callbackRangefinder(const sensor_msgs::Range::ConstPtr msg) {
 
   if (!is_initialized_) {
     return;
@@ -711,9 +710,8 @@ void Api::callbackRangefinder(mrs_lib::SubscribeHandler<sensor_msgs::Range>& wrp
   ROS_INFO_ONCE("[Api]: getting rangefinder");
 
   if (_capabilities_.produces_distance_sensor) {
-    sensor_msgs::RangeConstPtr range = wrp.getMsg();
 
-    common_handlers_->publishers.publishDistanceSensor(*range);
+    common_handlers_->publishers.publishDistanceSensor(*msg);
   }
 }
 

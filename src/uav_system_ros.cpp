@@ -5,7 +5,7 @@ namespace mrs_multirotor_simulator
 
 /* UavSystemRos //{ */
 
-UavSystemRos::UavSystemRos(ros::NodeHandle& nh, const std::string uav_name) {
+UavSystemRos::UavSystemRos(ros::NodeHandle &nh, const std::string uav_name) {
 
   time_last_input_ = ros::Time(0);
 
@@ -318,7 +318,7 @@ bool UavSystemRos::hasCrashed(void) {
 
 /* applyForce() //{ */
 
-void UavSystemRos::applyForce(const Eigen::Vector3d& force) {
+void UavSystemRos::applyForce(const Eigen::Vector3d &force) {
   uav_system_.applyForce(force);
 }
 
@@ -328,7 +328,7 @@ void UavSystemRos::applyForce(const Eigen::Vector3d& force) {
 
 /* publishOdometry() //{ */
 
-void UavSystemRos::publishOdometry(const MultirotorModel::State& state) {
+void UavSystemRos::publishOdometry(const MultirotorModel::State &state) {
 
   nav_msgs::Odometry odom;
 
@@ -359,7 +359,7 @@ void UavSystemRos::publishOdometry(const MultirotorModel::State& state) {
 
 /* publishIMU() //{ */
 
-void UavSystemRos::publishIMU(const MultirotorModel::State& state) {
+void UavSystemRos::publishIMU(const MultirotorModel::State &state) {
 
   sensor_msgs::Imu imu;
 
@@ -383,7 +383,7 @@ void UavSystemRos::publishIMU(const MultirotorModel::State& state) {
 
 /* publishRangefinder() //{ */
 
-void UavSystemRos::publishRangefinder(const MultirotorModel::State& state) {
+void UavSystemRos::publishRangefinder(const MultirotorModel::State &state) {
 
   // | ----------------------- publish tf ----------------------- |
 
@@ -650,15 +650,13 @@ double UavSystemRos::randd(double from, double to) {
 
 /* callbackActuatorCmd() //{ */
 
-void UavSystemRos::callbackActuatorCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiActuatorCmd>& wrp) {
+void UavSystemRos::callbackActuatorCmd(const mrs_msgs::HwApiActuatorCmd::ConstPtr msg) {
 
   if (!is_initialized_) {
     return;
   }
 
   ROS_INFO_ONCE("[%s]: getting actuators command", _uav_name_.c_str());
-
-  mrs_msgs::HwApiActuatorCmd::ConstPtr msg = wrp.getMsg();
 
   if (model_params_.n_motors != int(msg->motors.size())) {
     ROS_ERROR("[%s]: the actuators message controls %d motors, but the model has %d motors", _uav_name_.c_str(), int(msg->motors.size()),
@@ -692,15 +690,13 @@ void UavSystemRos::callbackActuatorCmd([[maybe_unused]] mrs_lib::SubscribeHandle
 
 /* callbackControlGroupCmd() //{ */
 
-void UavSystemRos::callbackControlGroupCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiControlGroupCmd>& wrp) {
+void UavSystemRos::callbackControlGroupCmd(const mrs_msgs::HwApiControlGroupCmd::ConstPtr msg) {
 
   if (!is_initialized_) {
     return;
   }
 
   ROS_INFO_ONCE("[%s]: getting control group command", _uav_name_.c_str());
-
-  mrs_msgs::HwApiControlGroupCmd::ConstPtr msg = wrp.getMsg();
 
   reference::ControlGroup cmd;
 
@@ -727,15 +723,13 @@ void UavSystemRos::callbackControlGroupCmd([[maybe_unused]] mrs_lib::SubscribeHa
 
 /* callbackAttitudeRateCmd() //{ */
 
-void UavSystemRos::callbackAttitudeRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeRateCmd>& wrp) {
+void UavSystemRos::callbackAttitudeRateCmd(const mrs_msgs::HwApiAttitudeRateCmd::ConstPtr msg) {
 
   if (!is_initialized_) {
     return;
   }
 
   ROS_INFO_ONCE("[%s]: getting attitude rate command", _uav_name_.c_str());
-
-  mrs_msgs::HwApiAttitudeRateCmd::ConstPtr msg = wrp.getMsg();
 
   reference::AttitudeRate cmd;
 
@@ -762,15 +756,13 @@ void UavSystemRos::callbackAttitudeRateCmd([[maybe_unused]] mrs_lib::SubscribeHa
 
 /* callbackAttitudeCmd() //{ */
 
-void UavSystemRos::callbackAttitudeCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAttitudeCmd>& wrp) {
+void UavSystemRos::callbackAttitudeCmd(const mrs_msgs::HwApiAttitudeCmd::ConstPtr msg) {
 
   if (!is_initialized_) {
     return;
   }
 
   ROS_INFO_ONCE("[%s]: getting attitude command", _uav_name_.c_str());
-
-  mrs_msgs::HwApiAttitudeCmd::ConstPtr msg = wrp.getMsg();
 
   reference::Attitude cmd;
 
@@ -796,15 +788,13 @@ void UavSystemRos::callbackAttitudeCmd([[maybe_unused]] mrs_lib::SubscribeHandle
 
 /* callbackAccelerationHdgRateCmd() //{ */
 
-void UavSystemRos::callbackAccelerationHdgRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationHdgRateCmd>& wrp) {
+void UavSystemRos::callbackAccelerationHdgRateCmd(const mrs_msgs::HwApiAccelerationHdgRateCmd::ConstPtr msg) {
 
   if (!is_initialized_) {
     return;
   }
 
   ROS_INFO_ONCE("[%s]: getting acceleration+hdg rate command", _uav_name_.c_str());
-
-  mrs_msgs::HwApiAccelerationHdgRateCmd::ConstPtr msg = wrp.getMsg();
 
   reference::AccelerationHdgRate cmd;
 
@@ -832,15 +822,13 @@ void UavSystemRos::callbackAccelerationHdgRateCmd([[maybe_unused]] mrs_lib::Subs
 
 /* callbackAccelerationHdgCmd() //{ */
 
-void UavSystemRos::callbackAccelerationHdgCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiAccelerationHdgCmd>& wrp) {
+void UavSystemRos::callbackAccelerationHdgCmd(const mrs_msgs::HwApiAccelerationHdgCmd::ConstPtr msg) {
 
   if (!is_initialized_) {
     return;
   }
 
   ROS_INFO_ONCE("[%s]: getting acceleration+hdg command", _uav_name_.c_str());
-
-  mrs_msgs::HwApiAccelerationHdgCmd::ConstPtr msg = wrp.getMsg();
 
   reference::AccelerationHdg cmd;
 
@@ -868,15 +856,13 @@ void UavSystemRos::callbackAccelerationHdgCmd([[maybe_unused]] mrs_lib::Subscrib
 
 /* callbackVelocityHdgRateCmd() //{ */
 
-void UavSystemRos::callbackVelocityHdgRateCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgRateCmd>& wrp) {
+void UavSystemRos::callbackVelocityHdgRateCmd(const mrs_msgs::HwApiVelocityHdgRateCmd::ConstPtr msg) {
 
   if (!is_initialized_) {
     return;
   }
 
   ROS_INFO_ONCE("[%s]: getting velocity+hdg rate command", _uav_name_.c_str());
-
-  mrs_msgs::HwApiVelocityHdgRateCmd::ConstPtr msg = wrp.getMsg();
 
   reference::VelocityHdgRate cmd;
 
@@ -904,15 +890,13 @@ void UavSystemRos::callbackVelocityHdgRateCmd([[maybe_unused]] mrs_lib::Subscrib
 
 /* callbackVelocityHdgCmd() //{ */
 
-void UavSystemRos::callbackVelocityHdgCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgCmd>& wrp) {
+void UavSystemRos::callbackVelocityHdgCmd(const mrs_msgs::HwApiVelocityHdgCmd::ConstPtr msg) {
 
   if (!is_initialized_) {
     return;
   }
 
   ROS_INFO_ONCE("[%s]: getting velocity+hdg command", _uav_name_.c_str());
-
-  mrs_msgs::HwApiVelocityHdgCmd::ConstPtr msg = wrp.getMsg();
 
   reference::VelocityHdg cmd;
 
@@ -940,15 +924,13 @@ void UavSystemRos::callbackVelocityHdgCmd([[maybe_unused]] mrs_lib::SubscribeHan
 
 /* callbackPositionCmd() //{ */
 
-void UavSystemRos::callbackPositionCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>& wrp) {
+void UavSystemRos::callbackPositionCmd(const mrs_msgs::HwApiPositionCmd::ConstPtr msg) {
 
   if (!is_initialized_) {
     return;
   }
 
   ROS_INFO_ONCE("[%s]: getting position command", _uav_name_.c_str());
-
-  mrs_msgs::HwApiPositionCmd::ConstPtr msg = wrp.getMsg();
 
   reference::Position cmd;
 
@@ -976,15 +958,13 @@ void UavSystemRos::callbackPositionCmd([[maybe_unused]] mrs_lib::SubscribeHandle
 
 /* callbackTrackerCmd() //{ */
 
-void UavSystemRos::callbackTrackerCmd([[maybe_unused]] mrs_lib::SubscribeHandler<mrs_msgs::TrackerCommand>& wrp) {
+void UavSystemRos::callbackTrackerCmd(const mrs_msgs::TrackerCommand::ConstPtr msg) {
 
   if (!is_initialized_) {
     return;
   }
 
   ROS_INFO_ONCE("[%s]: getting tracker command", _uav_name_.c_str());
-
-  mrs_msgs::TrackerCommand::ConstPtr msg = wrp.getMsg();
 
   Eigen::Vector3d velocity(0, 0, 0);
   Eigen::Vector3d acceleration(0, 0, 0);
