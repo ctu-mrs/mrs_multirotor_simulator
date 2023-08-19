@@ -4,7 +4,7 @@ realtime_factor: 1.0
 
 iterate_without_input: true
 
-takeoff_patch:
+individual_takeoff_platform:
   enabled: true
 
 collisions:

@@ -32,17 +32,17 @@ class Goto:
 
         for i in range(0, n_uavs):
 
-            # random position
-            xs.append(random.uniform(-20, 20))
-            ys.append(random.uniform(-20, 20))
-            zs.append(random.uniform(2, 8))
-            hdgs.append(random.uniform(-3.14, 3.14))
+            # # random position
+            # xs.append(random.uniform(-20, 20))
+            # ys.append(random.uniform(-20, 20))
+            # zs.append(random.uniform(2, 8))
+            # hdgs.append(random.uniform(-3.14, 3.14))
 
-            # # particular position
-            # xs.append(0)
-            # ys.append(0)
-            # zs.append(5)
-            # hdgs.append(0)
+            # particular position
+            xs.append(0)
+            ys.append(0)
+            zs.append(5)
+            hdgs.append(0)
 
         rospy.loginfo('publishing')
 

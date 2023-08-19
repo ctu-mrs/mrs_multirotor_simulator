@@ -42,5 +42,5 @@ ground:
 
 # * when enabled, this will place a temporary patch of ground just under the spawn location
 # * this patch will disappear after the total_thrust > 0.9*hover_thrust
-takeoff_patch:
+individual_takeoff_platform:
   enabled: false

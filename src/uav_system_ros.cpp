@@ -42,7 +42,7 @@ UavSystemRos::UavSystemRos(ros::NodeHandle &nh, const std::string uav_name) {
   param_loader.loadParam("input_timeout", _input_timeout_);
   param_loader.loadParam("ground/enabled", model_params_.ground_enabled);
   param_loader.loadParam("ground/z", model_params_.ground_z);
-  param_loader.loadParam("takeoff_patch/enabled", model_params_.takeoff_patch_enabled);
+  param_loader.loadParam("individual_takeoff_platform/enabled", model_params_.takeoff_patch_enabled);
 
   // | ------------------ model-specific params ----------------- |
 
