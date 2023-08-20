@@ -17,17 +17,6 @@ mrs_uav_managers:
     initial_state_estimator: "gps_baro" # will be used as the first state estimator
     agl_height_estimator: "garmin_agl" # only slightly filtered height for checking min height (not used in control feedback)
 
-  control_manager:
-
-    MpcTracker:
-      human_switchable: true
-
-    LandoffTracker:
-      human_switchable: true
-
-    LineTracker:
-      human_switchable: true
-
   uav_manager:
 
     takeoff:
@@ -49,4 +38,3 @@ mrs_uav_managers:
       after_activation:
         controller: "Se3Controller"
         tracker: "MpcTracker"
-
