@@ -276,7 +276,7 @@ void MultirotorModel::step(const double& dt) {
   }
 
   // fabricate what the onboard accelerometer would feel
-  imu_acceleration_ = state_.R.transpose() * (state_.v - state_.v_prev) / dt + Eigen::Vector3d(0, 0, params_.g);
+  imu_acceleration_ = state_.R.transpose() * (((state_.v - state_.v_prev) / dt) + Eigen::Vector3d(0, 0, params_.g));
   state_.v_prev     = state_.v;
 
   // simulate the takeoff patch
@@ -341,6 +341,7 @@ void MultirotorModel::operator()(const MultirotorModel::InternalState& x, Multir
   }
 
   x_dot = cur_state.v;
+
   v_dot = -Eigen::Vector3d(0, 0, params_.g) + thrust * R.col(2) / params_.mass + external_force_ / params_.mass - resistance * vnorm / params_.mass;
 
   R_dot = R * omega_tensor;
