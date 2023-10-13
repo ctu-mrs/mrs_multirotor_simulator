@@ -24,14 +24,15 @@
 
   <node pkg="nodelet" type="nodelet" name="multirotor_simulator" args="$(arg nodelet) mrs_multirotor_simulator/MultirotorSimulator $(arg nodelet_manager) $(arg bond_suffix)" output="screen" launch-prefix="$(arg launch_prefix)">
 
-    <rosparam file="$(find mrs_multirotor_simulator)/config/multirotor_simulator.yaml" />
+    <param name="config" value="$(find mrs_multirotor_simulator)/config/multirotor_simulator.yaml" />
+    <param name="config_uavs" value="$(find mrs_multirotor_simulator)/config/uavs.yaml" />
+
     <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/f330.yaml" />
     <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/f450.yaml" />
     <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/f550.yaml" />
     <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/x500.yaml" />
     <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/t650.yaml" />
     <rosparam file="$(find mrs_multirotor_simulator)/config/uavs/naki.yaml" />
-    <rosparam file="$(find mrs_multirotor_simulator)/config/uavs.yaml" />
 
     <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/mixer.yaml" />
     <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/rate_controller.yaml" />
@@ -39,7 +40,9 @@
     <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/velocity_controller.yaml" />
     <rosparam file="$(find mrs_multirotor_simulator)/config/controllers/position_controller.yaml" />
 
-    <rosparam if="$(eval not arg('custom_config') == '')" file="$(arg custom_config)" />
+    <param if="$(eval arg('custom_config') == '')" name="custom_config" value="" />
+    <param if="$(eval not arg('custom_config') == '' and arg('custom_config')[0] == '/')" name="custom_config" value="$(arg custom_config)" />
+    <param if="$(eval not arg('custom_config') == '' and not arg('custom_config')[0] == '/')" name="custom_config" value="$(env PWD)/$(arg custom_config)" />
 
     <remap from="~diagnostics_out" to="~diagnostics" />
     <remap from="~imu_out" to="~imu" />

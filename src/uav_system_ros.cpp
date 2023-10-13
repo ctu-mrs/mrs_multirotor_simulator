@@ -13,6 +13,17 @@ UavSystemRos::UavSystemRos(ros::NodeHandle &nh, const std::string uav_name) {
 
   mrs_lib::ParamLoader param_loader(nh, "UavSystemRos");
 
+  std::string custom_config_path;
+
+  param_loader.loadParam("custom_config", custom_config_path);
+
+  if (custom_config_path != "") {
+    param_loader.addYamlFile(custom_config_path);
+  }
+
+  param_loader.addYamlFileFromParam("config");
+  param_loader.addYamlFileFromParam("config_uavs");
+
   std::string type;
   param_loader.loadParam(uav_name + "/type", type);
 

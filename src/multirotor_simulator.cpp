@@ -111,6 +111,17 @@ void MultirotorSimulator::onInit() {
 
   mrs_lib::ParamLoader param_loader(nh_, "MultirotorSimulator");
 
+  std::string custom_config_path;
+
+  param_loader.loadParam("custom_config", custom_config_path);
+
+  if (custom_config_path != "") {
+    param_loader.addYamlFile(custom_config_path);
+  }
+
+  param_loader.addYamlFileFromParam("config");
+  param_loader.addYamlFileFromParam("config_uavs");
+
   param_loader.loadParam("simulation_rate", _simulation_rate_);
   param_loader.loadParam("realtime_factor", drs_params_.realtime_factor);
   param_loader.loadParam("collisions/enabled", drs_params_.collisions_enabled);

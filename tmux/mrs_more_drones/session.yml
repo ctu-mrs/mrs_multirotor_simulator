@@ -66,4 +66,4 @@ windows:
   - layout:
       layout: tiled
       panes:
-        - waitForControl; sleep 3; ~/.i3/layout_manager.sh ./layout.json
+        - waitForControl; sleep 5; ~/.i3/layout_manager.sh ./layout.json
