@@ -1,11 +1,11 @@
-simulation_rate: 100
-clock_rate: 100
+simulation_rate: 100.0
+clock_rate: 100.0
 realtime_factor: 1.0
 
 iterate_without_input: true
 
 individual_takeoff_platform:
-  enabled: true
+  enabled: false
 
 collisions:
   enabled: true
