@@ -623,6 +623,7 @@ void Api::callbackOdom(const nav_msgs::Odometry::ConstPtr msg) {
     sensor_msgs::NavSatFix gnss;
 
     gnss.header.stamp = odom->header.stamp;
+    gnss.header.frame_id = _uav_name_ + "/" + _body_frame_name_;
 
     gnss.latitude  = lat;
     gnss.longitude = lon;
