@@ -14,15 +14,15 @@ input_mode:
 outputs:
   distance_sensor:      true
   gnss:                 true
-  rtk:                  false
+  rtk:                  true
   imu:                  true
   altitude:             true
   magnetometer_heading: true
-  rc_channels:          false
-  battery_state:        false
+  rc_channels:          true
+  battery_state:        true
   position:             true
   orientation:          true
   velocity:             true
   angular_velocity:     true
-  odometry:             false
+  odometry:             true
   ground_truth:         true
