@@ -622,7 +622,7 @@ void Api::callbackOdom(const nav_msgs::Odometry::ConstPtr msg) {
 
     sensor_msgs::NavSatFix gnss;
 
-    gnss.header.stamp = odom->header.stamp;
+    gnss.header.stamp    = odom->header.stamp;
     gnss.header.frame_id = _uav_name_ + "/" + _body_frame_name_;
 
     gnss.latitude  = lat;
@@ -648,6 +648,8 @@ void Api::callbackOdom(const nav_msgs::Odometry::ConstPtr msg) {
     rtk.gps.latitude  = lat;
     rtk.gps.longitude = lon;
     rtk.gps.altitude  = odom->pose.pose.position.z + _amsl_;
+
+    rtk.fix_type.fix_type = mrs_msgs::RtkFixType::RTK_FIX;
 
     common_handlers_->publishers.publishRTK(rtk);
   }
