@@ -297,12 +297,6 @@ std::tuple<bool, std::string> Api::callbackArming([[maybe_unused]] const bool& r
 
   std::stringstream ss;
 
-  if (!request && !offboard_) {
-    ss << "can not disarm, not in OFFBOARD mode";
-    ROS_WARN_STREAM_THROTTLE(1.0, "[MrsSimulatorHwApi]: " << ss.str());
-    return std::tuple(false, ss.str());
-  }
-
   if (request) {
 
     armed_ = true;
