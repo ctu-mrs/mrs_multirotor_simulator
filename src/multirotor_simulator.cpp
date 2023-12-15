@@ -242,7 +242,8 @@ void MultirotorSimulator::timerStatus([[maybe_unused]] const ros::WallTimerEvent
 
   actual_rtf_ = 0.9 * actual_rtf_ + 0.1 * last_sec_rtf;
 
-  ROS_INFO("[MultirotorSimulator]: desired RTF = %.2f, actual RTF = %.2f", drs_params.realtime_factor, actual_rtf_);
+  ROS_INFO_THROTTLE(0.1, "[MultirotorSimulator]: %s, desired RTF = %.2f, actual RTF = %.2f", drs_params.paused ? "paused" : "running",
+                    drs_params.realtime_factor, actual_rtf_);
 }
 
 //}
