@@ -287,6 +287,10 @@ void MultirotorSimulator::handleCollisions(void) {
 
   auto drs_params = mrs_lib::get_mutexed(mutex_drs_params_, drs_params_);
 
+  if (!(drs_params.collisions_crash || drs_params.collisions_enabled)) {
+    return;
+  }
+
   std::vector<Eigen::VectorXd> poses;
 
   for (size_t i = 0; i < uavs_.size(); i++) {
