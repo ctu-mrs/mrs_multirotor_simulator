@@ -6,6 +6,9 @@ gnss:
   utm_y: 5249465.43086
   amsl: 340.0
 
+# determines if offboard can be switched on
+input_timeout: 1.0 # [s]
+
 input_mode:
   actuators:             false
   control_group:         false

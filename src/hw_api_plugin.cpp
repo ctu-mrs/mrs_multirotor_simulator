@@ -47,6 +47,8 @@ public:
   std::string _world_frame_name_;
   std::string _body_frame_name_;
 
+  double _input_timeout_;
+
   // | --------------------- status methods --------------------- |
 
   mrs_msgs::HwApiStatus       getStatus();
@@ -150,6 +152,8 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
   // | ------------------- loading parameters ------------------- |
 
   mrs_lib::ParamLoader param_loader(nh_, "MrsUavHwApi");
+
+  param_loader.loadParam("input_timeout", _input_timeout_);
 
   param_loader.loadParam("gnss/utm_x", _utm_x_);
   param_loader.loadParam("gnss/utm_y", _utm_y_);
@@ -336,7 +340,7 @@ std::tuple<bool, std::string> Api::callbackOffboard(void) {
 
   auto last_cmd_time = mrs_lib::get_mutexed(mutex_last_cmd_time_, last_cmd_time_);
 
-  if (last_cmd_time != ros::Time::UNINITIALIZED && (ros::Time::now() - last_cmd_time).toSec() < 1.0) {
+  if (last_cmd_time != ros::Time::UNINITIALIZED && (ros::Time::now() - last_cmd_time).toSec() > _input_timeout_) {
     ss << "Cannot switch to offboard, missing control input.";
     ROS_INFO_THROTTLE(1.0, "[MrsSimulatorHwApi]: %s", ss.str().c_str());
     return {false, ss.str()};
@@ -363,7 +367,9 @@ bool Api::callbackActuatorCmd(const mrs_msgs::HwApiActuatorCmd::ConstPtr msg) {
 
   ROS_INFO_ONCE("[Api]: getting actuators cmd");
 
-  ph_actuators_cmd_.publish(msg);
+  if (offboard_) {
+    ph_actuators_cmd_.publish(msg);
+  }
 
   {
     std::scoped_lock lock(mutex_last_cmd_time_);
@@ -386,7 +392,9 @@ bool Api::callbackControlGroupCmd(const mrs_msgs::HwApiControlGroupCmd::ConstPtr
 
   ROS_INFO_ONCE("[Api]: getting control group cmd");
 
-  ph_control_group_cmd_.publish(msg);
+  if (offboard_) {
+    ph_control_group_cmd_.publish(msg);
+  }
 
   {
     std::scoped_lock lock(mutex_last_cmd_time_);
@@ -409,7 +417,9 @@ bool Api::callbackAttitudeRateCmd(const mrs_msgs::HwApiAttitudeRateCmd::ConstPtr
 
   ROS_INFO_ONCE("[Api]: getting attitude rate cmd");
 
-  ph_attitude_rate_cmd_.publish(msg);
+  if (offboard_) {
+    ph_attitude_rate_cmd_.publish(msg);
+  }
 
   {
     std::scoped_lock lock(mutex_last_cmd_time_);
@@ -432,7 +442,9 @@ bool Api::callbackAttitudeCmd(const mrs_msgs::HwApiAttitudeCmd::ConstPtr msg) {
 
   ROS_INFO_ONCE("[Api]: getting attitude cmd");
 
-  ph_attitude_cmd_.publish(msg);
+  if (offboard_) {
+    ph_attitude_cmd_.publish(msg);
+  }
 
   {
     std::scoped_lock lock(mutex_last_cmd_time_);
@@ -455,7 +467,9 @@ bool Api::callbackAccelerationHdgRateCmd(const mrs_msgs::HwApiAccelerationHdgRat
 
   ROS_INFO_ONCE("[Api]: getting acceleration+hdg rate cmd");
 
-  ph_acceleration_hdg_rate_cmd_.publish(msg);
+  if (offboard_) {
+    ph_acceleration_hdg_rate_cmd_.publish(msg);
+  }
 
   {
     std::scoped_lock lock(mutex_last_cmd_time_);
@@ -473,13 +487,14 @@ bool Api::callbackAccelerationHdgRateCmd(const mrs_msgs::HwApiAccelerationHdgRat
 bool Api::callbackAccelerationHdgCmd(const mrs_msgs::HwApiAccelerationHdgCmd::ConstPtr msg) {
 
   if (!_capabilities_.accepts_acceleration_hdg_cmd) {
-
     return false;
   }
 
   ROS_INFO_ONCE("[Api]: getting acceleration+hdg cmd");
 
-  ph_acceleration_hdg_cmd_.publish(msg);
+  if (offboard_) {
+    ph_acceleration_hdg_cmd_.publish(msg);
+  }
 
   {
     std::scoped_lock lock(mutex_last_cmd_time_);
@@ -502,7 +517,9 @@ bool Api::callbackVelocityHdgRateCmd(const mrs_msgs::HwApiVelocityHdgRateCmd::Co
 
   ROS_INFO_ONCE("[Api]: getting velocity+hdg rate cmd");
 
-  ph_velocity_hdg_rate_cmd_.publish(msg);
+  if (offboard_) {
+    ph_velocity_hdg_rate_cmd_.publish(msg);
+  }
 
   {
     std::scoped_lock lock(mutex_last_cmd_time_);
@@ -525,7 +542,9 @@ bool Api::callbackVelocityHdgCmd(const mrs_msgs::HwApiVelocityHdgCmd::ConstPtr m
 
   ROS_INFO_ONCE("[Api]: getting velocity+hdg cmd");
 
-  ph_velocity_hdg_cmd_.publish(msg);
+  if (offboard_) {
+    ph_velocity_hdg_cmd_.publish(msg);
+  }
 
   {
     std::scoped_lock lock(mutex_last_cmd_time_);
@@ -548,7 +567,9 @@ bool Api::callbackPositionCmd(const mrs_msgs::HwApiPositionCmd::ConstPtr msg) {
 
   ROS_INFO_ONCE("[Api]: getting position cmd");
 
-  ph_position_cmd_.publish(msg);
+  if (offboard_) {
+    ph_position_cmd_.publish(msg);
+  }
 
   {
     std::scoped_lock lock(mutex_last_cmd_time_);
@@ -567,7 +588,9 @@ void Api::callbackTrackerCmd(const mrs_msgs::TrackerCommand::ConstPtr msg) {
 
   ROS_INFO_ONCE("[Api]: getting tracker cmd");
 
-  ph_tracker_cmd_.publish(msg);
+  if (offboard_) {
+    ph_tracker_cmd_.publish(msg);
+  }
 }
 
 //}
@@ -796,6 +819,8 @@ void Api::timerMain([[maybe_unused]] const ros::TimerEvent& event) {
   publishBatteryState();
 
   publishRC();
+
+  timeoutInputs();
 }
 
 //}
@@ -849,6 +874,12 @@ void Api::publishRC(void) {
 /* MrsUavHwApi() //{ */
 
 void Api::timeoutInputs(void) {
+
+  auto last_cmd_time = mrs_lib::get_mutexed(mutex_last_cmd_time_, last_cmd_time_);
+
+  if (last_cmd_time != ros::Time::UNINITIALIZED && (ros::Time::now() - last_cmd_time).toSec() > _input_timeout_) {
+    offboard_ = false;
+  }
 }
 
 //}
