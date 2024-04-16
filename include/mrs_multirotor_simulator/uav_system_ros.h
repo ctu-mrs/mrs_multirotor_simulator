@@ -17,6 +17,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/Range.h>
 #include <nav_msgs/Odometry.h>
+#include <mrs_msgs/Float64Srv.h>
 
 #include <mrs_msgs/HwApiActuatorCmd.h>
 #include <mrs_msgs/HwApiControlGroupCmd.h>
@@ -121,6 +122,20 @@ private:
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiVelocityHdgCmd>         sh_velocity_hdg_cmd_;
   mrs_lib::SubscribeHandler<mrs_msgs::HwApiPositionCmd>            sh_position_cmd_;
   mrs_lib::SubscribeHandler<mrs_msgs::TrackerCommand>              sh_tracker_cmd_;
+
+  // | --------------------- service servers -------------------- |
+
+  ros::ServiceServer service_server_set_mass_;
+
+  ros::ServiceServer service_server_set_ground_z_;
+
+  bool callbackSetMass(mrs_msgs::Float64Srv::Request& req, mrs_msgs::Float64Srv::Response& res);
+
+  bool callbackSetGroundZ(mrs_msgs::Float64Srv::Request& req, mrs_msgs::Float64Srv::Response& res);
+
+  // | ------------------------ routines ------------------------ |
+
+  void calculateInertia(MultirotorModel::ModelParams& params);
 };
 
 }  // namespace mrs_multirotor_simulator

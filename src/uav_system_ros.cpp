@@ -93,13 +93,7 @@ UavSystemRos::UavSystemRos(ros::NodeHandle &nh, const std::string uav_name) {
     spawn_heading += randd(-3.14, 3.14);
   }
 
-  // create the inertia matrix
-  model_params_.J = Eigen::Matrix3d::Zero();
-  model_params_.J(0, 0) =
-      model_params_.mass * (3.0 * model_params_.arm_length * model_params_.arm_length + model_params_.body_height * model_params_.body_height) / 12.0;
-  model_params_.J(1, 1) =
-      model_params_.mass * (3.0 * model_params_.arm_length * model_params_.arm_length + model_params_.body_height * model_params_.body_height) / 12.0;
-  model_params_.J(2, 2) = (model_params_.mass * model_params_.arm_length * model_params_.arm_length) / 2.0;
+  calculateInertia(model_params_);
 
   model_params_.allocation_matrix = param_loader.loadMatrixDynamic2(type + "/propulsion/allocation_matrix", 4, -1);
 
@@ -213,6 +207,12 @@ UavSystemRos::UavSystemRos(ros::NodeHandle &nh, const std::string uav_name) {
   // | --------------------- tf broadcaster --------------------- |
 
   tf_broadcaster_ = std::make_shared<mrs_lib::TransformBroadcaster>();
+
+  // | --------------------- service servers -------------------- |
+
+  service_server_set_mass_ = nh.advertiseService(uav_name + "/set_mass", &UavSystemRos::callbackSetMass, this);
+
+  service_server_set_ground_z_ = nh.advertiseService(uav_name + "/set_ground_z", &UavSystemRos::callbackSetGroundZ, this);
 
   // | ------------------ first model iteration ----------------- |
 
@@ -657,6 +657,19 @@ double UavSystemRos::randd(double from, double to) {
 
 //}
 
+/* calculateInertia() //{ */
+
+void UavSystemRos::calculateInertia(MultirotorModel::ModelParams &params) {
+
+  // create the inertia matrix
+  params.J       = Eigen::Matrix3d::Zero();
+  params.J(0, 0) = params.mass * (3.0 * params.arm_length * params.arm_length + params.body_height * params.body_height) / 12.0;
+  params.J(1, 1) = params.mass * (3.0 * params.arm_length * params.arm_length + params.body_height * params.body_height) / 12.0;
+  params.J(2, 2) = (params.mass * params.arm_length * params.arm_length) / 2.0;
+}
+
+//}
+
 // | ------------------------ callbacks ----------------------- |
 
 /* callbackActuatorCmd() //{ */
@@ -1004,6 +1017,64 @@ void UavSystemRos::callbackTrackerCmd(const mrs_msgs::TrackerCommand::ConstPtr m
   uav_system_.setFeedforward(reference::VelocityHdgRate(velocity, heading_rate));
   uav_system_.setFeedforward(reference::AccelerationHdg(acceleration, 0));
   uav_system_.setFeedforward(reference::AccelerationHdgRate(acceleration, heading_rate));
+}
+
+//}
+
+/* callbackSetMass() //{ */
+
+bool UavSystemRos::callbackSetMass(mrs_msgs::Float64Srv::Request &req, mrs_msgs::Float64Srv::Response &res) {
+
+  if (!is_initialized_) {
+    return false;
+  }
+
+  {
+    std::scoped_lock lock(mutex_uav_system_);
+
+    model_params_ = uav_system_.getParams();
+
+    const double original_mass = model_params_.mass;
+
+    model_params_.mass = req.value;
+
+    model_params_.allocation_matrix.row(2) = model_params_.mass * (model_params_.allocation_matrix.row(2) / original_mass);
+
+    calculateInertia(model_params_);
+
+    uav_system_.setParams(model_params_);
+  }
+
+  res.success = true;
+  res.message = "mass set";
+
+  return true;
+}
+
+//}
+
+/* callbackSetGroundZ() //{ */
+
+bool UavSystemRos::callbackSetGroundZ(mrs_msgs::Float64Srv::Request &req, mrs_msgs::Float64Srv::Response &res) {
+
+  if (!is_initialized_) {
+    return false;
+  }
+
+  {
+    std::scoped_lock lock(mutex_uav_system_);
+
+    model_params_ = uav_system_.getParams();
+
+    model_params_.ground_z = req.value;
+
+    uav_system_.setParams(model_params_);
+  }
+
+  res.success = true;
+  res.message = "ground z set";
+
+  return true;
 }
 
 //}
