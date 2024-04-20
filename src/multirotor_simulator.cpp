@@ -149,7 +149,7 @@ void MultirotorSimulator::onInit() {
 
   for (size_t i = 0; i < uav_names.size(); i++) {
 
-    std::string uav_name = uav_names[i];
+    std::string uav_name = uav_names.at(i);
 
     ROS_INFO("[MultirotorSimulator]: initializing '%s'", uav_name.c_str());
 
@@ -209,7 +209,7 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
   sim_time_ = sim_time_ + ros::Duration(simulation_step_size);
 
   for (size_t i = 0; i < uavs_.size(); i++) {
-    uavs_[i]->makeStep(simulation_step_size);
+    uavs_.at(i)->makeStep(simulation_step_size);
   }
 
   publishPoses();
@@ -303,7 +303,7 @@ void MultirotorSimulator::handleCollisions(void) {
   std::vector<Eigen::VectorXd> poses;
 
   for (size_t i = 0; i < uavs_.size(); i++) {
-    poses.push_back(uavs_[i]->getPose());
+    poses.push_back(uavs_.at(i)->getPose());
   }
 
   typedef KDTreeVectorOfVectorsAdaptor<my_vector_of_vectors_t, double> my_kd_tree_t;
@@ -320,24 +320,24 @@ void MultirotorSimulator::handleCollisions(void) {
 
   for (size_t i = 0; i < uavs_.size(); i++) {
 
-    MultirotorModel::State       state_1  = uavs_[i]->getState();
-    MultirotorModel::ModelParams params_1 = uavs_[i]->getParams();
+    MultirotorModel::State       state_1  = uavs_.at(i)->getState();
+    MultirotorModel::ModelParams params_1 = uavs_.at(i)->getParams();
 
     nanoflann::RadiusResultSet<double, int> resultSet(3.0, indices_dists);
 
-    mat_index.index->findNeighbors(resultSet, &state_1.x[0]);
+    mat_index.index->findNeighbors(resultSet, &state_1.x(0));
 
     for (size_t j = 0; j < resultSet.m_indices_dists.size(); j++) {
 
-      const size_t idx  = resultSet.m_indices_dists[j].first;
-      const double dist = resultSet.m_indices_dists[j].second;
+      const size_t idx  = resultSet.m_indices_dists.at(j).first;
+      const double dist = resultSet.m_indices_dists.at(j).second;
 
       if (idx == i) {
         continue;
       }
 
-      MultirotorModel::State       state_2  = uavs_[idx]->getState();
-      MultirotorModel::ModelParams params_2 = uavs_[idx]->getParams();
+      MultirotorModel::State       state_2  = uavs_.at(idx)->getState();
+      MultirotorModel::ModelParams params_2 = uavs_.at(idx)->getParams();
 
       const double crit_dist = params_1.arm_length + params_1.prop_radius + params_2.arm_length + params_2.prop_radius;
 
@@ -345,16 +345,16 @@ void MultirotorSimulator::handleCollisions(void) {
 
       if (dist < crit_dist) {
         if (drs_params.collisions_crash) {
-          uavs_[idx]->crash();
+          uavs_.at(idx)->crash();
         } else {
-          forces[i] += drs_params.collisions_rebounce * rel_pos.normalized() * params_1.mass * (params_2.mass / (params_1.mass + params_2.mass));
+          forces.at(i) += drs_params.collisions_rebounce * rel_pos.normalized() * params_1.mass * (params_2.mass / (params_1.mass + params_2.mass));
         }
       }
     }
   }
 
   for (size_t i = 0; i < uavs_.size(); i++) {
-    uavs_[i]->applyForce(forces[i]);
+    uavs_.at(i)->applyForce(forces.at(i));
   }
 }
 
@@ -373,13 +373,13 @@ void MultirotorSimulator::publishPoses(void) {
 
   for (size_t i = 0; i < uavs_.size(); i++) {
 
-    auto state = uavs_[i]->getState();
+    auto state = uavs_.at(i)->getState();
 
     geometry_msgs::Pose pose;
 
-    pose.position.x  = state.x[0];
-    pose.position.y  = state.x[1];
-    pose.position.z  = state.x[2];
+    pose.position.x  = state.x(0);
+    pose.position.y  = state.x(1);
+    pose.position.z  = state.x(2);
     pose.orientation = mrs_lib::AttitudeConverter(state.R);
 
     pose_array.poses.push_back(pose);

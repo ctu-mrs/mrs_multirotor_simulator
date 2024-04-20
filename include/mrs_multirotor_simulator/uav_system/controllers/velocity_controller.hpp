@@ -72,9 +72,9 @@ reference::AccelerationHdg VelocityController::getControlSignal(const Multirotor
 
   reference::AccelerationHdg output;
 
-  output.acceleration[0] = pid_x_.update(vel_error[0], dt);
-  output.acceleration[1] = pid_y_.update(vel_error[1], dt);
-  output.acceleration[2] = pid_z_.update(vel_error[2], dt);
+  output.acceleration(0) = pid_x_.update(vel_error(0), dt);
+  output.acceleration(1) = pid_y_.update(vel_error(1), dt);
+  output.acceleration(2) = pid_z_.update(vel_error(2), dt);
 
   output.heading = reference.heading;
 
@@ -92,9 +92,9 @@ reference::AccelerationHdgRate VelocityController::getControlSignal(const Multir
 
   reference::AccelerationHdgRate output;
 
-  output.acceleration[0] = pid_x_.update(vel_error[0], dt);
-  output.acceleration[1] = pid_y_.update(vel_error[1], dt);
-  output.acceleration[2] = pid_z_.update(vel_error[2], dt);
+  output.acceleration(0) = pid_x_.update(vel_error(0), dt);
+  output.acceleration(1) = pid_y_.update(vel_error(1), dt);
+  output.acceleration(2) = pid_z_.update(vel_error(2), dt);
 
   output.heading_rate = reference.heading_rate;
 

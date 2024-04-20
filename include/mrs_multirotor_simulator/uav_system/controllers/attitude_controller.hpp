@@ -178,7 +178,7 @@ double AttitudeController::intrinsicBodyRateToHeadingRate(const Eigen::Matrix3d&
 
   // create the angular velocity tensor
   Eigen::Matrix3d W;
-  W << 0, -w[2], w[1], w[2], 0, -w[0], -w[1], w[0], 0;
+  W << 0, -w(2), w(1), w(2), 0, -w(0), -w(1), w(0), 0;
 
   // R derivative
   Eigen::Matrix3d R_d = R * W;

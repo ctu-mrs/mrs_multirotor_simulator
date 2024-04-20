@@ -76,9 +76,9 @@ reference::VelocityHdg PositionController::getControlSignal(const MultirotorMode
 
   reference::VelocityHdg output;
 
-  output.velocity[0] = pid_x_.update(pos_error[0], dt);
-  output.velocity[1] = pid_y_.update(pos_error[1], dt);
-  output.velocity[2] = pid_z_.update(pos_error[2], dt);
+  output.velocity(0) = pid_x_.update(pos_error(0), dt);
+  output.velocity(1) = pid_y_.update(pos_error(1), dt);
+  output.velocity(2) = pid_z_.update(pos_error(2), dt);
 
   output.heading = reference.heading;
 

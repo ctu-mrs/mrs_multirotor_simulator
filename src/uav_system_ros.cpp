@@ -349,19 +349,19 @@ void UavSystemRos::publishOdometry(const MultirotorModel::State &state) {
 
   odom.pose.pose.orientation = mrs_lib::AttitudeConverter(state.R);
 
-  odom.pose.pose.position.x = state.x[0];
-  odom.pose.pose.position.y = state.x[1];
-  odom.pose.pose.position.z = state.x[2];
+  odom.pose.pose.position.x = state.x(0);
+  odom.pose.pose.position.y = state.x(1);
+  odom.pose.pose.position.z = state.x(2);
 
   Eigen::Vector3d vel_body = state.R.transpose() * state.v;
 
-  odom.twist.twist.linear.x = vel_body[0];
-  odom.twist.twist.linear.y = vel_body[1];
-  odom.twist.twist.linear.z = vel_body[2];
+  odom.twist.twist.linear.x = vel_body(0);
+  odom.twist.twist.linear.y = vel_body(1);
+  odom.twist.twist.linear.z = vel_body(2);
 
-  odom.twist.twist.angular.x = state.omega[0];
-  odom.twist.twist.angular.y = state.omega[1];
-  odom.twist.twist.angular.z = state.omega[2];
+  odom.twist.twist.angular.x = state.omega(0);
+  odom.twist.twist.angular.y = state.omega(1);
+  odom.twist.twist.angular.z = state.omega(2);
 
   ph_odom_.publish(odom);
 }
@@ -377,15 +377,15 @@ void UavSystemRos::publishIMU(const MultirotorModel::State &state) {
   imu.header.stamp    = ros::Time::now();
   imu.header.frame_id = _frame_fcu_;
 
-  imu.angular_velocity.x = state.omega[0];
-  imu.angular_velocity.y = state.omega[1];
-  imu.angular_velocity.z = state.omega[2];
+  imu.angular_velocity.x = state.omega(0);
+  imu.angular_velocity.y = state.omega(1);
+  imu.angular_velocity.z = state.omega(2);
 
   auto acc = uav_system_.getImuAcceleration();
 
-  imu.linear_acceleration.x = acc[0];
-  imu.linear_acceleration.y = acc[1];
-  imu.linear_acceleration.z = acc[2];
+  imu.linear_acceleration.x = acc(0);
+  imu.linear_acceleration.y = acc(1);
+  imu.linear_acceleration.z = acc(2);
 
   ph_imu_.publish(imu);
 }
@@ -406,8 +406,8 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State &state) {
 
   double range_measurement;
 
-  if (body_z[2] > 0) {
-    range_measurement = (state.x[2] - model_params_.ground_z) / cos(tilt);
+  if (body_z(2) > 0) {
+    range_measurement = (state.x(2) - model_params_.ground_z) / cos(tilt);
   } else {
     range_measurement = std::numeric_limits<double>::max();
   }
@@ -453,9 +453,9 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State &state) {
     tf.header.frame_id = _frame_world_;
     tf.child_frame_id  = _frame_fcu_;
 
-    tf.transform.translation.x = state.x[0];
-    tf.transform.translation.y = state.x[1];
-    tf.transform.translation.z = state.x[2];
+    tf.transform.translation.x = state.x(0);
+    tf.transform.translation.y = state.x(1);
+    tf.transform.translation.z = state.x(2);
 
     tf.transform.rotation = mrs_lib::AttitudeConverter(state.R);
 
@@ -693,7 +693,7 @@ void UavSystemRos::callbackActuatorCmd(const mrs_msgs::HwApiActuatorCmd::ConstPt
   cmd.motors = Eigen::VectorXd::Zero(model_params_.n_motors);
 
   for (int i = 0; i < model_params_.n_motors; i++) {
-    cmd.motors[i] = msg->motors[i];
+    cmd.motors(i) = msg->motors.at(i);
   }
 
   {
@@ -824,9 +824,9 @@ void UavSystemRos::callbackAccelerationHdgRateCmd(const mrs_msgs::HwApiAccelerat
 
   cmd.heading_rate = msg->heading_rate;
 
-  cmd.acceleration[0] = msg->acceleration.x;
-  cmd.acceleration[1] = msg->acceleration.y;
-  cmd.acceleration[2] = msg->acceleration.z;
+  cmd.acceleration(0) = msg->acceleration.x;
+  cmd.acceleration(1) = msg->acceleration.y;
+  cmd.acceleration(2) = msg->acceleration.z;
 
   {
     std::scoped_lock lock(mutex_uav_system_);
@@ -858,9 +858,9 @@ void UavSystemRos::callbackAccelerationHdgCmd(const mrs_msgs::HwApiAccelerationH
 
   cmd.heading = msg->heading;
 
-  cmd.acceleration[0] = msg->acceleration.x;
-  cmd.acceleration[1] = msg->acceleration.y;
-  cmd.acceleration[2] = msg->acceleration.z;
+  cmd.acceleration(0) = msg->acceleration.x;
+  cmd.acceleration(1) = msg->acceleration.y;
+  cmd.acceleration(2) = msg->acceleration.z;
 
   {
     std::scoped_lock lock(mutex_uav_system_);
@@ -892,9 +892,9 @@ void UavSystemRos::callbackVelocityHdgRateCmd(const mrs_msgs::HwApiVelocityHdgRa
 
   cmd.heading_rate = msg->heading_rate;
 
-  cmd.velocity[0] = msg->velocity.x;
-  cmd.velocity[1] = msg->velocity.y;
-  cmd.velocity[2] = msg->velocity.z;
+  cmd.velocity(0) = msg->velocity.x;
+  cmd.velocity(1) = msg->velocity.y;
+  cmd.velocity(2) = msg->velocity.z;
 
   {
     std::scoped_lock lock(mutex_uav_system_);
@@ -926,9 +926,9 @@ void UavSystemRos::callbackVelocityHdgCmd(const mrs_msgs::HwApiVelocityHdgCmd::C
 
   cmd.heading = msg->heading;
 
-  cmd.velocity[0] = msg->velocity.x;
-  cmd.velocity[1] = msg->velocity.y;
-  cmd.velocity[2] = msg->velocity.z;
+  cmd.velocity(0) = msg->velocity.x;
+  cmd.velocity(1) = msg->velocity.y;
+  cmd.velocity(2) = msg->velocity.z;
 
   {
     std::scoped_lock lock(mutex_uav_system_);
@@ -960,9 +960,9 @@ void UavSystemRos::callbackPositionCmd(const mrs_msgs::HwApiPositionCmd::ConstPt
 
   cmd.heading = msg->heading;
 
-  cmd.position[0] = msg->position.x;
-  cmd.position[1] = msg->position.y;
-  cmd.position[2] = msg->position.z;
+  cmd.position(0) = msg->position.x;
+  cmd.position(1) = msg->position.y;
+  cmd.position(2) = msg->position.z;
 
   {
     std::scoped_lock lock(mutex_uav_system_);
@@ -995,12 +995,12 @@ void UavSystemRos::callbackTrackerCmd(const mrs_msgs::TrackerCommand::ConstPtr m
   double          heading_rate = 0;
 
   if (msg->use_velocity_horizontal) {
-    velocity[0] = msg->velocity.x;
-    velocity[1] = msg->velocity.y;
+    velocity(0) = msg->velocity.x;
+    velocity(1) = msg->velocity.y;
   }
 
   if (msg->use_velocity_vertical) {
-    velocity[2] = msg->velocity.z;
+    velocity(2) = msg->velocity.z;
   }
 
   if (msg->use_heading_rate) {
@@ -1008,9 +1008,9 @@ void UavSystemRos::callbackTrackerCmd(const mrs_msgs::TrackerCommand::ConstPtr m
   }
 
   if (msg->use_acceleration) {
-    acceleration[0] = msg->acceleration.x;
-    acceleration[1] = msg->acceleration.y;
-    acceleration[2] = msg->acceleration.z;
+    acceleration(0) = msg->acceleration.x;
+    acceleration(1) = msg->acceleration.y;
+    acceleration(2) = msg->acceleration.z;
   }
 
   uav_system_.setFeedforward(reference::VelocityHdg(velocity, 0));

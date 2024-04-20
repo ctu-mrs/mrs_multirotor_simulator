@@ -203,12 +203,12 @@ void MultirotorModel::initializeState(void) {
 void MultirotorModel::updateInternalState(void) {
 
   for (int i = 0; i < 3; i++) {
-    internal_state_[0 + i]  = state_.x(i);
-    internal_state_[3 + i]  = state_.v(i);
-    internal_state_[6 + i]  = state_.R(i, 0);
-    internal_state_[9 + i]  = state_.R(i, 1);
-    internal_state_[12 + i] = state_.R(i, 2);
-    internal_state_[15 + i] = state_.omega(i);
+    internal_state_.at(0 + i)  = state_.x(i);
+    internal_state_.at(3 + i)  = state_.v(i);
+    internal_state_.at(6 + i)  = state_.R(i, 0);
+    internal_state_.at(9 + i)  = state_.R(i, 1);
+    internal_state_.at(12 + i) = state_.R(i, 2);
+    internal_state_.at(15 + i) = state_.omega(i);
   }
 }
 
@@ -225,19 +225,19 @@ void MultirotorModel::step(const double& dt) {
   odeint::integrate_n_steps(rk, boost::ref(*this), internal_state_, 0.0, dt, 1);
 
   for (int i = 0; i < N_INTERNAL_STATES; ++i) {
-    if (std::isnan(internal_state_[i])) {
+    if (std::isnan(internal_state_.at(i))) {
       internal_state_ = save;
       break;
     }
   }
 
   for (int i = 0; i < 3; i++) {
-    state_.x(i)     = internal_state_[0 + i];
-    state_.v(i)     = internal_state_[3 + i];
-    state_.R(i, 0)  = internal_state_[6 + i];
-    state_.R(i, 1)  = internal_state_[9 + i];
-    state_.R(i, 2)  = internal_state_[12 + i];
-    state_.omega(i) = internal_state_[15 + i];
+    state_.x(i)     = internal_state_.at(0 + i);
+    state_.v(i)     = internal_state_.at(3 + i);
+    state_.R(i, 0)  = internal_state_.at(6 + i);
+    state_.R(i, 1)  = internal_state_.at(9 + i);
+    state_.R(i, 2)  = internal_state_.at(12 + i);
+    state_.omega(i) = internal_state_.at(15 + i);
   }
 
   double filter_const = exp((-dt) / (params_.motor_time_constant));
@@ -265,8 +265,8 @@ void MultirotorModel::step(const double& dt) {
     const double hover_rpm = sqrt((params_.mass * params_.g) / (params_.n_motors * params_.kf));
     if (input_.mean() <= 0.90 * hover_rpm) {
 
-      if (state_.x(2) < _initial_pos_[2] && state_.v(2) < 0) {
-        state_.x(2)  = _initial_pos_[2];
+      if (state_.x(2) < _initial_pos_(2) && state_.v(2) < 0) {
+        state_.x(2)  = _initial_pos_(2);
         state_.v     = Eigen::Vector3d::Zero();
         state_.omega = Eigen::Vector3d::Zero();
       }
@@ -302,12 +302,12 @@ void MultirotorModel::operator()(const MultirotorModel::InternalState& x, Multir
   State cur_state;
 
   for (int i = 0; i < 3; i++) {
-    cur_state.x(i)     = x[0 + i];
-    cur_state.v(i)     = x[3 + i];
-    cur_state.R(i, 0)  = x[6 + i];
-    cur_state.R(i, 1)  = x[9 + i];
-    cur_state.R(i, 2)  = x[12 + i];
-    cur_state.omega(i) = x[15 + i];
+    cur_state.x(i)     = x.at(0 + i);
+    cur_state.v(i)     = x.at(3 + i);
+    cur_state.R(i, 0)  = x.at(6 + i);
+    cur_state.R(i, 1)  = x.at(9 + i);
+    cur_state.R(i, 2)  = x.at(12 + i);
+    cur_state.omega(i) = x.at(15 + i);
   }
 
   Eigen::LLT<Eigen::Matrix3d> llt(cur_state.R.transpose() * cur_state.R);
@@ -349,17 +349,17 @@ void MultirotorModel::operator()(const MultirotorModel::InternalState& x, Multir
   omega_dot = params_.J.inverse() * (torque_thrust.topRows(3) - cur_state.omega.cross(params_.J * cur_state.omega) + external_moment_);
 
   for (int i = 0; i < 3; i++) {
-    dxdt[0 + i]  = x_dot(i);
-    dxdt[3 + i]  = v_dot(i);
-    dxdt[6 + i]  = R_dot(i, 0);
-    dxdt[9 + i]  = R_dot(i, 1);
-    dxdt[12 + i] = R_dot(i, 2);
-    dxdt[15 + i] = omega_dot(i);
+    dxdt.at(0 + i)  = x_dot(i);
+    dxdt.at(3 + i)  = v_dot(i);
+    dxdt.at(6 + i)  = R_dot(i, 0);
+    dxdt.at(9 + i)  = R_dot(i, 1);
+    dxdt.at(12 + i) = R_dot(i, 2);
+    dxdt.at(15 + i) = omega_dot(i);
   }
 
   for (int i = 0; i < N_INTERNAL_STATES; ++i) {
-    if (std::isnan(dxdt[i])) {
-      dxdt[i] = 0;
+    if (std::isnan(dxdt.at(i))) {
+      dxdt.at(i) = 0;
     }
   }
 }
