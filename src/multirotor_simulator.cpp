@@ -106,9 +106,6 @@ void MultirotorSimulator::onInit() {
 
   srand(time(NULL));
 
-  sim_time_            = ros::Time(0);
-  last_published_time_ = ros::Time(0);
-
   mrs_lib::ParamLoader param_loader(nh_, "MultirotorSimulator");
 
   std::string custom_config_path;
@@ -131,6 +128,18 @@ void MultirotorSimulator::onInit() {
 
   double clock_rate;
   param_loader.loadParam("clock_rate", clock_rate);
+
+  bool sim_time_from_wall_time;
+  param_loader.loadParam("sim_time_from_wall_time", sim_time_from_wall_time);
+
+  if (sim_time_from_wall_time) {
+    sim_time_ = ros::Time(ros::WallTime::now().toSec());
+  } else {
+    sim_time_ = ros::Time(0);
+  }
+
+  last_published_time_  = sim_time_;
+  last_sim_time_status_ = sim_time_;
 
   drs_params_.paused = false;
 
