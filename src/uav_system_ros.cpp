@@ -387,6 +387,8 @@ void UavSystemRos::publishIMU(const MultirotorModel::State &state) {
   imu.linear_acceleration.y = acc(1);
   imu.linear_acceleration.z = acc(2);
 
+  imu.orientation = mrs_lib::AttitudeConverter(state.R);
+
   ph_imu_.publish(imu);
 }
 
