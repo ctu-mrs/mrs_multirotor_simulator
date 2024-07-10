@@ -197,7 +197,7 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
 
   mrs_lib::SubscribeHandlerOptions shopts;
   shopts.nh                 = nh_;
-  shopts.node_name          = "MrsSimulatorHwApi";
+  shopts.node_name          = "MultirotorSimulatorHwApi";
   shopts.no_message_timeout = mrs_lib::no_timeout;
   shopts.threadsafe         = true;
   shopts.autostart          = true;
@@ -311,7 +311,7 @@ std::tuple<bool, std::string> Api::callbackArming([[maybe_unused]] const bool& r
     armed_ = true;
 
     ss << "armed";
-    ROS_INFO_STREAM_THROTTLE(1.0, "[MrsSimulatorHwApi]: " << ss.str());
+    ROS_INFO_STREAM_THROTTLE(1.0, "[MultirotorSimulatorHwApi]: " << ss.str());
     return std::tuple(true, ss.str());
 
   } else {
@@ -319,7 +319,7 @@ std::tuple<bool, std::string> Api::callbackArming([[maybe_unused]] const bool& r
     armed_ = false;
 
     ss << "disarmed";
-    ROS_INFO_STREAM_THROTTLE(1.0, "[MrsSimulatorHwApi]: " << ss.str());
+    ROS_INFO_STREAM_THROTTLE(1.0, "[MultirotorSimulatorHwApi]: " << ss.str());
     return std::tuple(true, ss.str());
   }
 }
@@ -334,7 +334,7 @@ std::tuple<bool, std::string> Api::callbackOffboard(void) {
 
   if (!armed_) {
     ss << "Cannot switch to offboard, not armed.";
-    ROS_INFO_THROTTLE(1.0, "[MrsSimulatorHwApi]: %s", ss.str().c_str());
+    ROS_INFO_THROTTLE(1.0, "[MultirotorSimulatorHwApi]: %s", ss.str().c_str());
     return {false, ss.str()};
   }
 
@@ -342,14 +342,14 @@ std::tuple<bool, std::string> Api::callbackOffboard(void) {
 
   if (last_cmd_time != ros::Time::UNINITIALIZED && (ros::Time::now() - last_cmd_time).toSec() > _input_timeout_) {
     ss << "Cannot switch to offboard, missing control input.";
-    ROS_INFO_THROTTLE(1.0, "[MrsSimulatorHwApi]: %s", ss.str().c_str());
+    ROS_INFO_THROTTLE(1.0, "[MultirotorSimulatorHwApi]: %s", ss.str().c_str());
     return {false, ss.str()};
   }
 
   offboard_ = true;
 
   ss << "Offboard set";
-  ROS_INFO_THROTTLE(1.0, "[MrsSimulatorHwApi]: %s", ss.str().c_str());
+  ROS_INFO_THROTTLE(1.0, "[MultirotorSimulatorHwApi]: %s", ss.str().c_str());
   return {true, ss.str()};
 }
 
@@ -365,7 +365,7 @@ bool Api::callbackActuatorCmd(const mrs_msgs::HwApiActuatorCmd::ConstPtr msg) {
     return false;
   }
 
-  ROS_INFO_ONCE("[Api]: getting actuators cmd");
+  ROS_INFO_ONCE("[MultirotorSimulatorHwApi]: getting actuators cmd");
 
   if (offboard_) {
     ph_actuators_cmd_.publish(msg);
@@ -390,7 +390,7 @@ bool Api::callbackControlGroupCmd(const mrs_msgs::HwApiControlGroupCmd::ConstPtr
     return false;
   }
 
-  ROS_INFO_ONCE("[Api]: getting control group cmd");
+  ROS_INFO_ONCE("[MultirotorSimulatorHwApi]: getting control group cmd");
 
   if (offboard_) {
     ph_control_group_cmd_.publish(msg);
@@ -415,7 +415,7 @@ bool Api::callbackAttitudeRateCmd(const mrs_msgs::HwApiAttitudeRateCmd::ConstPtr
     return false;
   }
 
-  ROS_INFO_ONCE("[Api]: getting attitude rate cmd");
+  ROS_INFO_ONCE("[MultirotorSimulatorHwApi]: getting attitude rate cmd");
 
   if (offboard_) {
     ph_attitude_rate_cmd_.publish(msg);
@@ -440,7 +440,7 @@ bool Api::callbackAttitudeCmd(const mrs_msgs::HwApiAttitudeCmd::ConstPtr msg) {
     return false;
   }
 
-  ROS_INFO_ONCE("[Api]: getting attitude cmd");
+  ROS_INFO_ONCE("[MultirotorSimulatorHwApi]: getting attitude cmd");
 
   if (offboard_) {
     ph_attitude_cmd_.publish(msg);
@@ -465,7 +465,7 @@ bool Api::callbackAccelerationHdgRateCmd(const mrs_msgs::HwApiAccelerationHdgRat
     return false;
   }
 
-  ROS_INFO_ONCE("[Api]: getting acceleration+hdg rate cmd");
+  ROS_INFO_ONCE("[MultirotorSimulatorHwApi]: getting acceleration+hdg rate cmd");
 
   if (offboard_) {
     ph_acceleration_hdg_rate_cmd_.publish(msg);
@@ -490,7 +490,7 @@ bool Api::callbackAccelerationHdgCmd(const mrs_msgs::HwApiAccelerationHdgCmd::Co
     return false;
   }
 
-  ROS_INFO_ONCE("[Api]: getting acceleration+hdg cmd");
+  ROS_INFO_ONCE("[MultirotorSimulatorHwApi]: getting acceleration+hdg cmd");
 
   if (offboard_) {
     ph_acceleration_hdg_cmd_.publish(msg);
@@ -515,7 +515,7 @@ bool Api::callbackVelocityHdgRateCmd(const mrs_msgs::HwApiVelocityHdgRateCmd::Co
     return false;
   }
 
-  ROS_INFO_ONCE("[Api]: getting velocity+hdg rate cmd");
+  ROS_INFO_ONCE("[MultirotorSimulatorHwApi]: getting velocity+hdg rate cmd");
 
   if (offboard_) {
     ph_velocity_hdg_rate_cmd_.publish(msg);
@@ -540,7 +540,7 @@ bool Api::callbackVelocityHdgCmd(const mrs_msgs::HwApiVelocityHdgCmd::ConstPtr m
     return false;
   }
 
-  ROS_INFO_ONCE("[Api]: getting velocity+hdg cmd");
+  ROS_INFO_ONCE("[MultirotorSimulatorHwApi]: getting velocity+hdg cmd");
 
   if (offboard_) {
     ph_velocity_hdg_cmd_.publish(msg);
@@ -565,7 +565,7 @@ bool Api::callbackPositionCmd(const mrs_msgs::HwApiPositionCmd::ConstPtr msg) {
     return false;
   }
 
-  ROS_INFO_ONCE("[Api]: getting position cmd");
+  ROS_INFO_ONCE("[MultirotorSimulatorHwApi]: getting position cmd");
 
   if (offboard_) {
     ph_position_cmd_.publish(msg);
@@ -586,7 +586,7 @@ bool Api::callbackPositionCmd(const mrs_msgs::HwApiPositionCmd::ConstPtr msg) {
 
 void Api::callbackTrackerCmd(const mrs_msgs::TrackerCommand::ConstPtr msg) {
 
-  ROS_INFO_ONCE("[Api]: getting tracker cmd");
+  ROS_INFO_ONCE("[MultirotorSimulatorHwApi]: getting tracker cmd");
 
   if (offboard_) {
     ph_tracker_cmd_.publish(msg);
@@ -605,7 +605,7 @@ void Api::callbackOdom(const nav_msgs::Odometry::ConstPtr msg) {
     return;
   }
 
-  ROS_INFO_ONCE("[Api]: getting simulator odometry");
+  ROS_INFO_ONCE("[MultirotorSimulatorHwApi]: getting simulator odometry");
 
   auto odom = msg;
 
@@ -776,7 +776,7 @@ void Api::callbackImu(const sensor_msgs::Imu::ConstPtr msg) {
     return;
   }
 
-  ROS_INFO_ONCE("[Api]: getting IMU");
+  ROS_INFO_ONCE("[MultirotorSimulatorHwApi]: getting IMU");
 
   if (_capabilities_.produces_imu) {
 
@@ -794,7 +794,7 @@ void Api::callbackRangefinder(const sensor_msgs::Range::ConstPtr msg) {
     return;
   }
 
-  ROS_INFO_ONCE("[Api]: getting rangefinder");
+  ROS_INFO_ONCE("[MultirotorSimulatorHwApi]: getting rangefinder");
 
   if (_capabilities_.produces_distance_sensor) {
 
@@ -814,7 +814,7 @@ void Api::timerMain([[maybe_unused]] const ros::TimerEvent& event) {
     return;
   }
 
-  ROS_INFO_ONCE("[Api]: main timer spinning");
+  ROS_INFO_ONCE("[MultirotorSimulatorHwApi]: main timer spinning");
 
   publishBatteryState();
 
