@@ -374,8 +374,6 @@ void MultirotorModel::operator()(const MultirotorModel::InternalState& x, Multir
 void MultirotorModel::setParams(const MultirotorModel::ModelParams& params) {
 
   params_ = params;
-
-  initializeState();
 }
 
 //}
