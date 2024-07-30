@@ -136,12 +136,17 @@ UavSystem::UavSystem(const MultirotorModel::ModelParams& model_params) {
 
   multirotor_model_.setParams(model_params);
 
+  multirotor_model_.initializeState();
+
   initializeControllers();
 }
 
 UavSystem::UavSystem(const MultirotorModel::ModelParams& model_params, const Eigen::Vector3d spawn_pos, const double spawn_heading) {
 
   multirotor_model_.setParams(model_params);
+
+  multirotor_model_.initializeState();
+
   multirotor_model_.setStatePos(spawn_pos, spawn_heading);
 
   initializeControllers();

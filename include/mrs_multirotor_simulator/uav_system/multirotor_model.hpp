@@ -128,8 +128,9 @@ public:
   ModelParams getParams(void);
   void        setParams(const ModelParams& params);
 
-private:
   void initializeState(void);
+
+private:
 
   void updateInternalState(void);
 
