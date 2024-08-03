@@ -409,7 +409,7 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State &state) {
   double range_measurement;
 
   if (body_z(2) > 0) {
-    range_measurement = (state.x(2) - model_params_.ground_z) / cos(tilt) + 0.10;
+    range_measurement = (state.x(2) - model_params_.ground_z) / cos(tilt);
   } else {
     range_measurement = std::numeric_limits<double>::max();
   }
@@ -423,7 +423,7 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State &state) {
   range.header.frame_id = _frame_rangefinder_;
   range.header.stamp    = ros::Time::now();
   range.max_range       = 40.0;
-  range.min_range       = 0.05;
+  range.min_range       = 0.0;
   range.range           = range_measurement;
   range.radiation_type  = range.INFRARED;
   range.field_of_view   = 0.01;
