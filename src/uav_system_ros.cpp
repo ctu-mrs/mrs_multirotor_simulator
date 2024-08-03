@@ -409,7 +409,7 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State &state) {
   double range_measurement;
 
   if (body_z(2) > 0) {
-    range_measurement = (state.x(2) - model_params_.ground_z) / cos(tilt);
+    range_measurement = (state.x(2) - model_params_.ground_z) / cos(tilt) + 0.01;
   } else {
     range_measurement = std::numeric_limits<double>::max();
   }
