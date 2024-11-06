@@ -8,25 +8,25 @@ uav_mass: 0.8 # overall mass of the drone
 # zero throttle thrist must correspond to min_rpm sqrt(0.460832101/0.000000045) = 3200,111459864
 motor_params:
   n_motors: 4
-  a: 0.2882
-  b: -0.0895
+  a:  0.26453
+  b: -0.15
 # these model parameters can be used when
 # - 'attitude rate', and/or
 # - 'actuator control'
 # are done by the MRS system.
 model_params:
   arm_length: 0.135 # [m]
-  body_height: 0.05 # [m]
+  body_height: 0.07 # [m]
 
   propulsion:
     # force [N] = force_constant * rpm^2
     # for 21400 max rpm it is 20,475625 N then the force constant is 0.000000045
-    force_constant: 0.000000045
+    force_constant: 0.00000000843
 
     # torque [Nm] = torque_constant * force [N]
     torque_constant: 0.012 # 0.014 torque computed from power (efficiency estimated as 85% )
 
-    prop_radius: 0.065 # [m]
+    prop_radius: 0.09 # [m]
 
     # allocation motors -> torques
 
@@ -48,8 +48,8 @@ model_params:
     # inertia_matrix: []
 
     rpm:
-      min: 2400 # [revolutions/minute]
-      max: 3200 # [revolutions/minute]
+      min: 2058 # [revolutions/minute]
+      max: 41160 # [revolutions/minute]
 
 mrs_uav_managers:
   constraint_manager:
