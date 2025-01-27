@@ -218,7 +218,7 @@ void MultirotorSimulator::timerMain([[maybe_unused]] const ros::WallTimerEvent& 
 
   // | ---------------------- publish time ---------------------- |
 
-  if ((sim_time_ - last_published_time_).toSec() >= _clock_min_dt_) {
+  if ((sim_time_ - last_published_time_).toSec() >= _clock_min_dt_*(1.0-1e-6)) {
 
     rosgraph_msgs::Clock ros_time;
 
