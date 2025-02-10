@@ -18,6 +18,8 @@
 
 #include <mrs_lib/gps_conversions.h>
 
+#include <mrs_errorgraph/error_publisher.h>
+
 //}
 
 namespace mrs_uav_simulator_hw_api_plugin
@@ -31,6 +33,10 @@ public:
   ~Api(){};
 
   void initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_hw_api::CommonHandlers_t> common_handlers);
+
+  // | ----------------------- errorgraph ----------------------- |
+  
+  std::unique_ptr<mrs_errorgraph::ErrorPublisher> error_publisher_;
 
   // | ------------------------- params ------------------------- |
 
@@ -139,6 +145,8 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
 
   ros::NodeHandle nh_(parent_nh);
 
+  error_publisher_ = std::make_unique<mrs_errorgraph::ErrorPublisher>(nh_, "HwApiManager", "MrsUavHwDummyApi");
+
   common_handlers_ = common_handlers;
 
   _capabilities_.api_name = "MrsSimulator";
@@ -190,7 +198,8 @@ void Api::initialize(const ros::NodeHandle& parent_nh, std::shared_ptr<mrs_uav_h
 
   if (!param_loader.loadedSuccessfully()) {
     ROS_ERROR("[MrsUavHwDummyApi]: Could not load all parameters!");
-    ros::shutdown();
+    error_publisher_->addOneshotError("Could not load all parameters.");
+    error_publisher_->flushAndShutdown();
   }
 
   // | ----------------------- subscribers ---------------------- |

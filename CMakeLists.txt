@@ -17,6 +17,7 @@ set(CATKIN_DEPENDENCIES
   nav_msgs
   nodelet
   roscpp
+  mrs_errorgraph
   rosgraph_msgs
   sensor_msgs
   std_msgs

@@ -57,6 +57,8 @@
       <remap from="~simulator_position_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/position_cmd" />
       <remap from="~simulator_tracker_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/tracker_cmd" />
 
+      <remap from="~errors" to="errors" />
+
     </node>
 
   </group>
