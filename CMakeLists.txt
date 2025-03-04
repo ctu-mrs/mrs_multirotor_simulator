@@ -1,141 +1,123 @@
 cmake_minimum_required(VERSION 3.5)
 project(mrs_multirotor_simulator)
 
-set(CMAKE_CXX_STANDARD 17)
+# set the correct standards
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_definitions(-Wall)
-add_definitions(-Wextra)
+# set the compile options to show code warnings
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
-set(CATKIN_DEPENDENCIES
-  cmake_modules
-  dynamic_reconfigure
-  geometry_msgs
-  mrs_lib
+set(DEPENDENCIES
+  ament_cmake
+  rclcpp
+  rclcpp_components
   mrs_msgs
-  mrs_uav_hw_api
+  mrs_lib
+  geometry_msgs
   nav_msgs
-  nodelet
-  roscpp
-  rosgraph_msgs
-  sensor_msgs
   std_msgs
-  std_srvs
-  )
+  sensor_msgs
+)
 
-find_package(catkin REQUIRED COMPONENTS
-  ${CATKIN_DEPENDENCIES}
-  )
+foreach(DEP IN LISTS DEPENDENCIES)
+  find_package(${DEP} REQUIRED)
+endforeach()
 
-generate_dynamic_reconfigure_options(
-  cfg/multirotor_simulator.cfg
-  )
-
-set(LIBRARIES
-  MrsMultirotorSimulator_Simulator
-  MrsMultirotorSimulator_SimulatorSystemRos
-  MrsMultirotorSimulator_HwApiPlugin
-  )
-
-catkin_package(
-  LIBRARIES ${LIBRARIES}
-  INCLUDE_DIRS include include/mrs_multirotor_simulator include/mrs_multirotor_simulator/uav_system include/mrs_multirotor_simulator/uav_system/controllers
-  CATKIN_DEPENDS ${CATKIN_DEPENDENCIES}
-  )
+# include Eigen3
+find_package(Eigen3 REQUIRED)
+set(Eigen_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIRS})
+set(Eigen_LIBRARIES ${EIGEN3_LIBRARIES})
 
 include_directories(
   include
   include/mrs_multirotor_simulator
   include/mrs_multirotor_simulator/uav_system
   include/mrs_multirotor_simulator/uav_system/controllers
-  ${catkin_INCLUDE_DIRS}
-  ${dynamic_reconfigure_PACKAGE_PATH}/cmake/cfgbuild.cmake
+  ${rclcpp_INCLUDE_DIRS}
+  ${Eigen_INCLUDE_DIRS}
+)
+
+set(LIBRARIES
+  MrsMultirotorSimulator_Simulator
+  MrsMultirotorSimulator_SimulatorSystemRos
+  # MrsMultirotorSimulator_HwApiPlugin
   )
 
 # ROS Wrapper for the Multirotor UAV System + controllers
 
-add_library(MrsMultirotorSimulator_SimulatorSystemRos
+add_library(MrsMultirotorSimulator_SimulatorSystemRos SHARED
   src/uav_system_ros.cpp
-  )
-
-add_dependencies(MrsMultirotorSimulator_SimulatorSystemRos
-  ${${PROJECT_NAME}_EXPORTED_TARGETS}
-  ${catkin_EXPORTED_TARGETS}
-  )
+)
 
 target_link_libraries(MrsMultirotorSimulator_SimulatorSystemRos
-  ${catkin_LIBRARIES}
   ${Eigen_LIBRARIES}
   )
 
-# Multirotor simulator
-# - ROS node with the MRS Multirotor Simulator
+ament_target_dependencies(MrsMultirotorSimulator_SimulatorSystemRos
+  rclcpp
+  rclcpp_components
+  mrs_lib
+  sensor_msgs
+  std_msgs
+  mrs_msgs
+  nav_msgs
+  ${Eigen_LIBRARIES}
+)
 
-add_library(MrsMultirotorSimulator_Simulator
+# MRS Simulator
+
+add_library(MrsMultirotorSimulator_Simulator SHARED
   src/multirotor_simulator.cpp
-  )
-
-add_dependencies(MrsMultirotorSimulator_Simulator
-  ${${PROJECT_NAME}_EXPORTED_TARGETS}
-  ${catkin_EXPORTED_TARGETS}
-  )
+)
 
 target_link_libraries(MrsMultirotorSimulator_Simulator
   MrsMultirotorSimulator_SimulatorSystemRos
-  ${catkin_LIBRARIES}
   ${Eigen_LIBRARIES}
   )
 
-# Hw API Plugin
-# - pluginlib library for interfacing the Simulator with the MRS UAV System
+ament_target_dependencies(MrsMultirotorSimulator_Simulator
+  rclcpp
+  rclcpp_components
+  mrs_lib
+  sensor_msgs
+  std_msgs
+  mrs_msgs
+  geometry_msgs
+  nav_msgs
+)
 
-add_library(MrsMultirotorSimulator_HwApiPlugin
-  src/hw_api_plugin.cpp
-  )
-
-add_dependencies(MrsMultirotorSimulator_HwApiPlugin
-  ${${PROJECT_NAME}_EXPORTED_TARGETS}
-  ${catkin_EXPORTED_TARGETS}
-  )
-
-target_link_libraries(MrsMultirotorSimulator_HwApiPlugin
-  ${catkin_LIBRARIES}
-  ${Eigen_LIBRARIES}
-  )
+rclcpp_components_register_nodes(MrsMultirotorSimulator_Simulator PLUGIN "mrs_multirotor_simulator::MultirotorSimulator" EXECUTABLE MrsMultirotorSimulator_Simulator)
 
 ## --------------------------------------------------------------
-## |                           Install                          |
+## |                           install                          |
 ## --------------------------------------------------------------
 
-install(TARGETS ${LIBRARIES}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-  )
+install(TARGETS
+  MrsMultirotorSimulator_SimulatorSystemRos
+  MrsMultirotorSimulator_Simulator
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
 
-install(DIRECTORY launch config
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-  )
+install(DIRECTORY include/
+  DESTINATION include
+)
 
-install(DIRECTORY tmux/
-  USE_SOURCE_PERMISSIONS
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/tmux
-  )
+install(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
 
-install(DIRECTORY include/mrs_multirotor_simulator/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  )
+install(DIRECTORY config
+  DESTINATION share/${PROJECT_NAME}
+)
 
-install(DIRECTORY scripts/
-  USE_SOURCE_PERMISSIONS
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-  )
-
-install(DIRECTORY scripts
-  USE_SOURCE_PERMISSIONS
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-  )
-
-install(FILES nodelets.xml plugins.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-  )
+# this will export the include-related variables for use by other libraries
+# this is needed if you wish to include the headers from this pkg into downstream libraries
+ament_export_include_directories("include")
+ament_package()
