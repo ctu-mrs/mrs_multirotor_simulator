@@ -13,6 +13,7 @@
 
 #include <KDTreeVectorOfVectorsAdaptor.h>
 #include <Eigen/Dense>
+#include <vector>
 
 //}
 
@@ -121,10 +122,10 @@ MultirotorSimulator::MultirotorSimulator(rclcpp::NodeOptions options) : Node("mu
 
   cbgrp_main_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
-  mrs_lib::ParamLoader param_loader(node_, "MultirotorSimulator");
+  mrs_lib::ParamLoader param_loader{node_, std::string{"MultirotorSimulator"}};
 
   std::string custom_config_path;
-
+  
   param_loader.loadParam("custom_config", custom_config_path);
 
   if (custom_config_path != "") {

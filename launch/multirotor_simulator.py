@@ -56,7 +56,6 @@ def generate_launch_description():
                 plugin='mrs_multirotor_simulator::MultirotorSimulator',
                 namespace='',
                 name='multirotor_simulator',
-
                 parameters=[
                     {'config': pkg_share_path + '/config/multirotor_simulator.yaml'},
                     {'config_uavs': pkg_share_path + '/config/uavs.yaml'},

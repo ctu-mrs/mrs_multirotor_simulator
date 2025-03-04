@@ -14,7 +14,7 @@ namespace mrs_multirotor_simulator
 
     _uav_name_ = uav_name;
 
-    mrs_lib::ParamLoader param_loader(node, "UavSystemRos");
+    mrs_lib::ParamLoader param_loader{node, std::string{"UavSystemRos"}};
 
     std::string custom_config_path;
 
