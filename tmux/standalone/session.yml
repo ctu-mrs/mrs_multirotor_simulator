@@ -10,7 +10,7 @@ windows:
   - simulator:
       layout: tiled
       panes:
-        - custom_config=./custom_configs/simulator.yaml ros2 launch mrs_multirotor_simulator multirotor_simulator.py
+        - ros2 launch mrs_multirotor_simulator multirotor_simulator.py custom_config:=./custom_configs/simulator.yaml
   - goto:
       layout: tiled
       panes:

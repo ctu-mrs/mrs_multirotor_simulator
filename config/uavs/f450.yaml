@@ -32,5 +32,5 @@ f450:
     ]
 
     rpm:
-      min: 1360 # [revolutions/minute]
-      max: 9068 # [revolutions/minute]
+      min: 1360.0 # [revolutions/minute]
+      max: 9068.0 # [revolutions/minute]

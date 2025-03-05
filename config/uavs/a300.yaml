@@ -32,5 +32,5 @@ a300:
     ]
 
     rpm:
-      min: 3103 # [revolutions/minute]
-      max: 20689 # [revolutions/minute]
+      min: 3103.0 # [revolutions/minute]
+      max: 20689.0 # [revolutions/minute]

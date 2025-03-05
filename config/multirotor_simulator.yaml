@@ -17,7 +17,7 @@ frames:
     prefix_with_uav_name: false
   fcu:
     name: "fcu"
-    publish_tf: true
+    publish_tf: false
   rangefinder:
     name: "garmin"
     publish_tf: true

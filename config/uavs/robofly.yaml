@@ -32,5 +32,5 @@ robofly:
     ]
 
     rpm:
-      min: 2058 # [revolutions/minute]
-      max: 41160 # [revolutions/minute]
+      min: 2058.0 # [revolutions/minute]
+      max: 41160.0 # [revolutions/minute]

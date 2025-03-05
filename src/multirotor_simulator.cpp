@@ -36,7 +36,7 @@ private:
   rclcpp::CallbackGroup::SharedPtr cbgrp_main_;
 
   rclcpp::TimerBase::SharedPtr timer_init_;
-  void timerMain();
+  void                         timerMain();
 
   rclcpp::Node::SharedPtr  node_;
   rclcpp::Clock::SharedPtr clock_;
@@ -140,7 +140,7 @@ void MultirotorSimulator::timerInit() {
   mrs_lib::ParamLoader param_loader(node_, this->get_name());
 
   std::string custom_config_path;
-  
+
   param_loader.loadParam("custom_config", custom_config_path);
 
   if (custom_config_path != "") {
@@ -205,7 +205,7 @@ void MultirotorSimulator::timerInit() {
 
   // | ----------------------- publishers ----------------------- |
 
-  ph_clock_ = mrs_lib::PublisherHandler<rosgraph_msgs::msg::Clock>(node_, "clock_out");
+  ph_clock_ = mrs_lib::PublisherHandler<rosgraph_msgs::msg::Clock>(node_, "~/clock_out");
 
   ph_poses_ = mrs_lib::PublisherHandler<geometry_msgs::msg::PoseArray>(node_, "~/uav_poses_out");
 
