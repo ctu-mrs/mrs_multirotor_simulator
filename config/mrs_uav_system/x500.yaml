@@ -44,8 +44,8 @@ model_params:
     # inertia_matrix: []
 
     rpm:
-      min: 1170 # [revolutions/minute]
-      max: 7800 # [revolutions/minute]
+      min: 1170.0 # [revolutions/minute]
+      max: 7800.0 # [revolutions/minute]
 
 mrs_uav_managers:
 

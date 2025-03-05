@@ -1,0 +1,1 @@
+ros2 launch mrs_multirotor_simulator multirotor_simulator.py

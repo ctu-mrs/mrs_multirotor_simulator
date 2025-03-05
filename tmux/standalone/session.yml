@@ -7,14 +7,10 @@ tmux_options: -f /etc/ctu-mrs/tmux.conf
 # you can modify these
 startup_window: goto
 windows:
-  - roscore:
-      layout: tiled
-      panes:
-        - roscore
   - simulator:
       layout: tiled
       panes:
-        - waitForRos; roslaunch mrs_multirotor_simulator multirotor_simulator.launch custom_config:=./custom_configs/simulator.yaml
+        - custom_config=./custom_configs/simulator.yaml ros2 launch mrs_multirotor_simulator multirotor_simulator.py
   - goto:
       layout: tiled
       panes:
@@ -22,7 +18,7 @@ windows:
   - rviz:
       layout: tiled
       panes:
-        - waitForTime; rosrun rviz rviz -d ./rviz.rviz
+        - ros2 run rviz2 rviz2
   - layout:
       layout: tiled
       panes:

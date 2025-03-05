@@ -4,6 +4,7 @@
 		"floating": "auto_off",
 		"fullscreen_mode": 0,
 		"layout": "splith",
+		"marks": [],
 		"percent": 0.5,
 		"type": "con",
 		"nodes": [
@@ -11,28 +12,10 @@
 			"border": "normal",
 			"floating": "auto_off",
 			"layout": "splitv",
-			"percent": 1,
+			"marks": [],
+			"percent": 0.5,
 			"type": "con",
 			"nodes": [
-			{
-				"border": "pixel",
-				"current_border_width": 3,
-				"floating": "auto_off",
-				"geometry": {
-					"height": 686,
-					"width": 2530,
-					"x": 1932,
-					"y": 32
-				},
-				"name": "rviz.rviz* - RViz",
-				"percent": 0.5,
-				"swallows": [
-				{
-					"instance": "^rviz$"
-				}
-				],
-				"type": "con"
-			},
 			{
 				"border": "pixel",
 				"current_border_width": 3,
@@ -43,8 +26,9 @@
 					"x": 0,
 					"y": 0
 				},
-				"name": "./start.sh",
-				"percent": 0.5,
+				"marks": [],
+				"name": "runVim session.yml",
+				"percent": 1,
 				"swallows": [
 				{
 					"instance": "^urxvt$"
@@ -53,7 +37,27 @@
 				"type": "con"
 			}
 			]
+		},
+		{
+			"border": "pixel",
+			"current_border_width": 3,
+			"floating": "auto_off",
+			"geometry": {
+				"height": 1545,
+				"width": 2560,
+				"x": 0,
+				"y": 55
+			},
+			"marks": [],
+			"name": "/home/klaxalk/ws/src/mrs_multirotor_simulator/tmux/standalone/rviz.rviz* - RViz",
+			"percent": 0.5,
+			"swallows": [
+			{
+				"instance": "^rviz2$"
+			}
+			],
+			"type": "con"
 		}
-	]
+		]
 }
 ]

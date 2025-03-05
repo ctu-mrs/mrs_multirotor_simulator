@@ -2,6 +2,7 @@
 
 import launch
 import os
+import sys
 
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
@@ -36,7 +37,7 @@ def generate_launch_description():
     pkg_name = "mrs_multirotor_simulator"
 
     pkg_share_path = get_package_share_directory(pkg_name)
-    namespace='mrs_multirotor_simulator'
+    namespace='multirotor_simulator'
 
     param_files = load_custom_config("custom_config")
 
@@ -47,6 +48,8 @@ def generate_launch_description():
         package='rclcpp_components',
 
         executable='component_container_mt',
+
+        # prefix=['debug_roslaunch ' + os.ttyname(sys.stdout.fileno())],
 
         composable_node_descriptions=[
 
@@ -67,7 +70,7 @@ def generate_launch_description():
                     pkg_share_path + '/config/controllers/velocity_controller.yaml',
                     pkg_share_path + '/config/controllers/mixer.yaml',
                     pkg_share_path + '/config/uavs/x500.yaml',
-                ]
+                ],
 
                 # remappings=[
                 #     ("~/topic", "~/topic"),

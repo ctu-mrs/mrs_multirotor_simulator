@@ -10,9 +10,12 @@
 
 #include <mrs_lib/param_loader.h>
 #include <mrs_lib/publisher_handler.h>
+#include <mrs_lib/timer_handler.h>
 
 #include <KDTreeVectorOfVectorsAdaptor.h>
 #include <Eigen/Dense>
+
+using namespace std::chrono_literals;
 
 //}
 
@@ -31,9 +34,12 @@ public:
 private:
   rclcpp::CallbackGroup::SharedPtr cbgrp_main_;
 
+  rclcpp::TimerBase::SharedPtr timer_init_;
+  void timerMain();
+
   rclcpp::Node::SharedPtr  node_;
   rclcpp::Clock::SharedPtr clock_;
-  std::atomic<bool>        is_initialized_;
+  std::atomic<bool>        is_initialized_ = false;
 
   // | ------------------------- params ------------------------- |
 
@@ -49,7 +55,7 @@ private:
   // | ------------------------- timers ------------------------- |
 
   rclcpp::TimerBase::SharedPtr timer_main_;
-  void                         timerMain();
+  void                         timerInit();
 
   rclcpp::TimerBase::SharedPtr timer_status_;
   void                         timerStatus();
@@ -106,22 +112,31 @@ private:
 
 MultirotorSimulator::MultirotorSimulator(rclcpp::NodeOptions options) : Node("multirotor_simulator", options) {
 
-  is_initialized_ = false;
+  timer_init_ = create_wall_timer(std::chrono::duration<double>(0.1s), std::bind(&MultirotorSimulator::timerInit, this));
+}
+
+//}
+
+// | ------------------------- timers ------------------------- |
+
+/* timerInit() //{ */
+
+void MultirotorSimulator::timerInit() {
+
+  node_  = this->shared_from_this();
+  clock_ = node_->get_clock();
+
+  srand(time(NULL));
 
   /* if (!(nh_.hasParam("/use_sim_time"))) { */
   /*   nh_.setParam("/use_sim_time", true); */
   /* } */
 
-  srand(time(NULL));
-
-  node_  = rclcpp::Node::SharedPtr(this);
-  clock_ = node_->get_clock();
-
   RCLCPP_INFO(node_->get_logger(), "initializing");
 
   cbgrp_main_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
-  mrs_lib::ParamLoader param_loader(node_, "MultirotorSimulator");
+  mrs_lib::ParamLoader param_loader(node_, this->get_name());
 
   std::string custom_config_path;
 
@@ -148,9 +163,9 @@ MultirotorSimulator::MultirotorSimulator(rclcpp::NodeOptions options) : Node("mu
   param_loader.loadParam("sim_time_from_wall_time", sim_time_from_wall_time);
 
   if (sim_time_from_wall_time) {
-    sim_time_ = rclcpp::Time(clock_->now().seconds(), 0);
+    sim_time_ = clock_->now();
   } else {
-    sim_time_ = rclcpp::Time(0, 0);
+    sim_time_ = rclcpp::Time(0, 0, clock_->get_clock_type());
   }
 
   last_published_time_  = sim_time_;
@@ -171,6 +186,8 @@ MultirotorSimulator::MultirotorSimulator(rclcpp::NodeOptions options) : Node("mu
     uavs_.push_back(std::make_unique<UavSystemRos>(node_, uav_name));
   }
 
+  RCLCPP_INFO(node_->get_logger(), "all uavs initialized");
+
   // | --------------- dynamic reconfigure server --------------- |
 
   /* drs_.reset(new Drs_t(mutex_drs_, nh_)); */
@@ -189,7 +206,7 @@ MultirotorSimulator::MultirotorSimulator(rclcpp::NodeOptions options) : Node("mu
 
   ph_clock_ = mrs_lib::PublisherHandler<rosgraph_msgs::msg::Clock>(node_, "clock_out");
 
-  ph_poses_ = mrs_lib::PublisherHandler<geometry_msgs::msg::PoseArray>(node_, "uav_poses_out");
+  ph_poses_ = mrs_lib::PublisherHandler<geometry_msgs::msg::PoseArray>(node_, "~/uav_poses_out");
 
   // | ------------------------- timers ------------------------- |
 
@@ -203,11 +220,11 @@ MultirotorSimulator::MultirotorSimulator(rclcpp::NodeOptions options) : Node("mu
   is_initialized_ = true;
 
   RCLCPP_INFO(get_logger(), "initialized");
+
+  timer_init_->cancel();
 }
 
 //}
-
-// | ------------------------- timers ------------------------- |
 
 /* timerMain() //{ */
 
