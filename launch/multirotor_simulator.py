@@ -52,8 +52,9 @@ def generate_launch_description():
         namespace='',
         name=namespace+'_container',
         package='rclcpp_components',
-
         executable='component_container_mt',
+        output="screen",
+        # emulate_tty=True,
 
         # prefix=['debug_roslaunch ' + os.ttyname(sys.stdout.fileno())],
 
@@ -95,8 +96,6 @@ def generate_launch_description():
             )
 
         ],
-
-        output='screen',
 
     ))
 
