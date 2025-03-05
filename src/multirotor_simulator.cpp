@@ -14,6 +14,7 @@
 
 #include <KDTreeVectorOfVectorsAdaptor.h>
 #include <Eigen/Dense>
+#include <vector>
 
 using namespace std::chrono_literals;
 
@@ -139,7 +140,7 @@ void MultirotorSimulator::timerInit() {
   mrs_lib::ParamLoader param_loader(node_, this->get_name());
 
   std::string custom_config_path;
-
+  
   param_loader.loadParam("custom_config", custom_config_path);
 
   if (custom_config_path != "") {
