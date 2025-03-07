@@ -16,6 +16,8 @@
 #include <Eigen/Dense>
 #include <vector>
 
+#include <mrs_lib/scope_timer.h>
+
 using namespace std::chrono_literals;
 
 //}
@@ -41,6 +43,8 @@ private:
   rclcpp::Node::SharedPtr  node_;
   rclcpp::Clock::SharedPtr clock_;
   std::atomic<bool>        is_initialized_ = false;
+
+  std::shared_ptr<mrs_lib::ScopeTimerLogger> scope_timer_logger_;
 
   // | ------------------------- params ------------------------- |
 
@@ -96,7 +100,7 @@ private:
 
   OnSetParametersCallbackHandle::SharedPtr param_callback_handle_;
 
-  rcl_interfaces::msg::SetParametersResult callback_parameters(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult callbackParameters(std::vector<rclcpp::Parameter> parameters);
 
   struct drs_params
   {
@@ -124,12 +128,51 @@ MultirotorSimulator::MultirotorSimulator(rclcpp::NodeOptions options) : Node("mu
 
     range.from_value = 0.01;
     range.to_value   = 10.0;
-    range.step       = 0.01;
 
     param_desc.floating_point_range = {range};
-    param_desc.read_only            = false;
 
-    this->declare_parameter("realtime_factor", 1.0, param_desc);
+    param_desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE;
+
+    this->declare_parameter("dynamic/realtime_factor", 1.0, param_desc);
+  }
+
+  {
+    auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+
+    param_desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+
+    this->declare_parameter("dynamic/paused", false, param_desc);
+  }
+
+  {
+    auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+
+    param_desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+
+    this->declare_parameter("dynamic/collisions_enabled", false, param_desc);
+  }
+
+  {
+    auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+
+    param_desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+
+    this->declare_parameter("dynamic/collisions_crash", false, param_desc);
+  }
+
+  {
+    auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+
+    param_desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE;
+
+    rcl_interfaces::msg::FloatingPointRange range;
+
+    range.from_value = 0.0;
+    range.to_value   = 500.0;
+
+    param_desc.floating_point_range = {range};
+
+    this->declare_parameter("dynamic/collisions_rebounce", 1.0, param_desc);
   }
 
   timer_init_ = create_wall_timer(std::chrono::duration<double>(0.1s), std::bind(&MultirotorSimulator::timerInit, this));
@@ -177,12 +220,17 @@ void MultirotorSimulator::timerInit() {
   param_loader.loadParam("simulation_rate", _simulation_rate_);
 
   param_loader.loadParam("realtime_factor", drs_params_.realtime_factor);
-
-  this->set_parameter(rclcpp::Parameter("realtime_factor", drs_params_.realtime_factor));
+  this->set_parameter(rclcpp::Parameter("dynamic/realtime_factor", drs_params_.realtime_factor));
 
   param_loader.loadParam("collisions/enabled", drs_params_.collisions_enabled);
+  this->set_parameter(rclcpp::Parameter("dynamic/collisions_enabled", drs_params_.collisions_enabled));
+
   param_loader.loadParam("collisions/crash", drs_params_.collisions_crash);
+  this->set_parameter(rclcpp::Parameter("dynamic/collisions_crash", drs_params_.collisions_crash));
+
   param_loader.loadParam("collisions/rebounce", drs_params_.collisions_rebounce);
+  this->set_parameter(rclcpp::Parameter("dynamic/collisions_rebounce", drs_params_.collisions_rebounce));
+
   param_loader.loadParam("frames/world/name", _world_frame_name_);
 
   double clock_rate;
@@ -219,19 +267,14 @@ void MultirotorSimulator::timerInit() {
 
   // | --------------- dynamic reconfigure server --------------- |
 
-  /* drs_.reset(new Drs_t(mutex_drs_, nh_)); */
-  /* drs_->updateConfig(drs_params_); */
-  /* Drs_t::CallbackType f = boost::bind(&MultirotorSimulator::callbackDrs, this, _1, _2); */
-  /* drs_->setCallback(f); */
-
   if (!param_loader.loadedSuccessfully()) {
     RCLCPP_ERROR(get_logger(), "could not load all parameters!");
     rclcpp::shutdown();
   }
 
-  // | --------------- bind pararm server callback -------------- |
+  // | ----------- ---- bind param server callback -------------- |
 
-  param_callback_handle_ = add_on_set_parameters_callback(std::bind(&MultirotorSimulator::callback_parameters, this, std::placeholders::_1));
+  param_callback_handle_ = add_on_set_parameters_callback(std::bind(&MultirotorSimulator::callbackParameters, this, std::placeholders::_1));
 
   _clock_min_dt_ = 1.0 / clock_rate;
 
@@ -247,6 +290,10 @@ void MultirotorSimulator::timerInit() {
                                   std::bind(&MultirotorSimulator::timerMain, this), cbgrp_main_);
 
   timer_status_ = create_wall_timer(std::chrono::duration<double>(1.0 / (1.0)), std::bind(&MultirotorSimulator::timerStatus, this), cbgrp_main_);
+
+  // | ----------------------- scope timer ---------------------- |
+
+  scope_timer_logger_ = std::make_shared<mrs_lib::ScopeTimerLogger>(node_, "", false);
 
   // | ----------------------- finish init ---------------------- |
 
@@ -267,20 +314,37 @@ void MultirotorSimulator::timerMain() {
     return;
   }
 
-  RCLCPP_INFO_ONCE(get_logger(), "timerMain() spinning");
+  mrs_lib::ScopeTimer timer = mrs_lib::ScopeTimer(node_, "timerMain()", scope_timer_logger_, false);
+
+  RCLCPP_INFO(get_logger(), "timerMain() spinning");
 
   double simulation_step_size = 1.0 / _simulation_rate_;
 
   // step the time
   sim_time_ = sim_time_ + rclcpp::Duration(std::chrono::duration<double>(simulation_step_size));
 
+  timer.checkpoint("before makeStep()");
+
   for (size_t i = 0; i < uavs_.size(); i++) {
+
+    std::stringstream ss;
+
+    ss << i;
+
+    /* timer.checkpoint("makeStep() uav " + ss.str()); */
+
     uavs_.at(i)->makeStep(simulation_step_size);
   }
 
+  timer.checkpoint("publishing");
+
   publishPoses();
 
+  timer.checkpoint("checking collisions");
+
   handleCollisions();
+
+  timer.checkpoint("publishing time");
 
   // | ---------------------- publish time ---------------------- |
 
@@ -323,40 +387,9 @@ void MultirotorSimulator::timerStatus() {
 
 //}
 
-/* /1* callbackDrs() //{ *1/ */
+/* callbackParameters() //{ */
 
-/* void MultirotorSimulator::callbackDrs(mrs_multirotor_simulator::multirotor_simulatorConfig& config, [[maybe_unused]] uint32_t level) { */
-
-/*   { */
-/*     // | ----------------- pausing the simulation ----------------- | */
-
-/*     auto old_params = mrs_lib::get_mutexed(mutex_drs_params_, drs_params_); */
-
-/*     if (!old_params.paused && config.paused) { */
-/*       timer_main_.stop(); */
-/*     } else if (old_params.paused && !config.paused) { */
-/*       timer_main_.start(); */
-/*     } */
-/*   } */
-
-/*   // | --------------------- save the params -------------------- | */
-
-/*   { */
-/*     std::scoped_lock lock(mutex_drs_params_); */
-
-/*     drs_params_ = config; */
-/*   } */
-
-/*   // | ----------------- set the realtime factor ---------------- | */
-
-/*   timer_main_.setPeriod(ros::WallDuration(1.0 / (_simulation_rate_ * config.realtime_factor)), true); */
-
-/*   ROS_INFO("[MultirotorSimulator]: DRS updated params"); */
-/* } */
-
-/* //} */
-
-rcl_interfaces::msg::SetParametersResult MultirotorSimulator::callback_parameters(std::vector<rclcpp::Parameter> parameters) {
+rcl_interfaces::msg::SetParametersResult MultirotorSimulator::callbackParameters(std::vector<rclcpp::Parameter> parameters) {
 
   rcl_interfaces::msg::SetParametersResult result;
 
@@ -368,16 +401,39 @@ rcl_interfaces::msg::SetParametersResult MultirotorSimulator::callback_parameter
 
     RCLCPP_INFO_STREAM(get_logger(), "got parameter: '" << param.get_name() << "' with value '" << param.value_to_string() << "'");
 
-    if (param.get_name() == "realtime_factor") {
+    if (param.get_name() == "dynamic/paused") {
+
+      if (drs_params.paused && !param.as_bool()) {
+
+        timer_main_ = create_wall_timer(std::chrono::duration<double>(1.0 / (_simulation_rate_ * drs_params.realtime_factor)),
+                                        std::bind(&MultirotorSimulator::timerMain, this), cbgrp_main_);
+
+      } else if (!drs_params.paused && param.as_bool()) {
+        timer_main_->cancel();
+      }
+
+      drs_params.paused = param.as_bool();
+
+    } else if (param.get_name() == "dynamic/realtime_factor") {
 
       drs_params.realtime_factor = param.as_double();
-
-      RCLCPP_INFO(node_->get_logger(), "rtf updated to %.3f", drs_params.realtime_factor);
 
       timer_main_->cancel();
 
       timer_main_ = create_wall_timer(std::chrono::duration<double>(1.0 / (_simulation_rate_ * drs_params.realtime_factor)),
-                                  std::bind(&MultirotorSimulator::timerMain, this), cbgrp_main_);
+                                      std::bind(&MultirotorSimulator::timerMain, this), cbgrp_main_);
+
+    } else if (param.get_name() == "dynamic/collisions_crash") {
+
+      drs_params.collisions_crash = param.as_bool();
+
+    } else if (param.get_name() == "dynamic/collisions_enabled") {
+
+      drs_params.collisions_enabled = param.as_bool();
+
+    } else if (param.get_name() == "dynamic/collisions_rebounce") {
+
+      drs_params.collisions_rebounce = param.as_double();
 
     } else {
 
@@ -396,6 +452,8 @@ rcl_interfaces::msg::SetParametersResult MultirotorSimulator::callback_parameter
 
   return result;
 }
+
+//}
 
 /* handleCollisions() //{ */
 

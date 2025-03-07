@@ -23,10 +23,15 @@ class Goto(Node):
             topic_name = f'/multirotor_simulator/uav{i+1}/position_cmd'
             self.pub.append(self.create_publisher(HwApiPositionCmd, topic_name, 10))
 
-        self.xs = [random.uniform(-40, 40) for _ in range(self.n_uavs)]
-        self.ys = [random.uniform(-40, 40) for _ in range(self.n_uavs)]
-        self.zs = [random.uniform(2, 20) for _ in range(self.n_uavs)]
-        self.hdgs = [random.uniform(-3.14, 3.14) for _ in range(self.n_uavs)]
+        # self.xs = [random.uniform(-40, 40) for _ in range(self.n_uavs)]
+        # self.ys = [random.uniform(-40, 40) for _ in range(self.n_uavs)]
+        # self.zs = [random.uniform(2, 20) for _ in range(self.n_uavs)]
+        # self.hdgs = [random.uniform(-3.14, 3.14) for _ in range(self.n_uavs)]
+
+        self.xs = [0.0 for _ in range(self.n_uavs)]
+        self.ys = [0.0 for _ in range(self.n_uavs)]
+        self.zs = [10.0 for _ in range(self.n_uavs)]
+        self.hdgs = [0.0 for _ in range(self.n_uavs)]
 
         self.timer = self.create_timer(0.05, self.publish_positions)  # 10Hz
 

@@ -270,16 +270,15 @@ void UavSystemRos::makeStep(const double dt) {
 
       timeoutInput();
 
-      {
-        std::scoped_lock lock(mutex_time_last_input_);
-        time_last_input_ = rclcpp::Time(0, 0, clock_->get_clock_type());
-      }
+      time_last_input = rclcpp::Time(0, 0, clock_->get_clock_type());
+
+      mrs_lib::set_mutexed(mutex_time_last_input_, time_last_input, time_last_input_);
     }
   }
 
   // | --------------------- model iteration -------------------- |
 
-  if (_iterate_without_input_ || time_last_input_.seconds() > 0) {
+  if (_iterate_without_input_ || time_last_input.seconds() > 0) {
 
     std::scoped_lock lock(mutex_uav_system_);
 
