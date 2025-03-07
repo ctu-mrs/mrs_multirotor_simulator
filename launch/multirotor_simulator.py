@@ -47,6 +47,34 @@ def generate_launch_description():
             else_value=custom_config
     )
 
+    mrs_multirotor_simulator_configs = [
+        # general configs
+        pkg_share_path + '/config/multirotor_simulator.yaml',
+        # uavs to load
+        pkg_share_path + '/config/uavs.yaml',
+    ]
+
+    mrs_multirotor_simulator_uav_configs = [
+        # general configs
+        pkg_share_path + '/config/multirotor_simulator.yaml',
+        pkg_share_path + '/config/controllers/attitude_controller.yaml',
+        pkg_share_path + '/config/controllers/rate_controller.yaml',
+        pkg_share_path + '/config/controllers/position_controller.yaml',
+        pkg_share_path + '/config/controllers/velocity_controller.yaml',
+        pkg_share_path + '/config/controllers/mixer.yaml',
+        # the UAV configs
+        pkg_share_path + '/config/uavs/a300.yaml',
+        pkg_share_path + '/config/uavs/f330.yaml',
+        pkg_share_path + '/config/uavs/f450.yaml',
+        pkg_share_path + '/config/uavs/f550.yaml',
+        pkg_share_path + '/config/uavs/naki.yaml',
+        pkg_share_path + '/config/uavs/robofly.yaml',
+        pkg_share_path + '/config/uavs/t650.yaml',
+        pkg_share_path + '/config/uavs/x500.yaml',
+        # uavs to load
+        pkg_share_path + '/config/uavs.yaml',
+    ]
+
     ld.add_action(ComposableNodeContainer(
 
         namespace='',
@@ -54,7 +82,6 @@ def generate_launch_description():
         package='rclcpp_components',
         executable='component_container_mt',
         output="screen",
-        # emulate_tty=True,
 
         # prefix=['debug_roslaunch ' + os.ttyname(sys.stdout.fileno())],
 
@@ -67,27 +94,9 @@ def generate_launch_description():
                 namespace='',
                 name='multirotor_simulator',
                 parameters=[
-                    # the main config
-                    {'config': pkg_share_path + '/config/multirotor_simulator.yaml'},
-                    # control pipeline configs
-                    pkg_share_path + '/config/controllers/attitude_controller.yaml',
-                    pkg_share_path + '/config/controllers/rate_controller.yaml',
-                    pkg_share_path + '/config/controllers/position_controller.yaml',
-                    pkg_share_path + '/config/controllers/velocity_controller.yaml',
-                    pkg_share_path + '/config/controllers/mixer.yaml',
-                    # the UAV configs
-                    pkg_share_path + '/config/uavs/a300.yaml',
-                    pkg_share_path + '/config/uavs/f330.yaml',
-                    pkg_share_path + '/config/uavs/f450.yaml',
-                    pkg_share_path + '/config/uavs/f550.yaml',
-                    pkg_share_path + '/config/uavs/naki.yaml',
-                    pkg_share_path + '/config/uavs/robofly.yaml',
-                    pkg_share_path + '/config/uavs/t650.yaml',
-                    pkg_share_path + '/config/uavs/x500.yaml',
-                    # the list of uavs to be spawned
-                    {'config_uavs': pkg_share_path + '/config/uavs.yaml'},
-                    # custom config
-                    {'custom_config': custom_config}
+                    {'simulator_configs': mrs_multirotor_simulator_configs},
+                    {'uav_configs': mrs_multirotor_simulator_uav_configs},
+                    {'custom_config': custom_config},
                 ],
 
                 remappings=[

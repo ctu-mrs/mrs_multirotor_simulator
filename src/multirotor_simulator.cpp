@@ -123,11 +123,11 @@ MultirotorSimulator::MultirotorSimulator(rclcpp::NodeOptions options) : Node("mu
     rcl_interfaces::msg::FloatingPointRange range;
 
     range.from_value = 0.01;
-    range.to_value = 10.0;
-    range.step = 0.01;
+    range.to_value   = 10.0;
+    range.step       = 0.01;
 
     param_desc.floating_point_range = {range};
-    param_desc.read_only = false;
+    param_desc.read_only            = false;
 
     this->declare_parameter("realtime_factor", 1.0, param_desc);
   }
@@ -148,29 +148,38 @@ void MultirotorSimulator::timerInit() {
 
   srand(time(NULL));
 
-  /* if (!(nh_.hasParam("/use_sim_time"))) { */
-  /*   nh_.setParam("/use_sim_time", true); */
-  /* } */
-
   RCLCPP_INFO(node_->get_logger(), "initializing");
 
   cbgrp_main_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
   mrs_lib::ParamLoader param_loader(node_, this->get_name());
 
-  std::string custom_config_path;
+  // load custom config
 
+  std::string custom_config_path;
   param_loader.loadParam("custom_config", custom_config_path);
 
   if (custom_config_path != "") {
+    RCLCPP_INFO(node_->get_logger(), "loading custom config '%s", custom_config_path.c_str());
     param_loader.addYamlFile(custom_config_path);
   }
 
-  param_loader.addYamlFileFromParam("config");
-  param_loader.addYamlFileFromParam("config_uavs");
+  // load other configs
+
+  std::vector<std::string> config_files;
+  param_loader.loadParam("simulator_configs", config_files);
+
+  for (auto config_file : config_files) {
+    RCLCPP_INFO(node_->get_logger(), "loading config file '%s'", config_file.c_str());
+    param_loader.addYamlFile(config_file);
+  }
 
   param_loader.loadParam("simulation_rate", _simulation_rate_);
+
   param_loader.loadParam("realtime_factor", drs_params_.realtime_factor);
+
+  this->set_parameter(rclcpp::Parameter("realtime_factor", drs_params_.realtime_factor));
+
   param_loader.loadParam("collisions/enabled", drs_params_.collisions_enabled);
   param_loader.loadParam("collisions/crash", drs_params_.collisions_crash);
   param_loader.loadParam("collisions/rebounce", drs_params_.collisions_rebounce);
@@ -364,6 +373,11 @@ rcl_interfaces::msg::SetParametersResult MultirotorSimulator::callback_parameter
       drs_params.realtime_factor = param.as_double();
 
       RCLCPP_INFO(node_->get_logger(), "rtf updated to %.3f", drs_params.realtime_factor);
+
+      timer_main_->cancel();
+
+      timer_main_ = create_wall_timer(std::chrono::duration<double>(1.0 / (_simulation_rate_ * drs_params.realtime_factor)),
+                                  std::bind(&MultirotorSimulator::timerMain, this), cbgrp_main_);
 
     } else {
 

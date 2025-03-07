@@ -12,8 +12,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-add_compile_options(-O0)
-add_compile_options(-g)
+add_compile_options(-O3)
+# add_compile_options(-g)
 
 set(DEPENDENCIES
   ament_cmake

@@ -16,16 +16,25 @@ UavSystemRos::UavSystemRos(const rclcpp::Node::SharedPtr &node, const std::strin
 
   mrs_lib::ParamLoader param_loader(node, node->get_name() + std::string("_") + uav_name);
 
-  std::string custom_config_path;
+  // load custom config
 
+  std::string custom_config_path;
   param_loader.loadParam("custom_config", custom_config_path);
 
   if (custom_config_path != "") {
+    RCLCPP_INFO(node_->get_logger(), "[%s] loading custom config '%s", uav_name.c_str(), custom_config_path.c_str());
     param_loader.addYamlFile(custom_config_path);
   }
 
-  param_loader.addYamlFileFromParam("config");
-  param_loader.addYamlFileFromParam("config_uavs");
+  // load other configs
+
+  std::vector<std::string> config_files;
+  param_loader.loadParam("uav_configs", config_files);
+
+  for (auto config_file : config_files) {
+    RCLCPP_INFO(node_->get_logger(), "[%s] loading config file '%s'", uav_name.c_str(), config_file.c_str());
+    param_loader.addYamlFile(config_file);
+  }
 
   std::string type;
   param_loader.loadParam(uav_name + "/type", type);

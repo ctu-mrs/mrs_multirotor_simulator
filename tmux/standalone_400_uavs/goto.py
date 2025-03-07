@@ -15,7 +15,7 @@ class Goto(Node):
         self.get_logger().info('ROS2 node initialized')
 
         self.pub = []
-        self.n_uavs = 1
+        self.n_uavs = 400
 
         self.get_logger().info('Setting up publishers')
 
@@ -28,11 +28,13 @@ class Goto(Node):
         self.zs = [random.uniform(2, 20) for _ in range(self.n_uavs)]
         self.hdgs = [random.uniform(-3.14, 3.14) for _ in range(self.n_uavs)]
 
-        self.timer = self.create_timer(0.1, self.publish_positions)  # 10Hz
+        self.timer = self.create_timer(0.05, self.publish_positions)  # 10Hz
 
         self.get_logger().info('Publishing started')
 
     def publish_positions(self):
+
+        self.get_logger().info('Publishing')
 
         msg = HwApiPositionCmd()
 

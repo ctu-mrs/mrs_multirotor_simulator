@@ -1,0 +1,29 @@
+# do not modify these
+root: ./
+name: simulation
+socket_name: mrs
+attach: false
+tmux_options: -f /etc/ctu-mrs/tmux.conf
+# you can modify these
+startup_window: goto
+windows:
+  - simulator:
+      layout: tiled
+      panes:
+        - ros2 launch mrs_multirotor_simulator multirotor_simulator.py custom_config:=./custom_configs/simulator.yaml
+  - goto:
+      layout: tiled
+      panes:
+        - 'history -s ./goto.py'
+  - rviz:
+      layout: tiled
+      panes:
+        - ros2 run rviz2 rviz2
+  - reconfigure:
+      layout: tiled
+      panes:
+        - ros2 run rqt_reconfigure rqt_reconfigure
+  - layout:
+      layout: tiled
+      panes:
+        - sleep 5.0; ~/.i3/layout_manager.sh ./layout.json
