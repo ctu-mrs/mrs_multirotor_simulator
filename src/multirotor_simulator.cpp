@@ -94,6 +94,10 @@ private:
   /* DrsConfig_t                                                  drs_params_; */
   /* std::mutex                                                   mutex_drs_params_; */
 
+  OnSetParametersCallbackHandle::SharedPtr param_callback_handle_;
+
+  rcl_interfaces::msg::SetParametersResult callback_parameters(std::vector<rclcpp::Parameter> parameters);
+
   struct drs_params
   {
     double realtime_factor     = 1.0;
@@ -111,7 +115,22 @@ private:
 
 /* MultirotorSimulator::MultirotorSimulator() //{ */
 
-MultirotorSimulator::MultirotorSimulator(rclcpp::NodeOptions options) : Node("multirotor_simulator", options) {
+MultirotorSimulator::MultirotorSimulator(rclcpp::NodeOptions options) : Node("multirotor_simulator", options.allow_undeclared_parameters(true)) {
+
+  {
+    auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+
+    rcl_interfaces::msg::FloatingPointRange range;
+
+    range.from_value = 0.01;
+    range.to_value = 10.0;
+    range.step = 0.01;
+
+    param_desc.floating_point_range = {range};
+    param_desc.read_only = false;
+
+    this->declare_parameter("realtime_factor", 1.0, param_desc);
+  }
 
   timer_init_ = create_wall_timer(std::chrono::duration<double>(0.1s), std::bind(&MultirotorSimulator::timerInit, this));
 }
@@ -200,6 +219,10 @@ void MultirotorSimulator::timerInit() {
     RCLCPP_ERROR(get_logger(), "could not load all parameters!");
     rclcpp::shutdown();
   }
+
+  // | --------------- bind pararm server callback -------------- |
+
+  param_callback_handle_ = add_on_set_parameters_callback(std::bind(&MultirotorSimulator::callback_parameters, this, std::placeholders::_1));
 
   _clock_min_dt_ = 1.0 / clock_rate;
 
@@ -323,6 +346,42 @@ void MultirotorSimulator::timerStatus() {
 /* } */
 
 /* //} */
+
+rcl_interfaces::msg::SetParametersResult MultirotorSimulator::callback_parameters(std::vector<rclcpp::Parameter> parameters) {
+
+  rcl_interfaces::msg::SetParametersResult result;
+
+  auto drs_params = mrs_lib::get_mutexed(mutex_drs_params_, drs_params_);
+
+  // Note that setting a parameter to a nonsensical value (such as setting the `param_namespace.floating_number` parameter to `hello`)
+  // doesn't have any effect - it doesn't even call this callback.
+  for (auto& param : parameters) {
+
+    RCLCPP_INFO_STREAM(get_logger(), "got parameter: '" << param.get_name() << "' with value '" << param.value_to_string() << "'");
+
+    if (param.get_name() == "realtime_factor") {
+
+      drs_params.realtime_factor = param.as_double();
+
+      RCLCPP_INFO(node_->get_logger(), "rtf updated to %.3f", drs_params.realtime_factor);
+
+    } else {
+
+      RCLCPP_WARN_STREAM(get_logger(), "parameter: '" << param.get_name() << "' is not dynamically reconfigurable!");
+      result.successful = false;
+      result.reason     = "Parameter '" + param.get_name() + "' is not dynamically reconfigurable!";
+      return result;
+    }
+  }
+
+  RCLCPP_INFO(get_logger(), "params updated");
+  result.successful = true;
+  result.reason     = "OK";
+
+  mrs_lib::set_mutexed(mutex_drs_params_, drs_params, drs_params_);
+
+  return result;
+}
 
 /* handleCollisions() //{ */
 
