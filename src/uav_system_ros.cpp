@@ -5,16 +5,16 @@ namespace mrs_multirotor_simulator
 
 /* UavSystemRos() //{ */
 
-UavSystemRos::UavSystemRos(const rclcpp::Node::SharedPtr &node, const std::string uav_name) {
+UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) {
 
-  node_  = node;
-  clock_ = node->get_clock();
+  node_  = common_handlers.node;
+  clock_ = node_->get_clock();
 
   time_last_input_ = rclcpp::Time(0, 0, clock_->get_clock_type());
 
-  _uav_name_ = uav_name;
+  _uav_name_ = common_handlers.uav_name;
 
-  mrs_lib::ParamLoader param_loader(node, node->get_name() + std::string("_") + uav_name);
+  mrs_lib::ParamLoader param_loader(node_, node_->get_name() + std::string("_") + _uav_name_);
 
   // load custom config
 
@@ -22,7 +22,7 @@ UavSystemRos::UavSystemRos(const rclcpp::Node::SharedPtr &node, const std::strin
   param_loader.loadParam("custom_config", custom_config_path);
 
   if (custom_config_path != "") {
-    RCLCPP_INFO(node_->get_logger(), "[%s] loading custom config '%s", uav_name.c_str(), custom_config_path.c_str());
+    RCLCPP_INFO(node_->get_logger(), "[%s] loading custom config '%s", _uav_name_.c_str(), custom_config_path.c_str());
     param_loader.addYamlFile(custom_config_path);
   }
 
@@ -32,12 +32,12 @@ UavSystemRos::UavSystemRos(const rclcpp::Node::SharedPtr &node, const std::strin
   param_loader.loadParam("uav_configs", config_files);
 
   for (auto config_file : config_files) {
-    RCLCPP_INFO(node_->get_logger(), "[%s] loading config file '%s'", uav_name.c_str(), config_file.c_str());
+    RCLCPP_INFO(node_->get_logger(), "[%s] loading config file '%s'", _uav_name_.c_str(), config_file.c_str());
     param_loader.addYamlFile(config_file);
   }
 
   std::string type;
-  param_loader.loadParam(uav_name + "/type", type);
+  param_loader.loadParam(_uav_name_ + "/type", type);
 
   // | --------------------- general params --------------------- |
 
@@ -46,19 +46,19 @@ UavSystemRos::UavSystemRos(const rclcpp::Node::SharedPtr &node, const std::strin
   param_loader.loadParam("frames/world/prefix_with_uav_name", prefix_world_name);
 
   if (prefix_world_name) {
-    _frame_world_ = uav_name + "/" + _frame_world_;
+    _frame_world_ = _uav_name_ + "/" + _frame_world_;
   }
 
   param_loader.loadParam("frames/rangefinder/name", _frame_rangefinder_);
 
-  _frame_rangefinder_ = uav_name + "/" + _frame_rangefinder_;
+  _frame_rangefinder_ = _uav_name_ + "/" + _frame_rangefinder_;
 
   param_loader.loadParam("frames/rangefinder/publish_tf", _publish_rangefinder_tf_);
   param_loader.loadParam("frames/fcu/publish_tf", _publish_fcu_tf_);
 
   param_loader.loadParam("frames/fcu/name", _frame_fcu_);
 
-  _frame_fcu_ = uav_name + "/" + _frame_fcu_;
+  _frame_fcu_ = _uav_name_ + "/" + _frame_fcu_;
 
   param_loader.loadParam("g", model_params_.g);
   param_loader.loadParam("iterate_without_input", _iterate_without_input_);
@@ -88,10 +88,10 @@ UavSystemRos::UavSystemRos(const rclcpp::Node::SharedPtr &node, const std::strin
   double spawn_z;
   double spawn_heading;
 
-  param_loader.loadParam(uav_name + "/spawn/x", spawn_x);
-  param_loader.loadParam(uav_name + "/spawn/y", spawn_y);
-  param_loader.loadParam(uav_name + "/spawn/z", spawn_z);
-  param_loader.loadParam(uav_name + "/spawn/heading", spawn_heading);
+  param_loader.loadParam(_uav_name_ + "/spawn/x", spawn_x);
+  param_loader.loadParam(_uav_name_ + "/spawn/y", spawn_y);
+  param_loader.loadParam(_uav_name_ + "/spawn/z", spawn_z);
+  param_loader.loadParam(_uav_name_ + "/spawn/heading", spawn_heading);
 
   param_loader.loadParam("randomization/enabled", _randomization_enabled_);
   param_loader.loadParam("randomization/bounds/x", _randomization_bounds_x_);
@@ -175,60 +175,68 @@ UavSystemRos::UavSystemRos(const rclcpp::Node::SharedPtr &node, const std::strin
 
   // | ----------------------- publishers ----------------------- |
 
-  ph_imu_         = mrs_lib::PublisherHandler<sensor_msgs::msg::Imu>(node, "~/" + uav_name + "/imu");
-  ph_odom_        = mrs_lib::PublisherHandler<nav_msgs::msg::Odometry>(node, "~/" + uav_name + "/odom");
-  ph_rangefinder_ = mrs_lib::PublisherHandler<sensor_msgs::msg::Range>(node, "~/" + uav_name + "/rangefinder");
+  ph_imu_         = mrs_lib::PublisherHandler<sensor_msgs::msg::Imu>(node_, "~/" + _uav_name_ + "/imu");
+  ph_odom_        = mrs_lib::PublisherHandler<nav_msgs::msg::Odometry>(node_, "~/" + _uav_name_ + "/odom");
+  ph_rangefinder_ = mrs_lib::PublisherHandler<sensor_msgs::msg::Range>(node_, "~/" + _uav_name_ + "/rangefinder");
 
   // | ----------------------- subscribers ---------------------- |
 
+  cbgrp_subs_ = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+
   mrs_lib::SubscriberHandlerOptions shopts;
-  shopts.node               = node;
-  shopts.node_name          = _uav_name_;
-  shopts.no_message_timeout = mrs_lib::no_timeout;
-  shopts.threadsafe         = true;
-  shopts.autostart          = true;
+  shopts.node                                = node_;
+  shopts.node_name                           = _uav_name_;
+  shopts.no_message_timeout                  = mrs_lib::no_timeout;
+  shopts.threadsafe                          = true;
+  shopts.autostart                           = true;
+  shopts.subscription_options.callback_group = cbgrp_subs_;
+  shopts.qos                                 = rclcpp::SystemDefaultsQoS();
 
-  sh_actuator_cmd_ =
-      mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiActuatorCmd>(shopts, "~/" + uav_name + "/actuators_cmd", &UavSystemRos::callbackActuatorCmd, this);
+  /* sh_actuator_cmd_ = */
+  /*     mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiActuatorCmd>(shopts, "~/" + _uav_name_ + "/actuators_cmd", &UavSystemRos::callbackActuatorCmd, this); */
 
-  sh_control_group_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiControlGroupCmd>(shopts, "~/" + uav_name + "/control_group_cmd",
-                                                                                          &UavSystemRos::callbackControlGroupCmd, this);
+  /* sh_control_group_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiControlGroupCmd>(shopts, "~/" + _uav_name_ + "/control_group_cmd", */
+  /*                                                                                         &UavSystemRos::callbackControlGroupCmd, this); */
 
-  sh_attitude_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAttitudeRateCmd>(shopts, "~/" + uav_name + "/attitude_rate_cmd",
-                                                                                          &UavSystemRos::callbackAttitudeRateCmd, this);
+  /* sh_attitude_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAttitudeRateCmd>(shopts, "~/" + _uav_name_ + "/attitude_rate_cmd", */
+  /*                                                                                         &UavSystemRos::callbackAttitudeRateCmd, this); */
 
-  sh_attitude_cmd_ =
-      mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAttitudeCmd>(shopts, "~/" + uav_name + "/attitude_cmd", &UavSystemRos::callbackAttitudeCmd, this);
+  /* sh_attitude_cmd_ = */
+  /*     mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAttitudeCmd>(shopts, "~/" + _uav_name_ + "/attitude_cmd", &UavSystemRos::callbackAttitudeCmd, this); */
 
-  sh_acceleration_hdg_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAccelerationHdgCmd>(shopts, "~/" + uav_name + "/acceleration_hdg_cmd",
+  sh_acceleration_hdg_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAccelerationHdgCmd>(shopts, "~/" + _uav_name_ + "/acceleration_hdg_cmd",
                                                                                                 &UavSystemRos::callbackAccelerationHdgCmd, this);
 
-  sh_acceleration_hdg_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAccelerationHdgRateCmd>(shopts, "~/" + uav_name + "/acceleration_hdg_rate_cmd",
-                                                                                                         &UavSystemRos::callbackAccelerationHdgRateCmd, this);
+  sh_acceleration_hdg_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAccelerationHdgRateCmd>(
+      shopts, "~/" + _uav_name_ + "/acceleration_hdg_rate_cmd", &UavSystemRos::callbackAccelerationHdgRateCmd, this);
 
-  sh_velocity_hdg_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiVelocityHdgCmd>(shopts, "~/" + uav_name + "/velocity_hdg_cmd",
+  sh_velocity_hdg_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiVelocityHdgCmd>(shopts, "~/" + _uav_name_ + "/velocity_hdg_cmd",
                                                                                         &UavSystemRos::callbackVelocityHdgCmd, this);
 
-  sh_velocity_hdg_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiVelocityHdgRateCmd>(shopts, "~/" + uav_name + "/velocity_hdg_rate_cmd",
-                                                                                                 &UavSystemRos::callbackVelocityHdgRateCmd, this);
+  /* sh_velocity_hdg_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiVelocityHdgRateCmd>(shopts, "~/" + _uav_name_ + "/velocity_hdg_rate_cmd", */
+  /*                                                                                                &UavSystemRos::callbackVelocityHdgRateCmd, this); */
 
   sh_position_cmd_ =
-      mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiPositionCmd>(shopts, "~/" + uav_name + "/position_cmd", &UavSystemRos::callbackPositionCmd, this);
+      mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiPositionCmd>(shopts, "~/" + _uav_name_ + "/position_cmd", &UavSystemRos::callbackPositionCmd, this);
 
-  sh_tracker_cmd_ =
-      mrs_lib::SubscriberHandler<mrs_msgs::msg::TrackerCommand>(shopts, "~/" + uav_name + "/tracker_cmd", &UavSystemRos::callbackTrackerCmd, this);
+  /* sh_tracker_cmd_ = */
+  /*     mrs_lib::SubscriberHandler<mrs_msgs::msg::TrackerCommand>(shopts, "~/" + _uav_name_ + "/tracker_cmd", &UavSystemRos::callbackTrackerCmd, this); */
 
   // | --------------------- tf broadcaster --------------------- |
 
-  tf_broadcaster_ = std::make_shared<mrs_lib::TransformBroadcaster>(node_);
+  if (common_handlers.transform_broadcaster) {
+    tf_broadcaster_ = common_handlers.transform_broadcaster.value();
+  } else {
+    tf_broadcaster_ = std::make_shared<mrs_lib::TransformBroadcaster>(node_);
+  }
 
   // | --------------------- service servers -------------------- |
 
   service_server_set_mass_ = node_->create_service<mrs_msgs::srv::Float64Srv>(
-      "~/" + uav_name + "/set_mass", std::bind(&UavSystemRos::callbackSetMass, this, std::placeholders::_1, std::placeholders::_2));
+      "~/" + _uav_name_ + "/set_mass", std::bind(&UavSystemRos::callbackSetMass, this, std::placeholders::_1, std::placeholders::_2));
 
   service_server_set_ground_z_ = node_->create_service<mrs_msgs::srv::Float64Srv>(
-      "~/" + uav_name + "/set_ground_z", std::bind(&UavSystemRos::callbackSetGroundZ, this, std::placeholders::_1, std::placeholders::_2));
+      "~/" + _uav_name_ + "/set_ground_z", std::bind(&UavSystemRos::callbackSetGroundZ, this, std::placeholders::_1, std::placeholders::_2));
 
   // | ------------------ first model iteration ----------------- |
 

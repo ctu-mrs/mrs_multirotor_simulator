@@ -18,6 +18,8 @@
 
 #include <mrs_lib/scope_timer.h>
 
+#include <mrs_multirotor_simulator/rate_counter.h>
+
 using namespace std::chrono_literals;
 
 //}
@@ -89,14 +91,7 @@ private:
 
   void publishPoses(void);
 
-  /* // | --------------- dynamic reconfigure server --------------- | */
-  /* boost::recursive_mutex                                       mutex_drs_; */
-  /* typedef mrs_multirotor_simulator::multirotor_simulatorConfig DrsConfig_t; */
-  /* typedef dynamic_reconfigure::Server<DrsConfig_t>             Drs_t; */
-  /* boost::shared_ptr<Drs_t>                                     drs_; */
-  /* void                                                         callbackDrs(mrs_multirotor_simulator::multirotor_simulatorConfig& config, uint32_t level); */
-  /* DrsConfig_t                                                  drs_params_; */
-  /* std::mutex                                                   mutex_drs_params_; */
+  std::shared_ptr<mrs_lib::TransformBroadcaster> tf_broadcaster_;
 
   OnSetParametersCallbackHandle::SharedPtr param_callback_handle_;
 
@@ -250,6 +245,8 @@ void MultirotorSimulator::timerInit() {
 
   drs_params_.paused = false;
 
+  tf_broadcaster_ = std::make_shared<mrs_lib::TransformBroadcaster>(node_);
+
   std::vector<std::string> uav_names;
 
   param_loader.loadParam("uav_names", uav_names);
@@ -260,7 +257,13 @@ void MultirotorSimulator::timerInit() {
 
     RCLCPP_INFO(get_logger(), "initializing '%s'", uav_name.c_str());
 
-    uavs_.push_back(std::make_unique<UavSystemRos>(node_, uav_name));
+    UavSystemRos_CommonHandlers_t common_handlers;
+
+    common_handlers.node                  = node_;
+    common_handlers.uav_name              = uav_name;
+    common_handlers.transform_broadcaster = tf_broadcaster_;
+
+    uavs_.push_back(std::make_unique<UavSystemRos>(common_handlers));
   }
 
   RCLCPP_INFO(node_->get_logger(), "all uavs initialized");
@@ -272,7 +275,7 @@ void MultirotorSimulator::timerInit() {
     rclcpp::shutdown();
   }
 
-  // | ----------- ---- bind param server callback -------------- |
+  // | ---------------- bind param server callback -------------- |
 
   param_callback_handle_ = add_on_set_parameters_callback(std::bind(&MultirotorSimulator::callbackParameters, this, std::placeholders::_1));
 
@@ -314,37 +317,24 @@ void MultirotorSimulator::timerMain() {
     return;
   }
 
-  mrs_lib::ScopeTimer timer = mrs_lib::ScopeTimer(node_, "timerMain()", scope_timer_logger_, false);
+  static utils::RateCounter cntr(get_clock());
+  const double              rate = cntr.update_rate();
 
-  RCLCPP_INFO(get_logger(), "timerMain() spinning");
+  RCLCPP_INFO(get_logger(), "timer rate %d", int(rate));
 
   double simulation_step_size = 1.0 / _simulation_rate_;
 
   // step the time
   sim_time_ = sim_time_ + rclcpp::Duration(std::chrono::duration<double>(simulation_step_size));
 
-  timer.checkpoint("before makeStep()");
-
   for (size_t i = 0; i < uavs_.size(); i++) {
-
-    std::stringstream ss;
-
-    ss << i;
-
-    /* timer.checkpoint("makeStep() uav " + ss.str()); */
 
     uavs_.at(i)->makeStep(simulation_step_size);
   }
 
-  timer.checkpoint("publishing");
-
   publishPoses();
 
-  timer.checkpoint("checking collisions");
-
   handleCollisions();
-
-  timer.checkpoint("publishing time");
 
   // | ---------------------- publish time ---------------------- |
 
