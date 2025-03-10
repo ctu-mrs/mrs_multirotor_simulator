@@ -33,10 +33,11 @@
 namespace mrs_multirotor_simulator
 {
 
-struct UavSystemRos_CommonHandlers_t {
+struct UavSystemRos_CommonHandlers_t
+{
 
-  rclcpp::Node::SharedPtr node;
-  std::string uav_name;
+  rclcpp::Node::SharedPtr                                       node;
+  std::string                                                   uav_name;
   std::optional<std::shared_ptr<mrs_lib::TransformBroadcaster>> transform_broadcaster;
 };
 
@@ -95,11 +96,12 @@ private:
 
   // | ----------------------- publishers ----------------------- |
 
-  mrs_lib::PublisherHandler<sensor_msgs::msg::Imu>   ph_imu_;
-  mrs_lib::PublisherHandler<nav_msgs::msg::Odometry> ph_odom_;
-  mrs_lib::PublisherHandler<sensor_msgs::msg::Range> ph_rangefinder_;
+  std::shared_ptr<mrs_lib::PublisherHandler<sensor_msgs::msg::Imu>>   ph_imu_;
+  std::shared_ptr<mrs_lib::PublisherHandler<nav_msgs::msg::Odometry>> ph_odom_;
+  std::shared_ptr<mrs_lib::PublisherHandler<sensor_msgs::msg::Range>> ph_rangefinder_;
 
   void publishOdometry(const MultirotorModel::State& state);
+  void publishFCUTF(const MultirotorModel::State& state);
   void publishIMU(const MultirotorModel::State& state);
   void publishRangefinder(const MultirotorModel::State& state);
 

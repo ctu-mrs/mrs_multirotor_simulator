@@ -5,7 +5,7 @@ socket_name: mrs
 attach: false
 tmux_options: -f /etc/ctu-mrs/tmux.conf
 # you can modify these
-startup_window: goto
+startup_window: simulator
 windows:
   - simulator:
       layout: tiled

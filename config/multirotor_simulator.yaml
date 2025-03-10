@@ -11,6 +11,50 @@ iterate_without_input: true
 
 input_timeout: 1.0 # [s]
 
+subscribers:
+
+  # used for feedforward
+  tracker_cmd:
+    enabled: true
+
+  position_cmd:
+    enabled: true
+
+  velocity_hdg_cmd:
+    enabled: true
+
+  velocity_hdg_rate_cmd:
+    enabled: true
+
+  acceleration_hdg_cmd:
+    enabled: true
+
+  acceleration_hdg_rate_cmd:
+    enabled: true
+
+  attitude_cmd:
+    enabled: true
+
+  attitude_rate_cmd:
+    enabled: true
+
+  control_group_cmd:
+    enabled: true
+
+  actuators_group_cmd:
+    enabled: true
+
+publishers:
+
+  odometry:
+    enabled: true
+
+  rangefinder:
+    enabled: true
+
+  imu:
+    enabled: true
+
 frames:
   world:
     name: "simulator_origin"

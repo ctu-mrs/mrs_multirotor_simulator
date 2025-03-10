@@ -12,6 +12,50 @@ frames:
     name: "garmin"
     publish_tf: true
 
+subscribers:
+
+  # used for feedforward
+  tracker_cmd:
+    enabled: false
+
+  position_cmd:
+    enabled: true
+
+  velocity_hdg_cmd:
+    enabled: false
+
+  velocity_hdg_rate_cmd:
+    enabled: false
+
+  acceleration_hdg_cmd:
+    enabled: false
+
+  acceleration_hdg_rate_cmd:
+    enabled: false
+
+  attitude_cmd:
+    enabled: false
+
+  attitude_rate_cmd:
+    enabled: false
+
+  control_group_cmd:
+    enabled: false
+
+  actuators_group_cmd:
+    enabled: false
+
+publishers:
+
+  odometry:
+    enabled: false
+
+  rangefinder:
+    enabled: false
+
+  imu:
+    enabled: false
+
 uav_names: [
   "uav1",
   "uav2",

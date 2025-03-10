@@ -175,9 +175,25 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
 
   // | ----------------------- publishers ----------------------- |
 
-  ph_imu_         = mrs_lib::PublisherHandler<sensor_msgs::msg::Imu>(node_, "~/" + _uav_name_ + "/imu");
-  ph_odom_        = mrs_lib::PublisherHandler<nav_msgs::msg::Odometry>(node_, "~/" + _uav_name_ + "/odom");
-  ph_rangefinder_ = mrs_lib::PublisherHandler<sensor_msgs::msg::Range>(node_, "~/" + _uav_name_ + "/rangefinder");
+  bool pub_imu_enabled;
+  bool pub_odom_enabled;
+  bool pub_rangefinder_enabled;
+
+  param_loader.loadParam("publishers/imu/enabled", pub_imu_enabled);
+  param_loader.loadParam("publishers/rangefinder/enabled", pub_rangefinder_enabled);
+  param_loader.loadParam("publishers/odometry/enabled", pub_odom_enabled);
+
+  if (pub_imu_enabled) {
+    ph_imu_ = std::make_shared<mrs_lib::PublisherHandler<sensor_msgs::msg::Imu>>(node_, "~/" + _uav_name_ + "/imu");
+  }
+
+  if (pub_odom_enabled) {
+    ph_odom_ = std::make_shared<mrs_lib::PublisherHandler<nav_msgs::msg::Odometry>>(node_, "~/" + _uav_name_ + "/odom");
+  }
+
+  if (pub_rangefinder_enabled) {
+    ph_rangefinder_ = std::make_shared<mrs_lib::PublisherHandler<sensor_msgs::msg::Range>>(node_, "~/" + _uav_name_ + "/rangefinder");
+  }
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -192,35 +208,77 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
   shopts.subscription_options.callback_group = cbgrp_subs_;
   shopts.qos                                 = rclcpp::SystemDefaultsQoS();
 
-  /* sh_actuator_cmd_ = */
-  /*     mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiActuatorCmd>(shopts, "~/" + _uav_name_ + "/actuators_cmd", &UavSystemRos::callbackActuatorCmd, this); */
+  bool sub_tracker_cmd_enabled;
+  bool sub_pos_cmd_enabled;
+  bool sub_vel_hdg_cmd_enabled;
+  bool sub_vel_hdg_rate_cmd_enabled;
+  bool sub_acc_hdg_cmd_enabled;
+  bool sub_acc_hdg_rate_cmd_enabled;
+  bool sub_attitude_cmd_enabled;
+  bool sub_attitude_rate_cmd_enabled;
+  bool sub_control_group_cmd_enabled;
+  bool sub_actuators_cmd_enabled;
 
-  /* sh_control_group_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiControlGroupCmd>(shopts, "~/" + _uav_name_ + "/control_group_cmd", */
-  /*                                                                                         &UavSystemRos::callbackControlGroupCmd, this); */
+  param_loader.loadParam("subscribers/tracker_cmd/enabled", sub_tracker_cmd_enabled);
+  param_loader.loadParam("subscribers/position_cmd/enabled", sub_pos_cmd_enabled);
+  param_loader.loadParam("subscribers/velocity_hdg_cmd/enabled", sub_vel_hdg_cmd_enabled);
+  param_loader.loadParam("subscribers/velocity_hdg_rate_cmd/enabled", sub_vel_hdg_rate_cmd_enabled);
+  param_loader.loadParam("subscribers/acceleration_hdg_cmd/enabled", sub_acc_hdg_cmd_enabled);
+  param_loader.loadParam("subscribers/acceleration_hdg_rate_cmd/enabled", sub_acc_hdg_rate_cmd_enabled);
+  param_loader.loadParam("subscribers/attitude_cmd/enabled", sub_attitude_cmd_enabled);
+  param_loader.loadParam("subscribers/attitude_rate_cmd/enabled", sub_attitude_rate_cmd_enabled);
+  param_loader.loadParam("subscribers/control_group_cmd/enabled", sub_control_group_cmd_enabled);
+  param_loader.loadParam("subscribers/actuators_group_cmd/enabled", sub_actuators_cmd_enabled);
 
-  /* sh_attitude_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAttitudeRateCmd>(shopts, "~/" + _uav_name_ + "/attitude_rate_cmd", */
-  /*                                                                                         &UavSystemRos::callbackAttitudeRateCmd, this); */
+  if (sub_actuators_cmd_enabled) {
+    sh_actuator_cmd_ =
+        mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiActuatorCmd>(shopts, "~/" + _uav_name_ + "/actuators_cmd", &UavSystemRos::callbackActuatorCmd, this);
+  }
 
-  /* sh_attitude_cmd_ = */
-  /*     mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAttitudeCmd>(shopts, "~/" + _uav_name_ + "/attitude_cmd", &UavSystemRos::callbackAttitudeCmd, this); */
+  if (sub_control_group_cmd_enabled) {
+    sh_control_group_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiControlGroupCmd>(shopts, "~/" + _uav_name_ + "/control_group_cmd",
+                                                                                            &UavSystemRos::callbackControlGroupCmd, this);
+  }
 
-  sh_acceleration_hdg_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAccelerationHdgCmd>(shopts, "~/" + _uav_name_ + "/acceleration_hdg_cmd",
-                                                                                                &UavSystemRos::callbackAccelerationHdgCmd, this);
+  if (sub_attitude_rate_cmd_enabled) {
+    sh_attitude_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAttitudeRateCmd>(shopts, "~/" + _uav_name_ + "/attitude_rate_cmd",
+                                                                                            &UavSystemRos::callbackAttitudeRateCmd, this);
+  }
 
-  sh_acceleration_hdg_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAccelerationHdgRateCmd>(
-      shopts, "~/" + _uav_name_ + "/acceleration_hdg_rate_cmd", &UavSystemRos::callbackAccelerationHdgRateCmd, this);
+  if (sub_attitude_cmd_enabled) {
+    sh_attitude_cmd_ =
+        mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAttitudeCmd>(shopts, "~/" + _uav_name_ + "/attitude_cmd", &UavSystemRos::callbackAttitudeCmd, this);
+  }
 
-  sh_velocity_hdg_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiVelocityHdgCmd>(shopts, "~/" + _uav_name_ + "/velocity_hdg_cmd",
-                                                                                        &UavSystemRos::callbackVelocityHdgCmd, this);
+  if (sub_acc_hdg_cmd_enabled) {
+    sh_acceleration_hdg_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAccelerationHdgCmd>(shopts, "~/" + _uav_name_ + "/acceleration_hdg_cmd",
+                                                                                                  &UavSystemRos::callbackAccelerationHdgCmd, this);
+  }
 
-  /* sh_velocity_hdg_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiVelocityHdgRateCmd>(shopts, "~/" + _uav_name_ + "/velocity_hdg_rate_cmd", */
-  /*                                                                                                &UavSystemRos::callbackVelocityHdgRateCmd, this); */
+  if (sub_acc_hdg_rate_cmd_enabled) {
+    sh_acceleration_hdg_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAccelerationHdgRateCmd>(
+        shopts, "~/" + _uav_name_ + "/acceleration_hdg_rate_cmd", &UavSystemRos::callbackAccelerationHdgRateCmd, this);
+  }
 
-  sh_position_cmd_ =
-      mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiPositionCmd>(shopts, "~/" + _uav_name_ + "/position_cmd", &UavSystemRos::callbackPositionCmd, this);
+  if (sub_vel_hdg_cmd_enabled) {
+    sh_velocity_hdg_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiVelocityHdgCmd>(shopts, "~/" + _uav_name_ + "/velocity_hdg_cmd",
+                                                                                          &UavSystemRos::callbackVelocityHdgCmd, this);
+  }
 
-  /* sh_tracker_cmd_ = */
-  /*     mrs_lib::SubscriberHandler<mrs_msgs::msg::TrackerCommand>(shopts, "~/" + _uav_name_ + "/tracker_cmd", &UavSystemRos::callbackTrackerCmd, this); */
+  if (sub_vel_hdg_rate_cmd_enabled) {
+    sh_velocity_hdg_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiVelocityHdgRateCmd>(shopts, "~/" + _uav_name_ + "/velocity_hdg_rate_cmd",
+                                                                                                   &UavSystemRos::callbackVelocityHdgRateCmd, this);
+  }
+
+  if (sub_pos_cmd_enabled) {
+    sh_position_cmd_ =
+        mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiPositionCmd>(shopts, "~/" + _uav_name_ + "/position_cmd", &UavSystemRos::callbackPositionCmd, this);
+  }
+
+  if (sub_tracker_cmd_enabled) {
+    sh_tracker_cmd_ =
+        mrs_lib::SubscriberHandler<mrs_msgs::msg::TrackerCommand>(shopts, "~/" + _uav_name_ + "/tracker_cmd", &UavSystemRos::callbackTrackerCmd, this);
+  }
 
   // | --------------------- tf broadcaster --------------------- |
 
@@ -299,6 +357,8 @@ void UavSystemRos::makeStep(const double dt) {
 
   // publish data
 
+  publishFCUTF(state);
+
   publishOdometry(state);
 
   publishIMU(state);
@@ -365,6 +425,10 @@ void UavSystemRos::applyForce(const Eigen::Vector3d &force) {
 
 void UavSystemRos::publishOdometry(const MultirotorModel::State &state) {
 
+  if (!ph_odom_) {
+    return;
+  }
+
   nav_msgs::msg::Odometry odom;
 
   odom.header.stamp    = clock_->now();
@@ -387,7 +451,31 @@ void UavSystemRos::publishOdometry(const MultirotorModel::State &state) {
   odom.twist.twist.angular.y = state.omega(1);
   odom.twist.twist.angular.z = state.omega(2);
 
-  ph_odom_.publish(odom);
+  ph_odom_->publish(odom);
+}
+
+//}
+
+/* publishFCUTF() //{ */
+
+void UavSystemRos::publishFCUTF(const MultirotorModel::State &state) {
+
+  if (_publish_fcu_tf_) {
+
+    geometry_msgs::msg::TransformStamped tf;
+
+    tf.header.stamp    = clock_->now();
+    tf.header.frame_id = _frame_world_;
+    tf.child_frame_id  = _frame_fcu_;
+
+    tf.transform.translation.x = state.x(0);
+    tf.transform.translation.y = state.x(1);
+    tf.transform.translation.z = state.x(2);
+
+    tf.transform.rotation = mrs_lib::AttitudeConverter(state.R);
+
+    tf_broadcaster_->sendTransform(tf);
+  }
 }
 
 //}
@@ -395,6 +483,10 @@ void UavSystemRos::publishOdometry(const MultirotorModel::State &state) {
 /* publishIMU() //{ */
 
 void UavSystemRos::publishIMU(const MultirotorModel::State &state) {
+
+  if (!ph_imu_) {
+    return;
+  }
 
   sensor_msgs::msg::Imu imu;
 
@@ -413,7 +505,7 @@ void UavSystemRos::publishIMU(const MultirotorModel::State &state) {
 
   imu.orientation = mrs_lib::AttitudeConverter(state.R);
 
-  ph_imu_.publish(imu);
+  ph_imu_->publish(imu);
 }
 
 //}
@@ -421,6 +513,10 @@ void UavSystemRos::publishIMU(const MultirotorModel::State &state) {
 /* publishRangefinder() //{ */
 
 void UavSystemRos::publishRangefinder(const MultirotorModel::State &state) {
+
+  if (!ph_rangefinder_) {
+    return;
+  }
 
   // | ----------------------- publish tf ----------------------- |
 
@@ -452,7 +548,7 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State &state) {
   range.radiation_type  = range.INFRARED;
   range.field_of_view   = 0.01;
 
-  ph_rangefinder_.publish(range);
+  ph_rangefinder_->publish(range);
 
   if (_publish_rangefinder_tf_) {
 
@@ -467,23 +563,6 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State &state) {
     tf.transform.translation.z = -0.05;
 
     tf.transform.rotation = mrs_lib::AttitudeConverter(0, 1.57, 0);
-
-    tf_broadcaster_->sendTransform(tf);
-  }
-
-  if (_publish_fcu_tf_) {
-
-    geometry_msgs::msg::TransformStamped tf;
-
-    tf.header.stamp    = clock_->now();
-    tf.header.frame_id = _frame_world_;
-    tf.child_frame_id  = _frame_fcu_;
-
-    tf.transform.translation.x = state.x(0);
-    tf.transform.translation.y = state.x(1);
-    tf.transform.translation.z = state.x(2);
-
-    tf.transform.rotation = mrs_lib::AttitudeConverter(state.R);
 
     tf_broadcaster_->sendTransform(tf);
   }

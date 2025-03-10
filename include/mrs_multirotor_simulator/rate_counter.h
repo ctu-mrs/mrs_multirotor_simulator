@@ -13,7 +13,7 @@ public:
 
     const double cur_dt = cur_dur.seconds();
 
-    avg_dt_ = 0.90 * avg_dt_ + 0.1 * cur_dt;
+    avg_dt_ = 0.99 * avg_dt_ + 0.01 * cur_dt;
 
     prev_call_ = cur_call;
 
