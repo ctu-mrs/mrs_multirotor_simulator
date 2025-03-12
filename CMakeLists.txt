@@ -12,7 +12,19 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-add_compile_options(-O2)
+if(MRS_ENABLE_TESTING)
+  message(WARNING "Setting optimizaton levels for tests")
+  add_definitions("-O0")
+  add_definitions("-g")
+else()
+  add_definitions("-O2")
+endif()
+
+if(COVERAGE)
+  message(WARNING "building with --coverage, the performance might be limited")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+endif()
 
 set(DEPENDENCIES
   ament_cmake
@@ -119,7 +131,10 @@ install(DIRECTORY config
   DESTINATION share/${PROJECT_NAME}
 )
 
-# this will export the include-related variables for use by other libraries
-# this is needed if you wish to include the headers from this pkg into downstream libraries
+install(DIRECTORY tmux
+  DESTINATION share/${PROJECT_NAME}
+)
+
 ament_export_include_directories("include")
+
 ament_package()
