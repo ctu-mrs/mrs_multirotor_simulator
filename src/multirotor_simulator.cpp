@@ -39,7 +39,7 @@ private:
   rclcpp::CallbackGroup::SharedPtr cbgrp_status_;
 
   rclcpp::TimerBase::SharedPtr timer_init_;
-  void                         timerMain();
+  void                         timerInit();
 
   rclcpp::Node::SharedPtr  node_;
   rclcpp::Clock::SharedPtr clock_;
@@ -61,7 +61,7 @@ private:
   // | ------------------------- timers ------------------------- |
 
   rclcpp::TimerBase::SharedPtr timer_main_;
-  void                         timerInit();
+  void                         timerMain();
 
   rclcpp::TimerBase::SharedPtr timer_status_;
   void                         timerStatus();

@@ -112,8 +112,7 @@ rclcpp_components_register_nodes(MrsMultirotorSimulator_Simulator PLUGIN "mrs_mu
 ## --------------------------------------------------------------
 
 install(TARGETS
-  MrsMultirotorSimulator_SimulatorSystemRos
-  MrsMultirotorSimulator_Simulator
+  ${LIBRARIES}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
