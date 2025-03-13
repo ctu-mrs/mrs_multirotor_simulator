@@ -1,4 +1,4 @@
-hw_interface_plugin: "mrs_simulator_api_plugin/Api"
+hw_interface_plugin: "mrs_uav_simulator_hw_api_plugin::Api"
 
 gnss:
   utm_zone: "32T"

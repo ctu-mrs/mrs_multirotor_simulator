@@ -28,24 +28,23 @@ endif()
 
 set(DEPENDENCIES
   ament_cmake
+  ament_cmake_ros
   rclcpp
   rclcpp_components
   mrs_msgs
   mrs_lib
+  pluginlib
   geometry_msgs
   nav_msgs
   std_msgs
   sensor_msgs
+  mrs_uav_hw_api
+  Eigen3
 )
 
 foreach(DEP IN LISTS DEPENDENCIES)
   find_package(${DEP} REQUIRED)
 endforeach()
-
-# include Eigen3
-find_package(Eigen3 REQUIRED)
-set(Eigen_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIRS})
-set(Eigen_LIBRARIES ${EIGEN3_LIBRARIES})
 
 include_directories(
   include
@@ -53,13 +52,12 @@ include_directories(
   include/mrs_multirotor_simulator/uav_system
   include/mrs_multirotor_simulator/uav_system/controllers
   ${rclcpp_INCLUDE_DIRS}
-  ${Eigen_INCLUDE_DIRS}
 )
 
 set(LIBRARIES
   MrsMultirotorSimulator_Simulator
   MrsMultirotorSimulator_SimulatorSystemRos
-  # MrsMultirotorSimulator_HwApiPlugin
+  MrsMultirotorSimulator_HwApiPlugin
   )
 
 # ROS Wrapper for the Multirotor UAV System + controllers
@@ -67,10 +65,6 @@ set(LIBRARIES
 add_library(MrsMultirotorSimulator_SimulatorSystemRos SHARED
   src/uav_system_ros.cpp
 )
-
-target_link_libraries(MrsMultirotorSimulator_SimulatorSystemRos
-  ${Eigen_LIBRARIES}
-  )
 
 ament_target_dependencies(MrsMultirotorSimulator_SimulatorSystemRos
   rclcpp
@@ -80,7 +74,6 @@ ament_target_dependencies(MrsMultirotorSimulator_SimulatorSystemRos
   std_msgs
   mrs_msgs
   nav_msgs
-  ${Eigen_LIBRARIES}
 )
 
 # MRS Simulator
@@ -91,7 +84,6 @@ add_library(MrsMultirotorSimulator_Simulator SHARED
 
 target_link_libraries(MrsMultirotorSimulator_Simulator
   MrsMultirotorSimulator_SimulatorSystemRos
-  ${Eigen_LIBRARIES}
   )
 
 ament_target_dependencies(MrsMultirotorSimulator_Simulator
@@ -107,19 +99,33 @@ ament_target_dependencies(MrsMultirotorSimulator_Simulator
 
 rclcpp_components_register_nodes(MrsMultirotorSimulator_Simulator PLUGIN "mrs_multirotor_simulator::MultirotorSimulator" EXECUTABLE MrsMultirotorSimulator_Simulator)
 
+# HW Api Plugin
+
+add_library(MrsMultirotorSimulator_HwApiPlugin SHARED
+  src/hw_api_plugin.cpp
+)
+
+ament_target_dependencies(MrsMultirotorSimulator_HwApiPlugin
+  ${DEPENDENCIES}
+)
+
+# <package of the base class>, <relative path to the xml>
+pluginlib_export_plugin_description_file(mrs_uav_hw_api plugins.xml)
+
 ## --------------------------------------------------------------
 ## |                           install                          |
 ## --------------------------------------------------------------
 
-install(TARGETS
-  ${LIBRARIES}
+install(
+  TARGETS ${LIBRARIES}
+  EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
 )
 
-install(DIRECTORY include/
-  DESTINATION include
+install(DIRECTORY include
+  DESTINATION .
 )
 
 install(DIRECTORY launch
@@ -134,6 +140,14 @@ install(DIRECTORY tmux
   DESTINATION share/${PROJECT_NAME}
 )
 
-ament_export_include_directories("include")
+ament_export_libraries(
+  ${LIBRARIES}
+)
+
+ament_export_targets(
+  export_${PROJECT_NAME}
+)
+
+ament_export_include_directories(include)
 
 ament_package()

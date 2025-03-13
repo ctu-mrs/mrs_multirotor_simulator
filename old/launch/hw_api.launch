@@ -43,19 +43,6 @@
       <param name="simulation" type="bool" value="$(eval arg('RUN_TYPE') == 'simulation')" />
 
         <!-- custom remaps -->
-      <remap from="~simulator_imu_in" to="/multirotor_simulator/$(arg UAV_NAME)/imu" />
-      <remap from="~simulator_odom_in" to="/multirotor_simulator/$(arg UAV_NAME)/odom" />
-      <remap from="~simulator_rangefinder_in" to="/multirotor_simulator/$(arg UAV_NAME)/rangefinder" />
-      <remap from="~simulator_actuators_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/actuators_cmd" />
-      <remap from="~simulator_control_group_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/control_group_cmd" />
-      <remap from="~simulator_attitude_rate_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/attitude_rate_cmd" />
-      <remap from="~simulator_attitude_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/attitude_cmd" />
-      <remap from="~simulator_acceleration_hdg_rate_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/acceleration_hdg_rate_cmd" />
-      <remap from="~simulator_acceleration_hdg_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/acceleration_hdg_cmd" />
-      <remap from="~simulator_velocity_hdg_rate_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/velocity_hdg_rate_cmd" />
-      <remap from="~simulator_velocity_hdg_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/velocity_hdg_cmd" />
-      <remap from="~simulator_position_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/position_cmd" />
-      <remap from="~simulator_tracker_cmd_out" to="/multirotor_simulator/$(arg UAV_NAME)/tracker_cmd" />
 
     </node>
 
