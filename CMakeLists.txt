@@ -50,6 +50,7 @@ include_directories(
   include/mrs_multirotor_simulator/uav_system
   include/mrs_multirotor_simulator/uav_system/controllers
   ${rclcpp_INCLUDE_DIRS}
+  ${mrs_uav_hw_api_INCLUDE_DIRS}
 )
 
 set(LIBRARIES
