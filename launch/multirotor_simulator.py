@@ -26,6 +26,8 @@ def generate_launch_description():
     pkg_share_path = get_package_share_directory(pkg_name)
     namespace='multirotor_simulator'
 
+    # #{ custom_config
+
     custom_config = LaunchConfiguration('custom_config')
 
     # this adds the args to the list of args available for this launch files
@@ -46,6 +48,8 @@ def generate_launch_description():
             if_value=PathJoinSubstitution([EnvironmentVariable('PWD'), custom_config]),
             else_value=custom_config
     )
+
+    # #} end of custom_config
 
     mrs_multirotor_simulator_configs = [
         # general configs
@@ -105,6 +109,7 @@ def generate_launch_description():
 
                 remappings=[
                     ("~/clock_out", "/clock"),
+                    ("~/uav_poses_out", "~/uav_poses"),
                 ],
             )
 

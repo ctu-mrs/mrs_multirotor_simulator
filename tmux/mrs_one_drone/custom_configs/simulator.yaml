@@ -1,0 +1,11 @@
+frames:
+  fcu:
+    publish_tf: true
+
+uav1:
+  type: "a300"
+  spawn:
+    x: 10.0
+    y: 15.0
+    z: 0.0
+    heading: 3.14

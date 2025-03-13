@@ -9,7 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # set the compile options to show code warnings
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra)
 endif()
 
 if(MRS_ENABLE_TESTING)
@@ -27,8 +27,6 @@ if(COVERAGE)
 endif()
 
 set(DEPENDENCIES
-  ament_cmake
-  ament_cmake_ros
   rclcpp
   rclcpp_components
   mrs_msgs

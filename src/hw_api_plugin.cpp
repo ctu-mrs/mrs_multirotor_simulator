@@ -157,6 +157,14 @@ void Api::initialize(const rclcpp::Node::SharedPtr& node, std::shared_ptr<mrs_ua
 
   mrs_lib::ParamLoader param_loader(node_, "MultirotorSimulatorHwApi");
 
+  std::vector<std::string> config_files;
+  param_loader.loadParam("configs", config_files);
+
+  for (auto config_file : config_files) {
+    RCLCPP_INFO(node_->get_logger(), "loading config file '%s'", config_file.c_str());
+    param_loader.addYamlFile(config_file);
+  }
+
   param_loader.loadParam("input_timeout", _input_timeout_);
 
   param_loader.loadParam("gnss/utm_x", _utm_x_);
@@ -380,7 +388,7 @@ bool Api::callbackActuatorCmd(const mrs_msgs::msg::HwApiActuatorCmd::ConstShared
   RCLCPP_INFO_ONCE(node_->get_logger(), "getting actuators cmd");
 
   if (offboard_) {
-    ph_actuators_cmd_.publish(msg);
+    ph_actuators_cmd_.publish(*msg);
   }
 
   {

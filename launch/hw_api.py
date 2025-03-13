@@ -23,7 +23,7 @@ def generate_launch_description():
 
     pkg_name = "mrs_multirotor_simulator"
 
-    pkg_share_path = get_package_share_directory(pkg_name)
+    this_pkg_path = get_package_share_directory(pkg_name)
     namespace='hw_api'
 
     # #{ custom_config
@@ -51,7 +51,18 @@ def generate_launch_description():
 
     # #} end of custom_config
 
+    # #{ args from ENV
+
     uav_name=os.getenv('UAV_NAME', "uav1")
+    use_sim_time=os.getenv('USE_SIM_TIME', "false") == "true"
+
+    # #} end of args from ENV
+
+    # the first one has the priority
+    configs = [
+        this_pkg_path + '/config/hw_api.yaml',
+        get_package_share_directory("mrs_uav_hw_api") + "/config/hw_api.yaml",
+    ]
 
     ld.add_action(ComposableNodeContainer(
 
@@ -72,8 +83,8 @@ def generate_launch_description():
                 parameters=[
                     {"uav_name": uav_name},
                     {"topic_prefix": "/" + uav_name},
-                    get_package_share_directory("mrs_uav_hw_api") + "/config/hw_api.yaml",
-                    pkg_share_path + "/config/hw_api.yaml",
+                    {"use_sim_time": use_sim_time},
+                    {"configs": configs},
                     {'custom_config': custom_config},
                 ],
 
