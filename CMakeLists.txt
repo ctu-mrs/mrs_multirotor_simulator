@@ -136,6 +136,7 @@ install(DIRECTORY config
 )
 
 install(DIRECTORY tmux
+  USE_SOURCE_PERMISSIONS
   DESTINATION share/${PROJECT_NAME}
 )
 
