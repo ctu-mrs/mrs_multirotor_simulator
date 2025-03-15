@@ -23,7 +23,7 @@ windows:
   - rviz:
       layout: tiled
       panes:
-        - ros2 run rviz2 rviz2
+        - ros2 run rviz2 rviz2 -d ./rviz.rviz
   - reconfigure:
       layout: tiled
       panes:
