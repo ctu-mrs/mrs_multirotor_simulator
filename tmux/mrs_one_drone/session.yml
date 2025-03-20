@@ -16,19 +16,23 @@ windows:
       layout: tiled
       panes:
         - ros2 launch mrs_multirotor_simulator hw_api.py
+  - estimation_manager:
+      layout: tiled
+      panes:
+        - ros2 launch mrs_uav_managers estimation_manager.py platform_config:=./custom_configs/platform_config.yaml world_config:=./custom_configs/world_config.yaml custom_config:=./custom_configs/custom_config.yaml
   - goto:
       layout: tiled
       panes:
         - 'history -s ./goto.py'
-  - rviz:
-      layout: tiled
-      panes:
-        - ros2 run rviz2 rviz2 -d ./rviz.rviz
-  - reconfigure:
-      layout: tiled
-      panes:
-        - ros2 run rqt_reconfigure rqt_reconfigure
-  - layout:
-      layout: tiled
-      panes:
-        - sleep 5.0; ~/.i3/layout_manager.sh ./layout.json
+  # - rviz:
+  #     layout: tiled
+  #     panes:
+  #       - ros2 run rviz2 rviz2 -d ./rviz.rviz
+  # - reconfigure:
+  #     layout: tiled
+  #     panes:
+  #       - ros2 run rqt_reconfigure rqt_reconfigure
+  # - layout:
+  #     layout: tiled
+  #     panes:
+  #       - sleep 5.0; ~/.i3/layout_manager.sh ./layout.json
