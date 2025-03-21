@@ -40,6 +40,12 @@ set(DEPENDENCIES
   Eigen3
 )
 
+set(LIBRARIES
+  MrsMultirotorSimulator_Simulator
+  MrsMultirotorSimulator_SimulatorSystemRos
+  MrsMultirotorSimulator_HwApiPlugin
+  )
+
 foreach(DEP IN LISTS DEPENDENCIES)
   find_package(${DEP} REQUIRED)
 endforeach()
@@ -50,14 +56,9 @@ include_directories(
   include/mrs_multirotor_simulator/uav_system
   include/mrs_multirotor_simulator/uav_system/controllers
   ${rclcpp_INCLUDE_DIRS}
+  ${mrs_lib_INCLUDE_DIRS}
   ${mrs_uav_hw_api_INCLUDE_DIRS}
 )
-
-set(LIBRARIES
-  MrsMultirotorSimulator_Simulator
-  MrsMultirotorSimulator_SimulatorSystemRos
-  MrsMultirotorSimulator_HwApiPlugin
-  )
 
 # ROS Wrapper for the Multirotor UAV System + controllers
 
@@ -108,12 +109,20 @@ ament_target_dependencies(MrsMultirotorSimulator_HwApiPlugin
   ${DEPENDENCIES}
 )
 
+## --------------------------------------------------------------
+## |                       Export plugins                       |
+## --------------------------------------------------------------
+
 # <package of the base class>, <relative path to the xml>
 pluginlib_export_plugin_description_file(mrs_uav_hw_api plugins.xml)
 
 ## --------------------------------------------------------------
 ## |                           install                          |
 ## --------------------------------------------------------------
+
+ament_export_libraries(
+  ${LIBRARIES}
+)
 
 install(
   TARGETS ${LIBRARIES}
@@ -123,31 +132,37 @@ install(
   RUNTIME DESTINATION bin
 )
 
-install(DIRECTORY include
+install(
+  DIRECTORY include
   DESTINATION .
 )
 
-install(DIRECTORY launch
+install(
+  DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(DIRECTORY config
+install(
+  DIRECTORY config
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(DIRECTORY tmux
+install(
+  DIRECTORY tmux
   USE_SOURCE_PERMISSIONS
   DESTINATION share/${PROJECT_NAME}
 )
 
-ament_export_libraries(
-  ${LIBRARIES}
+ament_export_include_directories(
+  include
 )
 
 ament_export_targets(
-  export_${PROJECT_NAME}
+  export_${PROJECT_NAME} HAS_LIBRARY_TARGET
 )
 
-ament_export_include_directories(include)
+ament_export_dependencies(
+  ${DEPENDENCIES}
+)
 
 ament_package()
