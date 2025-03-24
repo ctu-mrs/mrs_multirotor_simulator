@@ -5,19 +5,24 @@ project(mrs_multirotor_simulator)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # set the compile options to show code warnings
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra)
 endif()
 
+# 1 == use rclcpp::Timer implementation
+# 0 == use MRS's thread timer implementation
+set(USE_ROS_TIMER 0)
+
+if(${USE_ROS_TIMER})
+  MESSAGE(WARNING "[mrs_uav_managers]: Compiling with ROS Timers. This can cause high CPU load in runtime.")
+endif()
+
 if(MRS_ENABLE_TESTING)
   message(WARNING "Setting optimizaton levels for tests")
   add_definitions("-O0")
   add_definitions("-g")
-else()
-  add_definitions("-O2")
 endif()
 
 if(COVERAGE)
@@ -108,6 +113,8 @@ add_library(MrsMultirotorSimulator_HwApiPlugin SHARED
 ament_target_dependencies(MrsMultirotorSimulator_HwApiPlugin
   ${DEPENDENCIES}
 )
+
+target_compile_definitions(MrsMultirotorSimulator_HwApiPlugin PRIVATE USE_ROS_TIMER=${USE_ROS_TIMER})
 
 ## --------------------------------------------------------------
 ## |                       Export plugins                       |

@@ -20,6 +20,16 @@
 
 //}
 
+/* typedefs //{ */
+
+#if USE_ROS_TIMER == 1
+typedef mrs_lib::ROSTimer TimerType;
+#else
+typedef mrs_lib::ThreadTimer TimerType;
+#endif
+
+//}
+
 namespace mrs_uav_simulator_hw_api_plugin
 {
 
@@ -109,7 +119,7 @@ private:
 
   // | ------------------------- timers ------------------------- |
 
-  std::shared_ptr<mrs_lib::ROSTimer> timer_main_;
+  std::shared_ptr<TimerType> timer_main_;
 
   void timerMain();
 
@@ -273,7 +283,7 @@ void Api::initialize(const rclcpp::Node::SharedPtr& node, std::shared_ptr<mrs_ua
     opts.node      = node_;
     opts.autostart = true;
 
-    timer_main_ = std::make_shared<mrs_lib::ROSTimer>(opts, rclcpp::Rate(10.0, clock_), callback_fcn);
+    timer_main_ = std::make_shared<TimerType>(opts, rclcpp::Rate(10.0, clock_), callback_fcn);
   }
 
   // | ----------------------- finish init ---------------------- |
