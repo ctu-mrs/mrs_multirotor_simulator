@@ -5,7 +5,7 @@ socket_name: mrs
 attach: false
 tmux_options: -f /etc/ctu-mrs/tmux.conf
 # you can modify these
-startup_window: goto
+startup_window: control_manager
 pre_window: export USE_SIM_TIME=true
 windows:
   - simulator:
@@ -20,6 +20,10 @@ windows:
       layout: tiled
       panes:
         - ros2 launch mrs_uav_managers estimation_manager.py platform_config:=./custom_configs/platform_config.yaml world_config:=./custom_configs/world_config.yaml custom_config:=./custom_configs/custom_config.yaml
+  - control_manager:
+      layout: tiled
+      panes:
+        - ros2 launch mrs_uav_managers control_manager.py platform_config:=./custom_configs/platform_config.yaml world_config:=./custom_configs/world_config.yaml custom_config:=./custom_configs/custom_config.yaml network_config:=./custom_configs/network_config.yaml
   - transform_manager:
       layout: tiled
       panes:
@@ -28,10 +32,10 @@ windows:
       layout: tiled
       panes:
         - 'history -s ./goto.py'
-  - rviz:
-      layout: tiled
-      panes:
-        - ros2 run rviz2 rviz2 -d ./rviz.rviz
+  # - rviz:
+  #     layout: tiled
+  #     panes:
+  #       - ros2 run rviz2 rviz2 -d ./rviz.rviz
   # - reconfigure:
   #     layout: tiled
   #     panes:
