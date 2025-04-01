@@ -1,9 +1,9 @@
 frames:
   fcu:
-    publish_tf: true
+    publish_tf: false
 
 uav1:
-  type: "a300"
+  type: "x500"
   spawn:
     x: 10.0
     y: 15.0

@@ -32,10 +32,10 @@ windows:
       layout: tiled
       panes:
         - 'history -s ./goto.py'
-  # - rviz:
-  #     layout: tiled
-  #     panes:
-  #       - ros2 run rviz2 rviz2 -d ./rviz.rviz
+  - rviz:
+      layout: tiled
+      panes:
+        - ros2 run rviz2 rviz2 -d ./rviz.rviz
   # - reconfigure:
   #     layout: tiled
   #     panes:
