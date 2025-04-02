@@ -5,9 +5,14 @@ socket_name: mrs
 attach: false
 tmux_options: -f /etc/ctu-mrs/tmux.conf
 # you can modify these
-startup_window: control_manager
-pre_window: export USE_SIM_TIME=true
+startup_window: commands
+pre_window: export USE_SIM_TIME=true; export RMW_IMPLEMENTATION=rmw_zenoh_cpp
+# pre_window: export USE_SIM_TIME=true
 windows:
+  - router:
+      layout: tiled
+      panes:
+        - ros2 run rmw_zenoh_cpp rmw_zenohd
   - simulator:
       layout: tiled
       panes:
@@ -28,9 +33,11 @@ windows:
       layout: tiled
       panes:
         - ros2 launch mrs_uav_managers transform_manager.py platform_config:=./custom_configs/platform_config.yaml world_config:=./custom_configs/world_config.yaml custom_config:=./custom_configs/custom_config.yaml
-  - goto:
+  - commands:
       layout: tiled
       panes:
+        - 'history -s ./takeoff.sh'
+        - 'history -s ./tracker.sh'
         - 'history -s ./goto.py'
   - rviz:
       layout: tiled

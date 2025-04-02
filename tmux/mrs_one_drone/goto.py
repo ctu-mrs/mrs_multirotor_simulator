@@ -2,9 +2,7 @@
 
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Point
-from mrs_msgs.msg import HwApiPositionCmd
-import random
+from mrs_msgs.srv import ReferenceStampedSrv, Vec4
 
 class Goto(Node):
 
@@ -14,35 +12,24 @@ class Goto(Node):
 
         self.get_logger().info('ROS2 node initialized')
 
-        self.pub = []
-        self.n_uavs = 1
+        self.get_logger().info('Setting up the client')
 
-        self.get_logger().info('Setting up publishers')
+        self.client = self.create_client(ReferenceStampedSrv, "/uav1/control_manager/reference")
 
-        for i in range(self.n_uavs):
-            topic_name = f'/multirotor_simulator/uav{i+1}/position_cmd'
-            self.pub.append(self.create_publisher(HwApiPositionCmd, topic_name, 10))
+        while not self.client.wait_for_service(timeout_sec=3.0):
+            self.get_logger().info('service not available, waiting again...')
 
-        self.xs = [random.uniform(-40, 40) for _ in range(self.n_uavs)]
-        self.ys = [random.uniform(-40, 40) for _ in range(self.n_uavs)]
-        self.zs = [random.uniform(2, 20) for _ in range(self.n_uavs)]
-        self.hdgs = [random.uniform(-3.14, 3.14) for _ in range(self.n_uavs)]
+        request = ReferenceStampedSrv.Request()
+        request.header.frame_id = "fcu_untilted"
+        request.reference.position.x = 10.0
+        request.reference.position.y = 0.0
+        request.reference.position.z = 0.0
+        request.reference.heading = 0.0
 
-        self.timer = self.create_timer(0.1, self.publish_positions)  # 10Hz
+        self.future = self.client.call_async(request)
+        rclpy.spin_until_future_complete(self, self.future)
 
-        self.get_logger().info('Publishing started')
-
-    def publish_positions(self):
-
-        msg = HwApiPositionCmd()
-
-        for i in range(self.n_uavs):
-            msg.position.x = self.xs[i]
-            msg.position.y = self.ys[i]
-            msg.position.z = self.zs[i]
-            msg.heading = self.hdgs[i]
-
-            self.pub[i].publish(msg)
+        self.get_logger().info('Service called')
 
 def main(args=None):
 
