@@ -23,13 +23,15 @@ class Goto(Node):
         request.header.frame_id = "fcu_untilted"
         request.reference.position.x = 10.0
         request.reference.position.y = 0.0
-        request.reference.position.z = 0.0
+        request.reference.position.z = 5.0
         request.reference.heading = 0.0
 
         self.future = self.client.call_async(request)
         rclpy.spin_until_future_complete(self, self.future)
 
         self.get_logger().info('Service called')
+
+        rclpy.shutdown()
 
 def main(args=None):
 

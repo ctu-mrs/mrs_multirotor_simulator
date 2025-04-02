@@ -37,8 +37,6 @@ windows:
       layout: tiled
       panes:
         - 'history -s ./takeoff.sh'
-        - 'history -s ./tracker.sh'
-        - 'history -s ./goto.py'
   - rviz:
       layout: tiled
       panes:
