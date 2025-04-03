@@ -10,24 +10,6 @@ echo "toggling offboard"
 
 ros2 service call /uav1/hw_api/offboard std_srvs/srv/Trigger '{}' 
 
-echo "switching tracker"
-
-ros2 service call /uav1/control_manager/switch_tracker mrs_msgs/srv/String '{"value": "LandoffTracker"}' 
-
 echo "taking off"
 
-ros2 service call /uav1/control_manager/landoff_tracker/takeoff mrs_msgs/srv/Vec1 '{"goal": "1.5"}' 
-
-sleep 5.0
-
-echo "switching controller"
-
-ros2 service call /uav1/control_manager/switch_controller mrs_msgs/srv/String '{"value": "MpcController"}' 
-
-echo "switching tracker"
-
-ros2 service call /uav1/control_manager/switch_tracker mrs_msgs/srv/String '{"value": "MpcTracker"}' 
-
-echo "goto"
-
-./goto.py
+ros2 service call /uav1/uav_manager/takeoff std_srvs/srv/Trigger '{}' 

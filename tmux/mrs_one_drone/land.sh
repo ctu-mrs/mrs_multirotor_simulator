@@ -1,3 +1,3 @@
 echo "landing"
 
-ros2 service call /uav1/control_manager/landoff_tracker/land std_srvs/srv/Trigger '{}' 
+ros2 service call /uav1/uav_manager/land std_srvs/srv/Trigger '{}' 

@@ -21,9 +21,9 @@ class Goto(Node):
 
         request = ReferenceStampedSrv.Request()
         request.header.frame_id = "fcu"
-        request.reference.position.x = 1.0
-        request.reference.position.y = 2.0
-        request.reference.position.z = 1.0
+        request.reference.position.x = 10.0
+        request.reference.position.y = 20.0
+        request.reference.position.z = 2.0
         request.reference.heading = 1.0
 
         self.future = self.client.call_async(request)

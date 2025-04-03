@@ -29,6 +29,10 @@ windows:
       layout: tiled
       panes:
         - ros2 launch mrs_uav_managers control_manager.py platform_config:=./custom_configs/platform_config.yaml world_config:=./custom_configs/world_config.yaml custom_config:=./custom_configs/custom_config.yaml network_config:=./custom_configs/network_config.yaml
+  - uav_manager:
+      layout: tiled
+      panes:
+        - ros2 launch mrs_uav_managers uav_manager.py platform_config:=./custom_configs/platform_config.yaml world_config:=./custom_configs/world_config.yaml custom_config:=./custom_configs/custom_config.yaml
   - transform_manager:
       layout: tiled
       panes:
