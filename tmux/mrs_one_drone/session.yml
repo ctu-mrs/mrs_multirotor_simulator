@@ -44,7 +44,7 @@ windows:
   - autostart:
       layout: tiled
       panes:
-        - ros2 launch mrs_uav_autostart automatic_start.py
+        - ros2 launch mrs_uav_autostart automatic_start.py custom_config:=./custom_configs/automatic_start.yaml
   - commands:
       layout: tiled
       panes:
@@ -53,11 +53,11 @@ windows:
       layout: tiled
       panes:
         - ros2 run rviz2 rviz2 -d ./rviz.rviz
-  # - reconfigure:
-  #     layout: tiled
-  #     panes:
-  #       - ros2 run rqt_reconfigure rqt_reconfigure
-  # - layout:
-  #     layout: tiled
-  #     panes:
-  #       - sleep 5.0; ~/.i3/layout_manager.sh ./layout.json
+  - reconfigure:
+      layout: tiled
+      panes:
+        - ros2 run rqt_reconfigure rqt_reconfigure
+  - layout:
+      layout: tiled
+      panes:
+        - sleep 2.0; ~/.i3/layout_manager.sh ./layout.json
