@@ -9,3 +9,5 @@ uav1:
     y: 15.0
     z: 0.0
     heading: 3.14
+
+realtime_factor: 1.0 # [-]

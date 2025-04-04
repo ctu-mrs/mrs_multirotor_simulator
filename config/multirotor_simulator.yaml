@@ -1,5 +1,5 @@
 simulation_rate: 100.0 # Hz
-clock_rate: 100.0 # Hz, should be the same rate or lower than the simulation rate
+clock_rate:      400.0 # Hz, should be the same rate or higher than the simulation rate
 realtime_factor: 1.0 # [-]
 
 # when true, the simulation time will get initialized from wall time

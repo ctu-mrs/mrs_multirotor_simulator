@@ -7,10 +7,7 @@ namespace mrs_multirotor_simulator
 
 UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) {
 
-  node_  = common_handlers.node;
-  clock_ = node_->get_clock();
-
-  time_last_input_ = rclcpp::Time(0, 0, clock_->get_clock_type());
+  node_ = common_handlers.node;
 
   _uav_name_ = common_handlers.uav_name;
 
@@ -231,53 +228,43 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
   param_loader.loadParam("subscribers/actuators_group_cmd/enabled", sub_actuators_cmd_enabled);
 
   if (sub_actuators_cmd_enabled) {
-    sh_actuator_cmd_ =
-        mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiActuatorCmd>(shopts, "~/" + _uav_name_ + "/actuators_cmd", &UavSystemRos::callbackActuatorCmd, this);
+    sh_actuator_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiActuatorCmd>(shopts, "~/" + _uav_name_ + "/actuators_cmd", &UavSystemRos::callbackActuatorCmd, this);
   }
 
   if (sub_control_group_cmd_enabled) {
-    sh_control_group_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiControlGroupCmd>(shopts, "~/" + _uav_name_ + "/control_group_cmd",
-                                                                                            &UavSystemRos::callbackControlGroupCmd, this);
+    sh_control_group_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiControlGroupCmd>(shopts, "~/" + _uav_name_ + "/control_group_cmd", &UavSystemRos::callbackControlGroupCmd, this);
   }
 
   if (sub_attitude_rate_cmd_enabled) {
-    sh_attitude_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAttitudeRateCmd>(shopts, "~/" + _uav_name_ + "/attitude_rate_cmd",
-                                                                                            &UavSystemRos::callbackAttitudeRateCmd, this);
+    sh_attitude_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAttitudeRateCmd>(shopts, "~/" + _uav_name_ + "/attitude_rate_cmd", &UavSystemRos::callbackAttitudeRateCmd, this);
   }
 
   if (sub_attitude_cmd_enabled) {
-    sh_attitude_cmd_ =
-        mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAttitudeCmd>(shopts, "~/" + _uav_name_ + "/attitude_cmd", &UavSystemRos::callbackAttitudeCmd, this);
+    sh_attitude_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAttitudeCmd>(shopts, "~/" + _uav_name_ + "/attitude_cmd", &UavSystemRos::callbackAttitudeCmd, this);
   }
 
   if (sub_acc_hdg_cmd_enabled) {
-    sh_acceleration_hdg_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAccelerationHdgCmd>(shopts, "~/" + _uav_name_ + "/acceleration_hdg_cmd",
-                                                                                                  &UavSystemRos::callbackAccelerationHdgCmd, this);
+    sh_acceleration_hdg_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAccelerationHdgCmd>(shopts, "~/" + _uav_name_ + "/acceleration_hdg_cmd", &UavSystemRos::callbackAccelerationHdgCmd, this);
   }
 
   if (sub_acc_hdg_rate_cmd_enabled) {
-    sh_acceleration_hdg_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAccelerationHdgRateCmd>(
-        shopts, "~/" + _uav_name_ + "/acceleration_hdg_rate_cmd", &UavSystemRos::callbackAccelerationHdgRateCmd, this);
+    sh_acceleration_hdg_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiAccelerationHdgRateCmd>(shopts, "~/" + _uav_name_ + "/acceleration_hdg_rate_cmd", &UavSystemRos::callbackAccelerationHdgRateCmd, this);
   }
 
   if (sub_vel_hdg_cmd_enabled) {
-    sh_velocity_hdg_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiVelocityHdgCmd>(shopts, "~/" + _uav_name_ + "/velocity_hdg_cmd",
-                                                                                          &UavSystemRos::callbackVelocityHdgCmd, this);
+    sh_velocity_hdg_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiVelocityHdgCmd>(shopts, "~/" + _uav_name_ + "/velocity_hdg_cmd", &UavSystemRos::callbackVelocityHdgCmd, this);
   }
 
   if (sub_vel_hdg_rate_cmd_enabled) {
-    sh_velocity_hdg_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiVelocityHdgRateCmd>(shopts, "~/" + _uav_name_ + "/velocity_hdg_rate_cmd",
-                                                                                                   &UavSystemRos::callbackVelocityHdgRateCmd, this);
+    sh_velocity_hdg_rate_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiVelocityHdgRateCmd>(shopts, "~/" + _uav_name_ + "/velocity_hdg_rate_cmd", &UavSystemRos::callbackVelocityHdgRateCmd, this);
   }
 
   if (sub_pos_cmd_enabled) {
-    sh_position_cmd_ =
-        mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiPositionCmd>(shopts, "~/" + _uav_name_ + "/position_cmd", &UavSystemRos::callbackPositionCmd, this);
+    sh_position_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiPositionCmd>(shopts, "~/" + _uav_name_ + "/position_cmd", &UavSystemRos::callbackPositionCmd, this);
   }
 
   if (sub_tracker_cmd_enabled) {
-    sh_tracker_cmd_ =
-        mrs_lib::SubscriberHandler<mrs_msgs::msg::TrackerCommand>(shopts, "~/" + _uav_name_ + "/tracker_cmd", &UavSystemRos::callbackTrackerCmd, this);
+    sh_tracker_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::TrackerCommand>(shopts, "~/" + _uav_name_ + "/tracker_cmd", &UavSystemRos::callbackTrackerCmd, this);
   }
 
   // | --------------------- tf broadcaster --------------------- |
@@ -290,11 +277,9 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
 
   // | --------------------- service servers -------------------- |
 
-  service_server_set_mass_ = node_->create_service<mrs_msgs::srv::Float64Srv>(
-      "~/" + _uav_name_ + "/set_mass", std::bind(&UavSystemRos::callbackSetMass, this, std::placeholders::_1, std::placeholders::_2));
+  service_server_set_mass_ = node_->create_service<mrs_msgs::srv::Float64Srv>("~/" + _uav_name_ + "/set_mass", std::bind(&UavSystemRos::callbackSetMass, this, std::placeholders::_1, std::placeholders::_2));
 
-  service_server_set_ground_z_ = node_->create_service<mrs_msgs::srv::Float64Srv>(
-      "~/" + _uav_name_ + "/set_ground_z", std::bind(&UavSystemRos::callbackSetGroundZ, this, std::placeholders::_1, std::placeholders::_2));
+  service_server_set_ground_z_ = node_->create_service<mrs_msgs::srv::Float64Srv>("~/" + _uav_name_ + "/set_ground_z", std::bind(&UavSystemRos::callbackSetGroundZ, this, std::placeholders::_1, std::placeholders::_2));
 
   // | ------------------ first model iteration ----------------- |
 
@@ -322,7 +307,9 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
 
 /* makeStep() //{ */
 
-void UavSystemRos::makeStep(const double dt) {
+void UavSystemRos::makeStep(const double dt, const double time_stamp) {
+
+  mrs_lib::set_mutexed(mutex_time_stamp_, rclcpp::Time(static_cast<int64_t>(time_stamp * 1e9), RCL_ROS_TIME), time_stamp_);
 
   // | ---------------- check timeout of an input --------------- |
 
@@ -330,13 +317,13 @@ void UavSystemRos::makeStep(const double dt) {
 
   if (time_last_input.seconds() > 0) {
 
-    if ((clock_->now() - time_last_input).seconds() > _input_timeout_) {
+    if (time_stamp - time_last_input.seconds() > _input_timeout_) {
 
       RCLCPP_WARN(node_->get_logger(), "input timeouted");
 
       timeoutInput();
 
-      time_last_input = rclcpp::Time(0, 0, clock_->get_clock_type());
+      time_last_input = rclcpp::Time(0.0);
 
       mrs_lib::set_mutexed(mutex_time_last_input_, time_last_input, time_last_input_);
     }
@@ -431,7 +418,7 @@ void UavSystemRos::publishOdometry(const MultirotorModel::State &state) {
 
   nav_msgs::msg::Odometry odom;
 
-  odom.header.stamp    = clock_->now();
+  odom.header.stamp    = time_stamp_;
   odom.header.frame_id = _frame_world_;
   odom.child_frame_id  = _frame_fcu_;
 
@@ -464,7 +451,7 @@ void UavSystemRos::publishFCUTF(const MultirotorModel::State &state) {
 
     geometry_msgs::msg::TransformStamped tf;
 
-    tf.header.stamp    = clock_->now();
+    tf.header.stamp    = time_stamp_;
     tf.header.frame_id = _frame_world_;
     tf.child_frame_id  = _frame_fcu_;
 
@@ -490,7 +477,7 @@ void UavSystemRos::publishIMU(const MultirotorModel::State &state) {
 
   sensor_msgs::msg::Imu imu;
 
-  imu.header.stamp    = clock_->now();
+  imu.header.stamp    = time_stamp_;
   imu.header.frame_id = _frame_fcu_;
 
   imu.angular_velocity.x = state.omega(0);
@@ -541,7 +528,7 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State &state) {
   sensor_msgs::msg::Range range;
 
   range.header.frame_id = _frame_rangefinder_;
-  range.header.stamp    = clock_->now();
+  range.header.stamp    = time_stamp_;
   range.max_range       = 40.0;
   range.min_range       = 0.0;
   range.range           = range_measurement;
@@ -554,7 +541,7 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State &state) {
 
     geometry_msgs::msg::TransformStamped tf;
 
-    tf.header.stamp    = clock_->now();
+    tf.header.stamp    = time_stamp_;
     tf.header.frame_id = _frame_fcu_;
     tf.child_frame_id  = _frame_rangefinder_;
 
@@ -807,9 +794,9 @@ void UavSystemRos::callbackActuatorCmd(const mrs_msgs::msg::HwApiActuatorCmd::Co
   }
 
   {
-    std::scoped_lock lock(mutex_time_last_input_);
+    std::scoped_lock lock(mutex_time_last_input_, mutex_time_stamp_);
 
-    time_last_input_ = clock_->now();
+    time_last_input_ = rclcpp::Time(time_stamp_);
     last_input_mode_ = UavSystem::ACTUATOR_CMD;
   }
 }
@@ -842,7 +829,7 @@ void UavSystemRos::callbackControlGroupCmd(const mrs_msgs::msg::HwApiControlGrou
   {
     std::scoped_lock lock(mutex_time_last_input_);
 
-    time_last_input_ = clock_->now();
+    time_last_input_ = time_stamp_;
     last_input_mode_ = UavSystem::CONTROL_GROUP_CMD;
   }
 }
@@ -875,7 +862,7 @@ void UavSystemRos::callbackAttitudeRateCmd(const mrs_msgs::msg::HwApiAttitudeRat
   {
     std::scoped_lock lock(mutex_time_last_input_);
 
-    time_last_input_ = clock_->now();
+    time_last_input_ = time_stamp_;
     last_input_mode_ = UavSystem::ATTITUDE_RATE_CMD;
   }
 }
@@ -907,7 +894,7 @@ void UavSystemRos::callbackAttitudeCmd(const mrs_msgs::msg::HwApiAttitudeCmd::Co
   {
     std::scoped_lock lock(mutex_time_last_input_);
 
-    time_last_input_ = clock_->now();
+    time_last_input_ = time_stamp_;
     last_input_mode_ = UavSystem::ATTITUDE_CMD;
   }
 }
@@ -941,7 +928,7 @@ void UavSystemRos::callbackAccelerationHdgRateCmd(const mrs_msgs::msg::HwApiAcce
   {
     std::scoped_lock lock(mutex_time_last_input_);
 
-    time_last_input_ = clock_->now();
+    time_last_input_ = time_stamp_;
     last_input_mode_ = UavSystem::ACCELERATION_HDG_RATE_CMD;
   }
 }
@@ -975,7 +962,7 @@ void UavSystemRos::callbackAccelerationHdgCmd(const mrs_msgs::msg::HwApiAccelera
   {
     std::scoped_lock lock(mutex_time_last_input_);
 
-    time_last_input_ = clock_->now();
+    time_last_input_ = time_stamp_;
     last_input_mode_ = UavSystem::ACCELERATION_HDG_CMD;
   }
 }
@@ -1009,7 +996,7 @@ void UavSystemRos::callbackVelocityHdgRateCmd(const mrs_msgs::msg::HwApiVelocity
   {
     std::scoped_lock lock(mutex_time_last_input_);
 
-    time_last_input_ = clock_->now();
+    time_last_input_ = time_stamp_;
     last_input_mode_ = UavSystem::VELOCITY_HDG_RATE_CMD;
   }
 }
@@ -1043,7 +1030,7 @@ void UavSystemRos::callbackVelocityHdgCmd(const mrs_msgs::msg::HwApiVelocityHdgC
   {
     std::scoped_lock lock(mutex_time_last_input_);
 
-    time_last_input_ = clock_->now();
+    time_last_input_ = time_stamp_;
     last_input_mode_ = UavSystem::VELOCITY_HDG_CMD;
   }
 }
@@ -1077,7 +1064,7 @@ void UavSystemRos::callbackPositionCmd(const mrs_msgs::msg::HwApiPositionCmd::Co
   {
     std::scoped_lock lock(mutex_time_last_input_);
 
-    time_last_input_ = clock_->now();
+    time_last_input_ = time_stamp_;
     last_input_mode_ = UavSystem::POSITION_CMD;
   }
 }
@@ -1127,8 +1114,7 @@ void UavSystemRos::callbackTrackerCmd(const mrs_msgs::msg::TrackerCommand::Const
 
 /* callbackSetMass() //{ */
 
-bool UavSystemRos::callbackSetMass(const std::shared_ptr<mrs_msgs::srv::Float64Srv::Request>  request,
-                                   const std::shared_ptr<mrs_msgs::srv::Float64Srv::Response> response) {
+bool UavSystemRos::callbackSetMass(const std::shared_ptr<mrs_msgs::srv::Float64Srv::Request> request, const std::shared_ptr<mrs_msgs::srv::Float64Srv::Response> response) {
 
   if (!is_initialized_) {
     return false;
@@ -1160,8 +1146,7 @@ bool UavSystemRos::callbackSetMass(const std::shared_ptr<mrs_msgs::srv::Float64S
 
 /* callbackSetGroundZ() //{ */
 
-bool UavSystemRos::callbackSetGroundZ(const std::shared_ptr<mrs_msgs::srv::Float64Srv::Request>  request,
-                                      const std::shared_ptr<mrs_msgs::srv::Float64Srv::Response> response) {
+bool UavSystemRos::callbackSetGroundZ(const std::shared_ptr<mrs_msgs::srv::Float64Srv::Request> request, const std::shared_ptr<mrs_msgs::srv::Float64Srv::Response> response) {
 
   if (!is_initialized_) {
     return false;

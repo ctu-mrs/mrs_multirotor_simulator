@@ -46,7 +46,7 @@ class UavSystemRos {
 public:
   UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers);
 
-  void makeStep(const double dt);
+  void makeStep(const double dt, const double time_stamp);
 
   void crash(void);
 
@@ -60,8 +60,10 @@ public:
   MultirotorModel::State       getState();
 
 private:
-  rclcpp::Node::SharedPtr  node_;
-  rclcpp::Clock::SharedPtr clock_;
+  rclcpp::Node::SharedPtr node_;
+
+  rclcpp::Time time_stamp_;
+  std::mutex   mutex_time_stamp_;
 
   std::atomic<bool> is_initialized_ = false;
   std::string       _uav_name_;
@@ -146,8 +148,7 @@ private:
 
   bool callbackSetMass(const std::shared_ptr<mrs_msgs::srv::Float64Srv::Request> request, const std::shared_ptr<mrs_msgs::srv::Float64Srv::Response> response);
 
-  bool callbackSetGroundZ(const std::shared_ptr<mrs_msgs::srv::Float64Srv::Request>  request,
-                          const std::shared_ptr<mrs_msgs::srv::Float64Srv::Response> response);
+  bool callbackSetGroundZ(const std::shared_ptr<mrs_msgs::srv::Float64Srv::Request> request, const std::shared_ptr<mrs_msgs::srv::Float64Srv::Response> response);
 
   // | ------------------------ routines ------------------------ |
 

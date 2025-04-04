@@ -6,8 +6,7 @@ attach: false
 tmux_options: -f /etc/ctu-mrs/tmux.conf
 # you can modify these
 startup_window: autostart
-pre_window: export USE_SIM_TIME=true; export RMW_IMPLEMENTATION=rmw_zenoh_cpp
-# pre_window: export USE_SIM_TIME=true
+pre_window: export USE_SIM_TIME="true"; export RMW_IMPLEMENTATION=rmw_zenoh_cpp
 windows:
   - router:
       layout: tiled

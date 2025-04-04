@@ -50,11 +50,11 @@ private:
   // | ------------------------- params ------------------------- |
 
   double _simulation_rate_;
+  double _clock_rate_;
 
   rclcpp::Time sim_time_;
+  rclcpp::Time last_step_time_;
   std::mutex   mutex_sim_time_;
-
-  double _clock_min_dt_;
 
   std::string _world_frame_name_;
 
@@ -79,10 +79,6 @@ private:
   // | ------------------------- system ------------------------- |
 
   std::vector<std::unique_ptr<UavSystemRos>> uavs_;
-
-  // | -------------------------- time -------------------------- |
-
-  rclcpp::Time last_published_time_;
 
   // | ------------------------- methods ------------------------ |
 
@@ -214,6 +210,8 @@ void MultirotorSimulator::timerInit() {
 
   param_loader.loadParam("simulation_rate", _simulation_rate_);
 
+  param_loader.loadParam("clock_rate", _clock_rate_);
+
   param_loader.loadParam("realtime_factor", drs_params_.realtime_factor);
   this->set_parameter(rclcpp::Parameter("dynamic/realtime_factor", drs_params_.realtime_factor));
 
@@ -228,19 +226,17 @@ void MultirotorSimulator::timerInit() {
 
   param_loader.loadParam("frames/world/name", _world_frame_name_);
 
-  double clock_rate;
-  param_loader.loadParam("clock_rate", clock_rate);
-
   bool sim_time_from_wall_time;
   param_loader.loadParam("sim_time_from_wall_time", sim_time_from_wall_time);
 
   if (sim_time_from_wall_time) {
-    sim_time_ = clock_->now();
+    sim_time_       = clock_->now();
+    last_step_time_ = clock_->now();
   } else {
-    sim_time_ = rclcpp::Time(0, 0, clock_->get_clock_type());
+    sim_time_       = rclcpp::Time(0, 0, RCL_ROS_TIME);
+    last_step_time_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
   }
 
-  last_published_time_  = sim_time_;
   last_sim_time_status_ = sim_time_;
 
   drs_params_.paused = false;
@@ -279,8 +275,6 @@ void MultirotorSimulator::timerInit() {
 
   param_callback_handle_ = add_on_set_parameters_callback(std::bind(&MultirotorSimulator::callbackParameters, this, std::placeholders::_1));
 
-  _clock_min_dt_ = 1.0 / clock_rate;
-
   // | ----------------------- publishers ----------------------- |
 
   ph_clock_ = mrs_lib::PublisherHandler<rosgraph_msgs::msg::Clock>(node_, "~/clock_out");
@@ -289,8 +283,7 @@ void MultirotorSimulator::timerInit() {
 
   // | ------------------------- timers ------------------------- |
 
-  timer_main_ = create_wall_timer(std::chrono::duration<double>(1.0 / (_simulation_rate_ * drs_params_.realtime_factor)),
-                                  std::bind(&MultirotorSimulator::timerMain, this), cbgrp_main_);
+  timer_main_ = create_wall_timer(std::chrono::duration<double>(1.0 / (_clock_rate_ * drs_params_.realtime_factor)), std::bind(&MultirotorSimulator::timerMain, this), cbgrp_main_);
 
   timer_status_ = create_wall_timer(std::chrono::duration<double>(1.0), std::bind(&MultirotorSimulator::timerStatus, this), cbgrp_status_);
 
@@ -318,31 +311,37 @@ void MultirotorSimulator::timerMain() {
   }
 
   double simulation_step_size = 1.0 / _simulation_rate_;
+  double clock_step_size      = 1.0 / _clock_rate_;
 
-  // step the time
-  sim_time_ = sim_time_ + rclcpp::Duration(std::chrono::duration<double>(simulation_step_size));
+  auto sim_time = mrs_lib::get_mutexed(mutex_sim_time_, sim_time_);
 
-  for (size_t i = 0; i < uavs_.size(); i++) {
+  sim_time = sim_time + rclcpp::Duration(std::chrono::duration<double>(clock_step_size));
 
-    uavs_.at(i)->makeStep(simulation_step_size);
+  mrs_lib::set_mutexed(mutex_sim_time_, sim_time, sim_time_);
+
+  const double dt_since_last_step = (sim_time - last_step_time_).seconds();
+
+  if (dt_since_last_step >= simulation_step_size) {
+
+    for (size_t i = 0; i < uavs_.size(); i++) {
+
+      uavs_.at(i)->makeStep(dt_since_last_step, sim_time_.seconds());
+    }
+
+    publishPoses();
+
+    handleCollisions();
+
+    last_step_time_ = sim_time;
   }
-
-  publishPoses();
-
-  handleCollisions();
 
   // | ---------------------- publish time ---------------------- |
 
-  if ((sim_time_ - last_published_time_).seconds() >= _clock_min_dt_ * (1.0 - 1e-6)) {
+  rosgraph_msgs::msg::Clock ros_time;
 
-    rosgraph_msgs::msg::Clock ros_time;
+  ros_time.clock = sim_time;
 
-    ros_time.clock = sim_time_;
-
-    ph_clock_.publish(ros_time);
-
-    last_published_time_ = sim_time_;
-  }
+  ph_clock_.publish(ros_time);
 }
 
 //}
@@ -389,8 +388,7 @@ rcl_interfaces::msg::SetParametersResult MultirotorSimulator::callbackParameters
 
       if (drs_params.paused && !param.as_bool()) {
 
-        timer_main_ = create_wall_timer(std::chrono::duration<double>(1.0 / (_simulation_rate_ * drs_params.realtime_factor)),
-                                        std::bind(&MultirotorSimulator::timerMain, this), cbgrp_main_);
+        timer_main_ = create_wall_timer(std::chrono::duration<double>(1.0 / (_clock_rate_ * drs_params.realtime_factor)), std::bind(&MultirotorSimulator::timerMain, this), cbgrp_main_);
 
         timer_status_ = create_wall_timer(std::chrono::duration<double>(1.0), std::bind(&MultirotorSimulator::timerStatus, this), cbgrp_status_);
 
@@ -407,8 +405,7 @@ rcl_interfaces::msg::SetParametersResult MultirotorSimulator::callbackParameters
 
       timer_main_->cancel();
 
-      timer_main_ = create_wall_timer(std::chrono::duration<double>(1.0 / (_simulation_rate_ * drs_params.realtime_factor)),
-                                      std::bind(&MultirotorSimulator::timerMain, this), cbgrp_main_);
+      timer_main_ = create_wall_timer(std::chrono::duration<double>(1.0 / (_clock_rate_ * drs_params.realtime_factor)), std::bind(&MultirotorSimulator::timerMain, this), cbgrp_main_);
 
     } else if (param.get_name() == "dynamic/collisions_crash") {
 
