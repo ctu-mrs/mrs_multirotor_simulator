@@ -209,8 +209,13 @@ void MultirotorSimulator::timerInit() {
   }
 
   param_loader.loadParam("simulation_rate", _simulation_rate_);
-
   param_loader.loadParam("clock_rate", _clock_rate_);
+
+  if (_clock_rate_ < _simulation_rate_) {
+    RCLCPP_ERROR(get_logger(), "clock_rate (%.2f Hz) should be higher than simulation rate (%.2f Hz)!", _clock_rate_, _simulation_rate_);
+    rclcpp::shutdown();
+    exit(1);
+  }
 
   param_loader.loadParam("realtime_factor", drs_params_.realtime_factor);
   this->set_parameter(rclcpp::Parameter("dynamic/realtime_factor", drs_params_.realtime_factor));
