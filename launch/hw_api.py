@@ -72,6 +72,8 @@ def generate_launch_description():
         executable='component_container_mt',
         output="screen",
 
+        # prefix=['debug_roslaunch ' + os.ttyname(sys.stdout.fileno())],
+
         composable_node_descriptions=[
 
             ComposableNode(

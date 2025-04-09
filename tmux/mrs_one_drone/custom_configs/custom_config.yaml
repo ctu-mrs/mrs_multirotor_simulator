@@ -26,7 +26,7 @@ mrs_uav_managers:
         tracker: "LandoffTracker"
 
       after_takeoff:
-        controller: "Se3Controller"
+        controller: "MpcController"
         tracker: "MpcTracker"
 
     midair_activation:
@@ -36,5 +36,5 @@ mrs_uav_managers:
         tracker: "MidairActivationTracker"
 
       after_activation:
-        controller: "Se3Controller"
+        controller: "MpcController"
         tracker: "MpcTracker"
