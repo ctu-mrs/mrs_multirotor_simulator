@@ -7,10 +7,10 @@ uav1:
   spawn:
     x: 10.0
     y: 15.0
-    z: 2.0
+    z: 0.0
     heading: 3.14
 
 realtime_factor: 1.0 # [-]
 
 individual_takeoff_platform:
-  enabled: true
+  enabled: false
