@@ -90,7 +90,7 @@ def generate_launch_description():
         # prefix=['debug_roslaunch ' + os.ttyname(sys.stdout.fileno())],
 
         parameters=[
-            {'thread_num': 16},
+            {'thread_num': 8},
         ],
 
         composable_node_descriptions=[
