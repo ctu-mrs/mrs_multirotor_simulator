@@ -42,6 +42,8 @@ public:
 
   void initialize(const rclcpp::Node::SharedPtr& node, std::shared_ptr<mrs_uav_hw_api::CommonHandlers_t> common_handlers);
 
+  void destroy();
+
   rclcpp::Node::SharedPtr  node_;
   rclcpp::Clock::SharedPtr clock_;
 
@@ -298,6 +300,15 @@ void Api::initialize(const rclcpp::Node::SharedPtr& node, std::shared_ptr<mrs_ua
   RCLCPP_INFO(node_->get_logger(), "initialized");
 
   is_initialized_ = true;
+}
+
+//}
+
+/* destroy() //{ */
+
+void Api::destroy() {
+
+  timer_main_->stop();
 }
 
 //}
