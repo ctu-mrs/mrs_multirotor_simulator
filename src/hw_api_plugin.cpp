@@ -169,6 +169,14 @@ void Api::initialize(const rclcpp::Node::SharedPtr& node, std::shared_ptr<mrs_ua
 
   mrs_lib::ParamLoader local_param_loader(node_, "MultirotorSimulatorHwApi");
 
+  std::string custom_config_path;
+
+  common_handlers_->main_param_loader->loadParam("custom_config", custom_config_path);
+
+  if (custom_config_path != "") {
+    local_param_loader.addYamlFile(custom_config_path);
+  }
+
   std::vector<std::string> config_files;
   common_handlers_->main_param_loader->loadParamReusable("configs", config_files);
 
@@ -177,7 +185,6 @@ void Api::initialize(const rclcpp::Node::SharedPtr& node, std::shared_ptr<mrs_ua
     rclcpp::shutdown();
     exit(1);
   }
-
 
   for (auto config_file : config_files) {
     RCLCPP_INFO(node_->get_logger(), "loading config file '%s'", config_file.c_str());
