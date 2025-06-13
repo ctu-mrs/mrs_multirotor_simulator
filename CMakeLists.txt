@@ -20,16 +20,14 @@ if(${USE_ROS_TIMER})
   MESSAGE(WARNING "[mrs_uav_managers]: Compiling with ROS Timers. This can cause high CPU load in runtime.")
 endif()
 
-if(MRS_ENABLE_TESTING)
-  message(WARNING "Setting optimizaton levels for tests")
-  add_definitions("-O0")
-  add_definitions("-g")
-endif()
+if(ENABLE_COVERAGE)
+  message(WARNING "building for coverage, the performance might be limited")
 
-if(COVERAGE)
-  message(WARNING "building with --coverage, the performance might be limited")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -fprofile-arcs")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs")
+
+  add_definitions("-O1")
+  add_definitions("-g")
 endif()
 
 set(DEPENDENCIES
