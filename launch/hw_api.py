@@ -26,6 +26,18 @@ def generate_launch_description():
     this_pkg_path = get_package_share_directory(pkg_name)
     namespace='hw_api'
 
+    # #{ uav_name
+
+    uav_name = LaunchConfiguration('uav_name')
+
+    ld.add_action(DeclareLaunchArgument(
+        'uav_name',
+        default_value=os.getenv('UAV_NAME', "uav1"),
+        description="The uav name used for namespacing.",
+    ))
+
+    # #} end of custom_config
+
     # #{ custom_config
 
     custom_config = LaunchConfiguration('custom_config')
@@ -53,7 +65,6 @@ def generate_launch_description():
 
     # #{ args from ENV
 
-    uav_name=os.getenv('UAV_NAME', "uav1")
     use_sim_time=os.getenv('USE_SIM_TIME', "false") == "true"
 
     # #} end of args from ENV
@@ -84,26 +95,26 @@ def generate_launch_description():
                 name='hw_api',
                 parameters=[
                     {"uav_name": uav_name},
-                    {"topic_prefix": "/" + uav_name},
+                    {"topic_prefix": ["/", uav_name]},
                     {"use_sim_time": use_sim_time},
                     {"configs": configs},
                     {'custom_config': custom_config},
                 ],
 
                 remappings=[
-                  ("~/simulator_imu_in", "/multirotor_simulator/"+uav_name+"/imu"),
-                  ("~/simulator_odom_in", "/multirotor_simulator/"+uav_name+"/odom"),
-                  ("~/simulator_rangefinder_in", "/multirotor_simulator/"+uav_name+"/rangefinder"),
-                  ("~/simulator_actuators_cmd_out", "/multirotor_simulator/"+uav_name+"/actuators_cmd"),
-                  ("~/simulator_control_group_cmd_out", "/multirotor_simulator/"+uav_name+"/control_group_cmd"),
-                  ("~/simulator_attitude_rate_cmd_out", "/multirotor_simulator/"+uav_name+"/attitude_rate_cmd"),
-                  ("~/simulator_attitude_cmd_out", "/multirotor_simulator/"+uav_name+"/attitude_cmd"),
-                  ("~/simulator_acceleration_hdg_rate_cmd_out", "/multirotor_simulator/"+uav_name+"/acceleration_hdg_rate_cmd"),
-                  ("~/simulator_acceleration_hdg_cmd_out", "/multirotor_simulator/"+uav_name+"/acceleration_hdg_cmd"),
-                  ("~/simulator_velocity_hdg_rate_cmd_out", "/multirotor_simulator/"+uav_name+"/velocity_hdg_rate_cmd"),
-                  ("~/simulator_velocity_hdg_cmd_out", "/multirotor_simulator/"+uav_name+"/velocity_hdg_cmd"),
-                  ("~/simulator_position_cmd_out", "/multirotor_simulator/"+uav_name+"/position_cmd"),
-                  ("~/simulator_tracker_cmd_out", "/multirotor_simulator/"+uav_name+"/tracker_cmd"),
+                  ("~/simulator_imu_in", ["/multirotor_simulator/", uav_name, "/imu"]),
+                  ("~/simulator_odom_in", ["/multirotor_simulator/", uav_name, "/odom"]),
+                  ("~/simulator_rangefinder_in", ["/multirotor_simulator/", uav_name, "/rangefinder"]),
+                  ("~/simulator_actuators_cmd_out", ["/multirotor_simulator/", uav_name, "/actuators_cmd"]),
+                  ("~/simulator_control_group_cmd_out", ["/multirotor_simulator/", uav_name, "/control_group_cmd"]),
+                  ("~/simulator_attitude_rate_cmd_out", ["/multirotor_simulator/", uav_name, "/attitude_rate_cmd"]),
+                  ("~/simulator_attitude_cmd_out", ["/multirotor_simulator/", uav_name, "/attitude_cmd"]),
+                  ("~/simulator_acceleration_hdg_rate_cmd_out", ["/multirotor_simulator/", uav_name, "/acceleration_hdg_rate_cmd"]),
+                  ("~/simulator_acceleration_hdg_cmd_out", ["/multirotor_simulator/", uav_name, "/acceleration_hdg_cmd"]),
+                  ("~/simulator_velocity_hdg_rate_cmd_out", ["/multirotor_simulator/", uav_name, "/velocity_hdg_rate_cmd"]),
+                  ("~/simulator_velocity_hdg_cmd_out", ["/multirotor_simulator/", uav_name, "/velocity_hdg_cmd"]),
+                  ("~/simulator_position_cmd_out", ["/multirotor_simulator/", uav_name, "/position_cmd"]),
+                  ("~/simulator_tracker_cmd_out", ["/multirotor_simulator/", uav_name, "/tracker_cmd"]),
                 ],
             )
 
