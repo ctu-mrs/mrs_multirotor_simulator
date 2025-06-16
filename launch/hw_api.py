@@ -63,11 +63,17 @@ def generate_launch_description():
 
     # #} end of custom_config
 
-    # #{ args from ENV
+    # #{ use_sim_time
 
-    use_sim_time=os.getenv('USE_SIM_TIME', "false") == "true"
+    use_sim_time = LaunchConfiguration('use_sim_time')
 
-    # #} end of args from ENV
+    ld.add_action(DeclareLaunchArgument(
+        'use_sim_time',
+        default_value=os.getenv('USE_SIM_TIME', "true"),
+        description="Should the node subscribe to sim time?",
+    ))
+
+    # #} end of custom_config
 
     # the first one has the priority
     configs = [
