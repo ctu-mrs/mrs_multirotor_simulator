@@ -500,8 +500,12 @@ void MultirotorSimulator::handleCollisions(void) {
       const Eigen::Vector3d rel_pos = state_1.x - state_2.x;
 
       if (dist < crit_dist) {
-        if (drs_params.collisions_crash) {
+        if (drs_params.collisions_crash && !uavs_.at(idx)->hasCrashed()) {
+
+          RCLCPP_WARN(get_logger(), "uav%u crashed", int(idx+1));
+
           uavs_.at(idx)->crash();
+
         } else {
           forces.at(i) += drs_params.collisions_rebounce * rel_pos.normalized() * params_1.mass * (params_2.mass / (params_1.mass + params_2.mass));
         }
