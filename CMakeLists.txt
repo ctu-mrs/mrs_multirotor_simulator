@@ -71,13 +71,7 @@ add_library(MrsMultirotorSimulator_SimulatorSystemRos SHARED
 )
 
 ament_target_dependencies(MrsMultirotorSimulator_SimulatorSystemRos
-  rclcpp
-  rclcpp_components
-  mrs_lib
-  sensor_msgs
-  std_msgs
-  mrs_msgs
-  nav_msgs
+  ${DEPENDENCIES}
 )
 
 # MRS Simulator
@@ -91,14 +85,7 @@ target_link_libraries(MrsMultirotorSimulator_Simulator
   )
 
 ament_target_dependencies(MrsMultirotorSimulator_Simulator
-  rclcpp
-  rclcpp_components
-  mrs_lib
-  sensor_msgs
-  std_msgs
-  mrs_msgs
-  geometry_msgs
-  nav_msgs
+  ${DEPENDENCIES}
 )
 
 rclcpp_components_register_nodes(MrsMultirotorSimulator_Simulator PLUGIN "mrs_multirotor_simulator::MultirotorSimulator" EXECUTABLE MrsMultirotorSimulator_Simulator)
