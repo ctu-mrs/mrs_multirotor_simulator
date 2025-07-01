@@ -127,8 +127,8 @@ private:
 
   // | ------------------------ variables ----------------------- |
 
-  std::atomic<bool> offboard_ = false;
-  std::string       mode_;
+  std::atomic<bool> offboard_  = false;
+  std::string       mode_      = "NORMAL";
   std::atomic<bool> armed_     = false;
   std::atomic<bool> connected_ = false;
   std::mutex        mutex_status_;
@@ -402,6 +402,7 @@ std::tuple<bool, std::string> Api::callbackOffboard(void) {
   }
 
   offboard_ = true;
+  mode_     = "OFFBOARD";
 
   ss << "Offboard set";
   RCLCPP_INFO(node_->get_logger(), "%s", ss.str().c_str());
@@ -934,6 +935,7 @@ void Api::timeoutInputs(void) {
 
   if (last_cmd_time_.seconds() > 0 && (clock_->now() - last_cmd_time).seconds() > _input_timeout_) {
     offboard_ = false;
+    mode_     = "NORMAL";
   }
 }
 
