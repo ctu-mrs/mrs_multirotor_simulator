@@ -15,7 +15,18 @@ class Goto(Node):
         self.get_logger().info('Setting up the client')
 
         # self.client = self.create_client(ReferenceStampedSrv, "/uav1/control_manager/reference")
-        self.client = self.create_client(Vec4, "/uav1/control_manager/goto_relative")
+
+        self.client = self.create_client(Vec4, "/uav1/control_manager/goto")
+
+        self.timer = self.create_timer(0.1, self.doAction)
+
+        self.get_logger().info('__init__ finished')
+
+    def doAction(self):
+
+        self.get_logger().info('doing the action')
+
+        self.timer.cancel()
 
         while not self.client.wait_for_service(timeout_sec=3.0):
             self.get_logger().info('service not available, waiting again...')
@@ -30,13 +41,21 @@ class Goto(Node):
         request = Vec4.Request()
         request.goal[0] = 0.0
         request.goal[1] = 0.0
-        request.goal[2] = 0.0
+        request.goal[2] = 2.0
         request.goal[3] = 1.5
 
-        self.future = self.client.call_async(request)
-        rclpy.spin_until_future_complete(self, self.future)
+        self.get_logger().info('Calling service')
 
-        self.get_logger().info('Service called')
+        future = self.client.call_async(request)
+        future.add_done_callback(self.doneCallback)
+
+    def doneCallback(self, future):
+
+        try:
+            response = future.result()
+            print("response: {}".format(response))
+        except Exception as e:
+            print("e: {}".format(e))
 
         rclpy.shutdown()
 
@@ -46,13 +65,8 @@ def main(args=None):
 
     node = Goto()
 
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
+    rclpy.spin(node)
 
 if __name__ == '__main__':
     main()
+ 
