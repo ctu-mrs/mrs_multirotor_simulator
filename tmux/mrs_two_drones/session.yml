@@ -31,11 +31,11 @@ windows:
       panes:
         - export UAV_NAME=uav1; ros2 run mrs_uav_status status.sh
         - export UAV_NAME=uav2; ros2 run mrs_uav_status status.sh
-  - commands:
+  - midair_activation:
       layout: tiled
       panes:
-        - 'export UAV_NAME=uav1; history -s ./midair.sh'
-        - 'export UAV_NAME=uav2; history -s ./midair.sh'
+        - export UAV_NAME=uav1; waitForCore; ./midair.sh
+        - export UAV_NAME=uav2; waitForCore; ./midair.sh
   - rviz:
       layout: tiled
       panes:
