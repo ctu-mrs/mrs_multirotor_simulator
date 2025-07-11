@@ -6,7 +6,12 @@ attach: false
 tmux_options: -f /etc/ctu-mrs/tmux.conf
 # you can modify these
 startup_window: goto
+pre_window: export RMW_IMPLEMENTATION=rmw_zenoh_cpp
 windows:
+  - router:
+      layout: tiled
+      panes:
+        - ros2 run rmw_zenoh_cpp rmw_zenohd
   - simulator:
       layout: tiled
       panes:
