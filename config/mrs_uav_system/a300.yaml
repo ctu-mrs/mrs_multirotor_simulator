@@ -1,11 +1,5 @@
 uav_mass: 1.21 # overall mass of the drone
 
-# force to throttle sqrt(force / motor_params.n_motors) * motor_params.A + motor_params.B;
-# for single rotor max 19,23432N it is sqrt(19,23432) * 0.2600 - 0.1765
-
-#those motor params are for 20,475625N max thrust 1 throttle ... ((1+0.1765)/0.26)^2
-#for zero throttle we get force of single rotor = (0.1765/0.26)^2 = 0,460832101N 
-# zero throttle thrist must correspond to min_rpm sqrt(0.460832101/0.000000045) = 3200,111459864
 motor_params:
   n_motors: 4
   a: 0.2300
@@ -18,6 +12,12 @@ motor_params:
 model_params:
   arm_length: 0.15 # [m]
   body_height: 0.05 # [m]
+
+  # The UAV's inertia is approximated as a cilinder using the parameters above
+  # Alternatively, you can provide inertia matrix directly using the following parameter:
+  inertia_matrix:
+    enabled: false
+    matrix: []
 
   propulsion:
     # force [N] = force_constant * rpm^2
@@ -43,10 +43,6 @@ model_params:
           -1  ,  -1  ,   1   ,    1  , # *= torque_constant*force_constant
            1  ,   1  ,   1   ,    1  , # *= force_constant
       ]
-
-    # The UAV's inertia is approximated as a cilinder using the parameters above
-    # Alternatively, you can provide inertia matrix directly using the following parameter:
-    # inertia_matrix: []
 
     rpm:
       min: 3103 # [revolutions/minute]

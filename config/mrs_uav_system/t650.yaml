@@ -14,6 +14,12 @@ model_params:
   arm_length: 0.325  # [m]
   body_height: 0.15 # [m]
 
+  # The UAV's inertia is approximated as a cilinder using the parameters above
+  # Alternatively, you can provide inertia matrix directly using the following parameter:
+  inertia_matrix:
+    enabled: false
+    matrix: []
+
   propulsion:
 
     # force [N] = force_constant * rpm^2
@@ -38,10 +44,6 @@ model_params:
       -1,     -1,    1,      1,      # *= torque_constant*force_constant
       1,      1,     1,      1,      # *= force_constant
     ]
-
-    # The UAV's inertia is approximated as a cilinder using the parameters above
-    # Alternatively, you can provide inertia matrix directly using the following parameter:
-    # inertia_matrix: []
 
     rpm:
       min: 875  # [revolutions/minute]
