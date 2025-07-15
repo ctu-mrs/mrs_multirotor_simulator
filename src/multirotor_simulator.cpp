@@ -119,60 +119,6 @@ private:
 
 MultirotorSimulator::MultirotorSimulator(rclcpp::NodeOptions options) : Node("multirotor_simulator", options) {
 
-  /* { */
-  /*   auto param_desc = rcl_interfaces::msg::ParameterDescriptor{}; */
-
-  /*   rcl_interfaces::msg::FloatingPointRange range; */
-
-  /*   range.from_value = 0.01; */
-  /*   range.to_value   = 10.0; */
-
-  /*   param_desc.floating_point_range = {range}; */
-
-  /*   param_desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE; */
-
-  /*   this->declare_parameter("dynamic/realtime_factor", 1.0, param_desc); */
-  /* } */
-
-  /* { */
-  /*   auto param_desc = rcl_interfaces::msg::ParameterDescriptor{}; */
-
-  /*   param_desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL; */
-
-  /*   this->declare_parameter("dynamic/paused", false, param_desc); */
-  /* } */
-
-  /* { */
-  /*   auto param_desc = rcl_interfaces::msg::ParameterDescriptor{}; */
-
-  /*   param_desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL; */
-
-  /*   this->declare_parameter("dynamic/collisions_enabled", false, param_desc); */
-  /* } */
-
-  /* { */
-  /*   auto param_desc = rcl_interfaces::msg::ParameterDescriptor{}; */
-
-  /*   param_desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL; */
-
-  /*   this->declare_parameter("dynamic/collisions_crash", false, param_desc); */
-  /* } */
-
-  /* { */
-  /*   auto param_desc = rcl_interfaces::msg::ParameterDescriptor{}; */
-
-  /*   param_desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE; */
-
-  /*   rcl_interfaces::msg::FloatingPointRange range; */
-
-  /*   range.from_value = 0.0; */
-  /*   range.to_value   = 500.0; */
-
-  /*   param_desc.floating_point_range = {range}; */
-
-  /*   this->declare_parameter("dynamic/collisions_rebounce", 1.0, param_desc); */
-  /* } */
-
   timer_init_ = create_wall_timer(std::chrono::duration<double>(0.1s), std::bind(&MultirotorSimulator::timerInit, this));
 }
 

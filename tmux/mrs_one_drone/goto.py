@@ -14,9 +14,9 @@ class Goto(Node):
 
         self.get_logger().info('Setting up the client')
 
-        # self.client = self.create_client(ReferenceStampedSrv, "/uav1/control_manager/reference")
+        self.client = self.create_client(ReferenceStampedSrv, "/uav1/control_manager/reference")
 
-        self.client = self.create_client(Vec4, "/uav1/control_manager/goto")
+        # self.client = self.create_client(Vec4, "/uav1/control_manager/goto")
 
         self.timer = self.create_timer(0.1, self.doAction)
 
@@ -31,18 +31,18 @@ class Goto(Node):
         while not self.client.wait_for_service(timeout_sec=3.0):
             self.get_logger().info('service not available, waiting again...')
 
-        # request = ReferenceStampedSrv.Request()
-        # request.header.frame_id = "fcu_untilted"
-        # request.reference.position.x = 0.0
-        # request.reference.position.y = 0.0
-        # request.reference.position.z = 0.0
-        # request.reference.heading = 1.5
+        request = ReferenceStampedSrv.Request()
+        request.header.frame_id = "fcu_untilted"
+        request.reference.position.x = 5.0
+        request.reference.position.y = 0.0
+        request.reference.position.z = 0.0
+        request.reference.heading = 1.5
 
-        request = Vec4.Request()
-        request.goal[0] = 0.0
-        request.goal[1] = 0.0
-        request.goal[2] = 2.0
-        request.goal[3] = 1.5
+        # request = Vec4.Request()
+        # request.goal[0] = 5.0
+        # request.goal[1] = 5.0
+        # request.goal[2] = 2.0
+        # request.goal[3] = 1.5
 
         self.get_logger().info('Calling service')
 

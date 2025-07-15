@@ -32,7 +32,6 @@ windows:
           world_config:=./config/world_config.yaml
           custom_config:=./config/custom_config.yaml
           network_config:=./config/network_config.yaml
-          standalone:=true
   - status:
       layout: tiled
       panes:
@@ -57,4 +56,4 @@ windows:
   - layout:
       layout: tiled
       panes:
-        - sleep 2.0; ~/.i3/layout_manager.sh ./layout.json
+        - waitForCore; ~/.i3/layout_manager.sh ./layout.json
