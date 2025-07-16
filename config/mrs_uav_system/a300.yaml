@@ -10,6 +10,9 @@ motor_params:
 # - 'actuator control'
 # are done by the MRS system.
 model_params:
+
+  enabled: true
+
   arm_length: 0.15 # [m]
   body_height: 0.05 # [m]
 

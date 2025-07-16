@@ -11,6 +11,8 @@ motor_params:
 # are accepted by the HW API.
 model_params:
 
+  enabled: true
+
   arm_length: 0.27 # [m]
   body_height: 0.1  # [m]
 
