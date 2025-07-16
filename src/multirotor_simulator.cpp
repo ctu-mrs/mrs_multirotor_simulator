@@ -95,8 +95,6 @@ private:
 
   std::shared_ptr<mrs_lib::DynparamMgr> dynparam_mgr_;
 
-  /* rcl_interfaces::msg::SetParametersResult callbackParameters(std::vector<rclcpp::Parameter> parameters); */
-
   struct drs_params
   {
     double realtime_factor     = 1.0;
