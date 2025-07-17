@@ -138,9 +138,13 @@ void MultirotorSimulator::timerInit() {
   cbgrp_main_   = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
   cbgrp_status_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
+  // | ---------------- initialize param wrappers --------------- |
+
   mrs_lib::ParamLoader param_loader(node_, this->get_name());
 
   dynparam_mgr_ = std::make_shared<mrs_lib::DynparamMgr>(node_, mutex_drs_params_);
+
+  // | ----------------------- load files ----------------------- |
 
   // load custom config
 
@@ -151,9 +155,6 @@ void MultirotorSimulator::timerInit() {
     RCLCPP_INFO(node_->get_logger(), "loading custom config '%s", custom_config_path.c_str());
 
     param_loader.addYamlFile(custom_config_path);
-
-    // dynparam_mgr_ need it to load default values from yaml
-    dynparam_mgr_->get_param_provider().addYamlFile(custom_config_path);
   }
 
   // load other configs
@@ -165,19 +166,14 @@ void MultirotorSimulator::timerInit() {
     RCLCPP_INFO(node_->get_logger(), "loading config file '%s'", config_file.c_str());
 
     param_loader.addYamlFile(config_file);
-
-    // dynparam_mgr_ need it to load default values from yaml
-    dynparam_mgr_->get_param_provider().addYamlFile(config_file);
   }
+
+  dynparam_mgr_->get_param_provider().copyYamls(param_loader.getParamProvider());
+
+  // | ----------------------- load params ---------------------- |
 
   param_loader.loadParam("simulation_rate", _simulation_rate_);
   param_loader.loadParam("clock_rate", _clock_rate_);
-
-  if (_clock_rate_ < _simulation_rate_) {
-    RCLCPP_ERROR(get_logger(), "clock_rate (%.2f Hz) should be higher than simulation rate (%.2f Hz)!", _clock_rate_, _simulation_rate_);
-    rclcpp::shutdown();
-    exit(1);
-  }
 
   dynparam_mgr_->register_param("dynamic/realtime_factor", &drs_params_.realtime_factor, mrs_lib::DynparamMgr::range_t<double>(0.01, 10), (std::function<void(const double&)>)std::bind(&MultirotorSimulator::callbackRealtimeFactor, this, std::placeholders::_1));
 
@@ -229,9 +225,15 @@ void MultirotorSimulator::timerInit() {
 
   RCLCPP_INFO(node_->get_logger(), "all uavs initialized");
 
-  if (!param_loader.loadedSuccessfully()) {
+  if (!param_loader.loadedSuccessfully() || !dynparam_mgr_->loaded_successfully()) {
     RCLCPP_ERROR(get_logger(), "could not load all parameters!");
     rclcpp::shutdown();
+  }
+
+  if (_clock_rate_ < _simulation_rate_) {
+    RCLCPP_ERROR(get_logger(), "clock_rate (%.2f Hz) should be higher than simulation rate (%.2f Hz)!", _clock_rate_, _simulation_rate_);
+    rclcpp::shutdown();
+    exit(1);
   }
 
   // | ----------------------- publishers ----------------------- |
