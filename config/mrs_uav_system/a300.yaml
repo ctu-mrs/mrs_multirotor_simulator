@@ -2,8 +2,8 @@ uav_mass: 1.21 # overall mass of the drone
 
 motor_params:
   n_motors: 4
-  a: 0.2300
-  b: -0.0765
+  a: 0.2600
+  b: -0.1765
 
 # these model parameters can be used when
 # - 'attitude rate', and/or
@@ -25,10 +25,10 @@ model_params:
   propulsion:
     # force [N] = force_constant * rpm^2
     # for 21400 max rpm it is 20,475625 N then the force constant is 0.000000045
-    force_constant: 0.000000046626
+    force_constant: 0.000000045
 
     # torque [Nm] = torque_constant * force [N]
-    torque_constant: 0.012 # 0.014 torque computed from power (efficiency estimated as 85% )
+    torque_constant: 0.0012
 
     prop_radius: 0.089 # [m]
 
@@ -48,8 +48,8 @@ model_params:
       ]
 
     rpm:
-      min: 3103 # [revolutions/minute]
-      max: 20689 # [revolutions/minute]
+      min: 3200 # [revolutions/minute]
+      max: 21400 # [revolutions/minute]
 
 mrs_uav_managers:
   constraint_manager:
