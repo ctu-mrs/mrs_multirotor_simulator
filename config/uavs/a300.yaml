@@ -13,7 +13,7 @@ a300:
     force_constant: 0.000000045
 
     # moment [Nm] = moment_constant * force [N]
-    moment_constant: 0.0012
+    moment_constant: 0.012
 
     prop_radius: 0.089 # [m]
 
