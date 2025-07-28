@@ -28,7 +28,7 @@ model_params:
     force_constant: 0.000000045
 
     # torque [Nm] = torque_constant * force [N]
-    torque_constant: 0.0012
+    torque_constant: 0.012
 
     prop_radius: 0.089 # [m]
 
