@@ -10,7 +10,8 @@ uav1:
     z: 0.0
     heading: 3.14
 
-realtime_factor: 1.0 # [-]
+dynamic:
+  realtime_factor: 1.0 # [-]
 
 individual_takeoff_platform:
   enabled: false
