@@ -755,7 +755,12 @@ void Api::callbackOdom(const nav_msgs::Odometry::ConstPtr msg) {
 
   if (_capabilities_.produces_magnetometer_heading) {
 
-    double heading = mrs_lib::AttitudeConverter(odom->pose.pose.orientation).getHeading();
+    double heading = 0;
+    try {
+      heading = mrs_lib::AttitudeConverter(odom->pose.pose.orientation).getHeading();
+    } catch (mrs_lib::AttitudeConverter::GetHeadingException& e) { 
+      ROS_ERROR_THROTTLE(1.0, "[Api]: exception caught: '%s'", e.what());
+    }
 
     mrs_msgs::Float64Stamped hdg;
 
