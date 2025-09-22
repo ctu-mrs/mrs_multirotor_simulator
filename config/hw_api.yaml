@@ -1,4 +1,5 @@
 hw_interface_plugin: "mrs_uav_simulator_hw_api_plugin::Api"
+
 plugin:
 
   gnss:
