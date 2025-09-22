@@ -47,6 +47,10 @@ public:
   rclcpp::Node::SharedPtr  node_;
   rclcpp::Clock::SharedPtr clock_;
 
+  rclcpp::CallbackGroup::SharedPtr cbgrp_subs_;
+  rclcpp::CallbackGroup::SharedPtr cbgrp_sc_;
+  rclcpp::CallbackGroup::SharedPtr cbgrp_timers_;
+
   // | ------------------------- params ------------------------- |
 
   mrs_msgs::msg::HwApiCapabilities _capabilities_;
@@ -155,6 +159,10 @@ void Api::initialize(const rclcpp::Node::SharedPtr& node, std::shared_ptr<mrs_ua
   node_  = node;
   clock_ = node_->get_clock();
 
+  cbgrp_subs_   = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+  cbgrp_sc_     = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+  cbgrp_timers_ = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+
   common_handlers_ = common_handlers;
 
   _capabilities_.api_name = "MrsSimulator";
@@ -235,11 +243,12 @@ void Api::initialize(const rclcpp::Node::SharedPtr& node, std::shared_ptr<mrs_ua
 
   mrs_lib::SubscriberHandlerOptions shopts;
 
-  shopts.node               = node_;
-  shopts.node_name          = "MultirotorSimulatorHwApi";
-  shopts.no_message_timeout = mrs_lib::no_timeout;
-  shopts.threadsafe         = true;
-  shopts.autostart          = true;
+  shopts.node                                = node_;
+  shopts.node_name                           = "MultirotorSimulatorHwApi";
+  shopts.no_message_timeout                  = mrs_lib::no_timeout;
+  shopts.threadsafe                          = true;
+  shopts.autostart                           = true;
+  shopts.subscription_options.callback_group = cbgrp_subs_;
 
   sh_odom_ = mrs_lib::SubscriberHandler<nav_msgs::msg::Odometry>(shopts, "~/simulator_odom_in", &Api::callbackOdom, this);
 
@@ -296,8 +305,9 @@ void Api::initialize(const rclcpp::Node::SharedPtr& node, std::shared_ptr<mrs_ua
 
     mrs_lib::TimerHandlerOptions opts;
 
-    opts.node      = node_;
-    opts.autostart = true;
+    opts.node           = node_;
+    opts.autostart      = true;
+    opts.callback_group = cbgrp_timers_;
 
     timer_main_ = std::make_shared<TimerType>(opts, rclcpp::Rate(10.0, clock_), callback_fcn);
   }
@@ -814,7 +824,8 @@ void Api::callbackOdom(const nav_msgs::msg::Odometry::ConstSharedPtr msg) {
     double heading = 0;
     try {
       heading = mrs_lib::AttitudeConverter(odom->pose.pose.orientation).getHeading();
-    } catch (mrs_lib::AttitudeConverter::GetHeadingException& e) {
+    }
+    catch (mrs_lib::AttitudeConverter::GetHeadingException& e) {
       RCLCPP_WARN(node_->get_logger(), "exception caught: '%s'", e.what());
     }
 

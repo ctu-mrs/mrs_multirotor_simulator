@@ -8,6 +8,7 @@
 #include <mrs_lib/param_loader.h>
 #include <mrs_lib/publisher_handler.h>
 #include <mrs_lib/subscriber_handler.h>
+#include <mrs_lib/service_server_handler.h>
 #include <mrs_lib/mutex.h>
 #include <mrs_lib/attitude_converter.h>
 
@@ -62,6 +63,9 @@ public:
 private:
   rclcpp::Node::SharedPtr node_;
 
+  rclcpp::CallbackGroup::SharedPtr cbgrp_subs_;
+  rclcpp::CallbackGroup::SharedPtr cbgrp_ss_;
+
   rclcpp::Time time_stamp_;
   std::mutex   mutex_time_stamp_;
 
@@ -115,8 +119,6 @@ private:
 
   // | ----------------------- subscribers ---------------------- |
 
-  rclcpp::CallbackGroup::SharedPtr cbgrp_subs_;
-
   void callbackActuatorCmd(const mrs_msgs::msg::HwApiActuatorCmd::ConstSharedPtr msg);
   void callbackControlGroupCmd(const mrs_msgs::msg::HwApiControlGroupCmd::ConstSharedPtr msg);
   void callbackAttitudeRateCmd(const mrs_msgs::msg::HwApiAttitudeRateCmd::ConstSharedPtr msg);
@@ -143,12 +145,13 @@ private:
 
   // | --------------------- service servers -------------------- |
 
-  rclcpp::Service<mrs_msgs::srv::Float64Srv>::SharedPtr service_server_set_mass_;
-  rclcpp::Service<mrs_msgs::srv::Float64Srv>::SharedPtr service_server_set_ground_z_;
+  mrs_lib::ServiceServerHandler<mrs_msgs::srv::Float64Srv> ss_set_mass_;
+  mrs_lib::ServiceServerHandler<mrs_msgs::srv::Float64Srv> ss_set_ground_z_;
 
   bool callbackSetMass(const std::shared_ptr<mrs_msgs::srv::Float64Srv::Request> request, const std::shared_ptr<mrs_msgs::srv::Float64Srv::Response> response);
 
-  bool callbackSetGroundZ(const std::shared_ptr<mrs_msgs::srv::Float64Srv::Request> request, const std::shared_ptr<mrs_msgs::srv::Float64Srv::Response> response);
+  bool callbackSetGroundZ(const std::shared_ptr<mrs_msgs::srv::Float64Srv::Request>  request,
+                          const std::shared_ptr<mrs_msgs::srv::Float64Srv::Response> response);
 
   // | ------------------------ routines ------------------------ |
 
