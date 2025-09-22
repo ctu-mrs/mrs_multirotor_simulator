@@ -11,7 +11,6 @@
 #include <mrs_lib/mutex.h>
 #include <mrs_lib/publisher_handler.h>
 #include <mrs_lib/subscriber_handler.h>
-#include <mrs_lib/service_client_handler.h>
 
 /* #include <std_msgs/Float64.h> */
 /* #include <std_srvs/SetBool.h> */
