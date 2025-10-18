@@ -39,6 +39,7 @@ private:
 
   void initialize();
 
+  rclcpp::Node::SharedPtr  node_;
   rclcpp::Clock::SharedPtr clock_;
   std::atomic<bool>        is_initialized_ = false;
 
@@ -122,6 +123,7 @@ MultirotorSimulator::MultirotorSimulator(rclcpp::NodeOptions options) : mrs_lib:
 
 void MultirotorSimulator::initialize() {
 
+  node_  = this_node_ptr();
   clock_ = node_->get_clock();
 
   srand(time(NULL));
