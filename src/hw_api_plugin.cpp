@@ -12,9 +12,6 @@
 #include <mrs_lib/publisher_handler.h>
 #include <mrs_lib/subscriber_handler.h>
 
-/* #include <std_msgs/Float64.h> */
-/* #include <std_srvs/SetBool.h> */
-
 #include <mrs_lib/gps_conversions.h>
 
 //}
