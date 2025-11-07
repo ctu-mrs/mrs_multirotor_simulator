@@ -99,8 +99,8 @@ private:
     double collisions_rebounce = 1;
   };
 
-  void callbackRealtimeFactor(const double& param_value);
-  void callbackPause(const bool& param_value);
+  void callbackRealtimeFactor(const double &param_value);
+  void callbackPause(const bool &param_value);
 
   drs_params drs_params_;
   std::mutex mutex_drs_params_;
@@ -171,7 +171,7 @@ void MultirotorSimulator::initialize() {
   param_loader.loadParam("clock_rate", _clock_rate_);
 
   dynparam_mgr_->register_param("dynamic/realtime_factor", &drs_params_.realtime_factor, mrs_lib::DynparamMgr::range_t<double>(0.01, 10),
-                                (std::function<void(const double&)>)std::bind(&MultirotorSimulator::callbackRealtimeFactor, this, std::placeholders::_1));
+                                (std::function<void(const double &)>)std::bind(&MultirotorSimulator::callbackRealtimeFactor, this, std::placeholders::_1));
 
   dynparam_mgr_->register_param("dynamic/collisions/enabled", &drs_params_.collisions_enabled);
 
@@ -180,7 +180,7 @@ void MultirotorSimulator::initialize() {
   dynparam_mgr_->register_param("dynamic/collisions/rebounce", &drs_params_.collisions_rebounce, mrs_lib::DynparamMgr::range_t<double>(0.1, 1000));
 
   dynparam_mgr_->register_param("dynamic/paused", &drs_params_.paused, false,
-                                (std::function<void(const bool&)>)std::bind(&MultirotorSimulator::callbackPause, this, std::placeholders::_1));
+                                (std::function<void(const bool &)>)std::bind(&MultirotorSimulator::callbackPause, this, std::placeholders::_1));
 
   param_loader.loadParam("frames/world/name", _world_frame_name_);
 
@@ -332,7 +332,7 @@ void MultirotorSimulator::timerStatus() {
 
 /* callbackRealtimeFactor() //{ */
 
-void MultirotorSimulator::callbackRealtimeFactor(const double& param_value) {
+void MultirotorSimulator::callbackRealtimeFactor(const double &param_value) {
 
   timer_main_->cancel();
 
@@ -346,7 +346,7 @@ void MultirotorSimulator::callbackRealtimeFactor(const double& param_value) {
 
 /* callbackPause() //{ */
 
-void MultirotorSimulator::callbackPause(const bool& param_value) {
+void MultirotorSimulator::callbackPause(const bool &param_value) {
 
   RCLCPP_INFO(node_->get_logger(), "callbackPause()");
 
@@ -478,7 +478,7 @@ void MultirotorSimulator::publishPoses(void) {
 
 //}
 
-}  // namespace mrs_multirotor_simulator
+} // namespace mrs_multirotor_simulator
 
 #include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(mrs_multirotor_simulator::MultirotorSimulator)

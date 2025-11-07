@@ -34,9 +34,9 @@ namespace mrs_uav_simulator_hw_api_plugin
 class Api : public mrs_uav_hw_api::MrsUavHwApi {
 
 public:
-  ~Api(){};
+  ~Api() {};
 
-  void initialize(const rclcpp::Node::SharedPtr& node, std::shared_ptr<mrs_uav_hw_api::CommonHandlers_t> common_handlers);
+  void initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_uav_hw_api::CommonHandlers_t> common_handlers);
 
   void destroy();
 
@@ -85,7 +85,7 @@ public:
 
   // | -------------------- service callbacks ------------------- |
 
-  std::tuple<bool, std::string> callbackArming(const bool& request);
+  std::tuple<bool, std::string> callbackArming(const bool &request);
   std::tuple<bool, std::string> callbackOffboard(void);
 
 private:
@@ -150,7 +150,7 @@ private:
 
 /* initialize() //{ */
 
-void Api::initialize(const rclcpp::Node::SharedPtr& node, std::shared_ptr<mrs_uav_hw_api::CommonHandlers_t> common_handlers) {
+void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_uav_hw_api::CommonHandlers_t> common_handlers) {
 
   node_  = node;
   clock_ = node_->get_clock();
@@ -202,31 +202,31 @@ void Api::initialize(const rclcpp::Node::SharedPtr& node, std::shared_ptr<mrs_ua
   local_param_loader.loadParam("gnss/utm_zone", _utm_zone_);
   local_param_loader.loadParam("gnss/amsl", _amsl_);
 
-  local_param_loader.loadParam("input_mode/actuators", (bool&)_capabilities_.accepts_actuator_cmd);
-  local_param_loader.loadParam("input_mode/control_group", (bool&)_capabilities_.accepts_control_group_cmd);
-  local_param_loader.loadParam("input_mode/attitude_rate", (bool&)_capabilities_.accepts_attitude_rate_cmd);
-  local_param_loader.loadParam("input_mode/attitude", (bool&)_capabilities_.accepts_attitude_cmd);
-  local_param_loader.loadParam("input_mode/acceleration_hdg_rate", (bool&)_capabilities_.accepts_acceleration_hdg_rate_cmd);
-  local_param_loader.loadParam("input_mode/acceleration_hdg", (bool&)_capabilities_.accepts_acceleration_hdg_cmd);
-  local_param_loader.loadParam("input_mode/velocity_hdg_rate", (bool&)_capabilities_.accepts_velocity_hdg_rate_cmd);
-  local_param_loader.loadParam("input_mode/velocity_hdg", (bool&)_capabilities_.accepts_velocity_hdg_cmd);
-  local_param_loader.loadParam("input_mode/position", (bool&)_capabilities_.accepts_position_cmd);
+  local_param_loader.loadParam("input_mode/actuators", (bool &)_capabilities_.accepts_actuator_cmd);
+  local_param_loader.loadParam("input_mode/control_group", (bool &)_capabilities_.accepts_control_group_cmd);
+  local_param_loader.loadParam("input_mode/attitude_rate", (bool &)_capabilities_.accepts_attitude_rate_cmd);
+  local_param_loader.loadParam("input_mode/attitude", (bool &)_capabilities_.accepts_attitude_cmd);
+  local_param_loader.loadParam("input_mode/acceleration_hdg_rate", (bool &)_capabilities_.accepts_acceleration_hdg_rate_cmd);
+  local_param_loader.loadParam("input_mode/acceleration_hdg", (bool &)_capabilities_.accepts_acceleration_hdg_cmd);
+  local_param_loader.loadParam("input_mode/velocity_hdg_rate", (bool &)_capabilities_.accepts_velocity_hdg_rate_cmd);
+  local_param_loader.loadParam("input_mode/velocity_hdg", (bool &)_capabilities_.accepts_velocity_hdg_cmd);
+  local_param_loader.loadParam("input_mode/position", (bool &)_capabilities_.accepts_position_cmd);
   local_param_loader.loadParam("input_mode/feedforward", _feedforward_enabled_);
 
-  local_param_loader.loadParam("outputs/distance_sensor", (bool&)_capabilities_.produces_distance_sensor);
-  local_param_loader.loadParam("outputs/gnss", (bool&)_capabilities_.produces_gnss);
-  local_param_loader.loadParam("outputs/rtk", (bool&)_capabilities_.produces_rtk);
-  local_param_loader.loadParam("outputs/imu", (bool&)_capabilities_.produces_imu);
-  local_param_loader.loadParam("outputs/altitude", (bool&)_capabilities_.produces_altitude);
-  local_param_loader.loadParam("outputs/magnetometer_heading", (bool&)_capabilities_.produces_magnetometer_heading);
-  local_param_loader.loadParam("outputs/rc_channels", (bool&)_capabilities_.produces_rc_channels);
-  local_param_loader.loadParam("outputs/battery_state", (bool&)_capabilities_.produces_battery_state);
-  local_param_loader.loadParam("outputs/position", (bool&)_capabilities_.produces_position);
-  local_param_loader.loadParam("outputs/orientation", (bool&)_capabilities_.produces_orientation);
-  local_param_loader.loadParam("outputs/velocity", (bool&)_capabilities_.produces_velocity);
-  local_param_loader.loadParam("outputs/angular_velocity", (bool&)_capabilities_.produces_angular_velocity);
-  local_param_loader.loadParam("outputs/odometry", (bool&)_capabilities_.produces_odometry);
-  local_param_loader.loadParam("outputs/ground_truth", (bool&)_capabilities_.produces_ground_truth);
+  local_param_loader.loadParam("outputs/distance_sensor", (bool &)_capabilities_.produces_distance_sensor);
+  local_param_loader.loadParam("outputs/gnss", (bool &)_capabilities_.produces_gnss);
+  local_param_loader.loadParam("outputs/rtk", (bool &)_capabilities_.produces_rtk);
+  local_param_loader.loadParam("outputs/imu", (bool &)_capabilities_.produces_imu);
+  local_param_loader.loadParam("outputs/altitude", (bool &)_capabilities_.produces_altitude);
+  local_param_loader.loadParam("outputs/magnetometer_heading", (bool &)_capabilities_.produces_magnetometer_heading);
+  local_param_loader.loadParam("outputs/rc_channels", (bool &)_capabilities_.produces_rc_channels);
+  local_param_loader.loadParam("outputs/battery_state", (bool &)_capabilities_.produces_battery_state);
+  local_param_loader.loadParam("outputs/position", (bool &)_capabilities_.produces_position);
+  local_param_loader.loadParam("outputs/orientation", (bool &)_capabilities_.produces_orientation);
+  local_param_loader.loadParam("outputs/velocity", (bool &)_capabilities_.produces_velocity);
+  local_param_loader.loadParam("outputs/angular_velocity", (bool &)_capabilities_.produces_angular_velocity);
+  local_param_loader.loadParam("outputs/odometry", (bool &)_capabilities_.produces_odometry);
+  local_param_loader.loadParam("outputs/ground_truth", (bool &)_capabilities_.produces_ground_truth);
 
   _capabilities_.produces_magnetic_field = false;
 
@@ -363,7 +363,7 @@ mrs_msgs::msg::HwApiCapabilities Api::getCapabilities() {
 
 /* callbackArming() //{ */
 
-std::tuple<bool, std::string> Api::callbackArming([[maybe_unused]] const bool& request) {
+std::tuple<bool, std::string> Api::callbackArming([[maybe_unused]] const bool &request) {
 
   std::stringstream ss;
 
@@ -821,7 +821,7 @@ void Api::callbackOdom(const nav_msgs::msg::Odometry::ConstSharedPtr msg) {
     try {
       heading = mrs_lib::AttitudeConverter(odom->pose.pose.orientation).getHeading();
     }
-    catch (mrs_lib::AttitudeConverter::GetHeadingException& e) {
+    catch (mrs_lib::AttitudeConverter::GetHeadingException &e) {
       RCLCPP_WARN(node_->get_logger(), "exception caught: '%s'", e.what());
     }
 
@@ -953,7 +953,7 @@ void Api::timeoutInputs(void) {
 
 //}
 
-}  // namespace mrs_uav_simulator_hw_api_plugin
+} // namespace mrs_uav_simulator_hw_api_plugin
 
 #include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(mrs_uav_simulator_hw_api_plugin::Api, mrs_uav_hw_api::MrsUavHwApi)
