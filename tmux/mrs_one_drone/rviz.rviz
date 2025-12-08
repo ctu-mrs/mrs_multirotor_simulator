@@ -223,30 +223,6 @@ Visualization Manager:
             Reliability Policy: Reliable
             Value: /uav1/control_manager/control_reference
           Value: true
-        - Class: rviz_default_plugins/MarkerArray
-          Enabled: true
-          Name: safety_area_markers
-          Namespaces:
-            "": true
-          Topic:
-            Depth: 5
-            Durability Policy: Volatile
-            History Policy: Keep Last
-            Reliability Policy: Reliable
-            Value: /uav1/control_manager/safety_area_markers
-          Value: true
-        - Class: rviz_default_plugins/MarkerArray
-          Enabled: true
-          Name: safety_area_coordinates
-          Namespaces:
-            "": true
-          Topic:
-            Depth: 5
-            Durability Policy: Volatile
-            History Policy: Keep Last
-            Reliability Policy: Reliable
-            Value: /uav1/control_manager/safety_area_coordinates_markers
-          Value: true
         - Class: rviz_common/Group
           Displays:
             - Class: rviz_default_plugins/MarkerArray
@@ -286,6 +262,34 @@ Visualization Manager:
           Name: trajectory_original
       Enabled: true
       Name: ControlManager
+    - Class: rviz_common/Group
+      Displays:
+        - Class: rviz_default_plugins/MarkerArray
+          Enabled: true
+          Name: safety_area_markers
+          Namespaces:
+            "": true
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            History Policy: Keep Last
+            Reliability Policy: Reliable
+            Value: /uav1/safety_area_manager/static_markers
+          Value: true
+        - Class: rviz_default_plugins/MarkerArray
+          Enabled: false
+          Name: safety_area_coordinates
+          Namespaces:
+            {}
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            History Policy: Keep Last
+            Reliability Policy: Reliable
+            Value: /uav1/safety_area_manager/static_markers_coordinates
+          Value: false
+      Enabled: true
+      Name: SafetyAreaManager 
     - Class: rviz_common/Group
       Displays:
         - Class: rviz_default_plugins/MarkerArray
