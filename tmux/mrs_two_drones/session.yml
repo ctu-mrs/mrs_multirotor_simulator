@@ -22,8 +22,8 @@ windows:
   - hw_api:
       layout: tiled
       panes:
-        - export UAV_NAME=uav1; ros2 launch mrs_multirotor_simulator hw_api.launch.py
-        - export UAV_NAME=uav2; ros2 launch mrs_multirotor_simulator hw_api.launch.py
+        - export UAV_NAME=uav1; ros2 launch mrs_multirotor_simulator hw_api.launch.py custom_config:=./config/hw_api.yaml
+        - export UAV_NAME=uav2; ros2 launch mrs_multirotor_simulator hw_api.launch.py custom_config:=./config/hw_api.yaml
   - core:
       layout: tiled
       panes:
@@ -37,8 +37,8 @@ windows:
   - midair_activation:
       layout: tiled
       panes:
-        - export UAV_NAME=uav1; waitForCore; ./midair.sh
-        - export UAV_NAME=uav2; waitForCore; ./midair.sh
+        - export UAV_NAME=uav1; waitForCore; ./midair_activation.sh
+        - export UAV_NAME=uav2; waitForCore; ./midair_activation.sh
   - goto:
       layout: tiled
       panes:
