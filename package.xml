@@ -35,6 +35,13 @@
 
   <depend>backward_ros</depend>
 
+   <!-- for correctly generating the msg and srv files -->
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+  <!-- for making the msg and srv files available at runtime for other nodes -->
+  <buildtool_depend>rosidl_default_runtime</buildtool_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>

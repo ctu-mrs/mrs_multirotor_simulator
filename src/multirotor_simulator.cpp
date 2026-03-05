@@ -18,6 +18,7 @@
 
 #include <mrs_multirotor_simulator/uav_system_ros.h>
 #include <mrs_multirotor_simulator/rate_counter.h>
+#include <mrs_multirotor_simulator/srv/spawn.hpp>
 
 using namespace std::chrono_literals;
 
@@ -63,6 +64,13 @@ private:
 
   rclcpp::TimerBase::SharedPtr timer_status_;
   void                         timerStatus();
+
+  // | ----------------------- services ----------------------- |
+
+  rclcpp::Service<mrs_multirotor_simulator::srv::Spawn>::SharedPtr service_spawn_;
+
+  void callbackSpawn(const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Request>  request,
+                     const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Response> response);
 
   // | ------------------------ rtf check ----------------------- |
 
@@ -238,6 +246,11 @@ void MultirotorSimulator::initialize() {
   ph_clock_ = mrs_lib::PublisherHandler<rosgraph_msgs::msg::Clock>(node_, "~/clock_out");
 
   ph_poses_ = mrs_lib::PublisherHandler<geometry_msgs::msg::PoseArray>(node_, "~/uav_poses_out");
+
+  // | ----------------------- services ----------------------- |
+  service_spawn_ = node_->create_service<mrs_multirotor_simulator::srv::Spawn>(
+      "spawn", [this](const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Request>  request,
+                      const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Response> response) { callbackSpawn(request, response); });
 
   // | ------------------------- timers ------------------------- |
 
@@ -474,6 +487,70 @@ void MultirotorSimulator::publishPoses(void) {
   }
 
   ph_poses_.publish(pose_array);
+}
+
+//}
+
+/* callbackSpawn() //{ */
+
+void MultirotorSimulator::callbackSpawn(const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Request>  request,
+                                        const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Response> response) {
+
+  RCLCPP_INFO(node_->get_logger(), "callbackSpawn(): spawning '%s' of type '%s' at [%.2f, %.2f, %.2f], heading: %.2f", request->name.c_str(),
+              request->type.c_str(), request->x, request->y, request->z, request->heading);
+
+  response->success = false;
+  response->message = "";
+
+  // Validate spawn parameters
+  if (request->name.empty()) {
+    response->message = "UAV name cannot be empty";
+    RCLCPP_ERROR(node_->get_logger(), "callbackSpawn(): %s", response->message.c_str());
+    return;
+  }
+
+  if (request->type.empty()) {
+    response->message = "UAV type cannot be empty";
+    RCLCPP_ERROR(node_->get_logger(), "callbackSpawn(): %s", response->message.c_str());
+    return;
+  }
+
+  // Check if UAV with this name already exists
+  for (const auto &uav : uavs_) {
+    if (uav->getUavName() == request->name) {
+      response->message = "UAV with name '" + request->name + "' already exists";
+      RCLCPP_ERROR(node_->get_logger(), "callbackSpawn(): %s", response->message.c_str());
+      return;
+    }
+  }
+
+  try {
+    UavSystemRos_CommonHandlers_t common_handlers;
+
+    common_handlers.node                  = node_;
+    common_handlers.uav_name              = request->name;
+    common_handlers.transform_broadcaster = tf_broadcaster_;
+
+    // Set spawn parameters from request
+    SpawnParams_t spawn_params;
+    spawn_params.type    = request->type;
+    spawn_params.x       = static_cast<double>(request->x);
+    spawn_params.y       = static_cast<double>(request->y);
+    spawn_params.z       = static_cast<double>(request->z);
+    spawn_params.heading = static_cast<double>(request->heading);
+
+    common_handlers.spawn_params = spawn_params;
+
+    uavs_.push_back(std::make_unique<UavSystemRos>(common_handlers));
+
+    response->success = true;
+    response->message = "Successfully spawned UAV '" + request->name + "'";
+    RCLCPP_INFO(node_->get_logger(), "callbackSpawn(): %s", response->message.c_str());
+  }
+  catch (const std::exception &e) {
+    response->message = "Failed to spawn UAV: " + std::string(e.what());
+    RCLCPP_ERROR(node_->get_logger(), "callbackSpawn(): %s", response->message.c_str());
+  }
 }
 
 //}

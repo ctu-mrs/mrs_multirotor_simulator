@@ -34,12 +34,24 @@
 namespace mrs_multirotor_simulator
 {
 
+struct SpawnParams_t
+{
+  std::string type;
+  double      x;
+  double      y;
+  double      z;
+  double      heading;
+};
+
 struct UavSystemRos_CommonHandlers_t
 {
 
   rclcpp::Node::SharedPtr                                       node;
   std::string                                                   uav_name;
   std::optional<std::shared_ptr<mrs_lib::TransformBroadcaster>> transform_broadcaster;
+
+  // Optional spawn parameters for dynamic spawning
+  std::optional<SpawnParams_t> spawn_params;
 };
 
 class UavSystemRos {
@@ -59,6 +71,8 @@ public:
 
   MultirotorModel::ModelParams getParams();
   MultirotorModel::State       getState();
+
+  std::string getUavName(void) const;
 
 private:
   rclcpp::Node::SharedPtr node_;
