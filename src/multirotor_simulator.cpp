@@ -249,8 +249,8 @@ void MultirotorSimulator::initialize() {
 
   // | ----------------------- services ----------------------- |
   service_spawn_ = node_->create_service<mrs_multirotor_simulator::srv::Spawn>(
-      "spawn", [this](const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Request>  request,
-                      const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Response> response) { callbackSpawn(request, response); });
+      "~/spawn", [this](const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Request>  request,
+                        const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Response> response) { callbackSpawn(request, response); });
 
   // | ------------------------- timers ------------------------- |
 
@@ -392,6 +392,9 @@ void MultirotorSimulator::handleCollisions(void) {
   auto drs_params = mrs_lib::get_mutexed(mutex_drs_params_, drs_params_);
 
   if (!(drs_params.collisions_crash || drs_params.collisions_enabled)) {
+    return;
+  }
+  if (uavs_.empty()) {
     return;
   }
 
