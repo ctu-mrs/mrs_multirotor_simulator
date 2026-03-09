@@ -19,6 +19,7 @@
 #include <mrs_multirotor_simulator/uav_system_ros.h>
 #include <mrs_multirotor_simulator/rate_counter.h>
 #include <mrs_multirotor_simulator/srv/spawn.hpp>
+#include <mrs_multirotor_simulator/srv/kill.hpp>
 
 using namespace std::chrono_literals;
 
@@ -71,6 +72,11 @@ private:
 
   void callbackSpawn(const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Request>  request,
                      const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Response> response);
+
+  rclcpp::Service<mrs_multirotor_simulator::srv::Kill>::SharedPtr service_kill_;
+
+  void callbackKill(const std::shared_ptr<mrs_multirotor_simulator::srv::Kill::Request>  request,
+                    const std::shared_ptr<mrs_multirotor_simulator::srv::Kill::Response> response);
 
   // | ------------------------ rtf check ----------------------- |
 
@@ -251,6 +257,10 @@ void MultirotorSimulator::initialize() {
   service_spawn_ = node_->create_service<mrs_multirotor_simulator::srv::Spawn>(
       "~/spawn", [this](const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Request>  request,
                         const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Response> response) { callbackSpawn(request, response); });
+
+  service_kill_ = node_->create_service<mrs_multirotor_simulator::srv::Kill>(
+      "~/kill", [this](const std::shared_ptr<mrs_multirotor_simulator::srv::Kill::Request>  request,
+                       const std::shared_ptr<mrs_multirotor_simulator::srv::Kill::Response> response) { callbackKill(request, response); });
 
   // | ------------------------- timers ------------------------- |
 
@@ -554,6 +564,39 @@ void MultirotorSimulator::callbackSpawn(const std::shared_ptr<mrs_multirotor_sim
     response->message = "Failed to spawn UAV: " + std::string(e.what());
     RCLCPP_ERROR(node_->get_logger(), "callbackSpawn(): %s", response->message.c_str());
   }
+}
+
+//}
+
+/* callbackKill() //{ */
+
+void MultirotorSimulator::callbackKill(const std::shared_ptr<mrs_multirotor_simulator::srv::Kill::Request>  request,
+                                       const std::shared_ptr<mrs_multirotor_simulator::srv::Kill::Response> response) {
+
+  RCLCPP_INFO(node_->get_logger(), "callbackKill(): removing UAV '%s'", request->name.c_str());
+
+  response->success = false;
+  response->message = "";
+
+  if (request->name.empty()) {
+    response->message = "UAV name cannot be empty";
+    RCLCPP_ERROR(node_->get_logger(), "callbackKill(): %s", response->message.c_str());
+    return;
+  }
+
+  auto it = std::find_if(uavs_.begin(), uavs_.end(), [&](const std::unique_ptr<UavSystemRos> &uav) { return uav->getUavName() == request->name; });
+
+  if (it == uavs_.end()) {
+    response->message = "UAV '" + request->name + "' not found";
+    RCLCPP_ERROR(node_->get_logger(), "callbackKill(): %s", response->message.c_str());
+    return;
+  }
+
+  uavs_.erase(it);
+
+  response->success = true;
+  response->message = "Successfully removed UAV '" + request->name + "'";
+  RCLCPP_INFO(node_->get_logger(), "callbackKill(): %s", response->message.c_str());
 }
 
 //}

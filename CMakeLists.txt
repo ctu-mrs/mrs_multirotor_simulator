@@ -69,6 +69,7 @@ include_directories(
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Spawn.srv"
+  "srv/Kill.srv"
   DEPENDENCIES builtin_interfaces
 )
 
