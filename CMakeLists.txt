@@ -42,7 +42,6 @@ set(DEPENDENCIES
   mrs_uav_hw_api
   Eigen3
   backward_ros
-  rosidl_default_generators
 )
 
 set(LIBRARIES
@@ -67,24 +66,12 @@ include_directories(
 
 # ROS Wrapper for the Multirotor UAV System + controllers
 
-rosidl_generate_interfaces(${PROJECT_NAME}
-  "srv/Spawn.srv"
-  "srv/Kill.srv"
-  DEPENDENCIES builtin_interfaces
-)
-
-rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
-
 add_library(MrsMultirotorSimulator_SimulatorSystemRos SHARED
   src/uav_system_ros.cpp
 )
 
 ament_target_dependencies(MrsMultirotorSimulator_SimulatorSystemRos
   ${DEPENDENCIES}
-)
-
-target_link_libraries(MrsMultirotorSimulator_SimulatorSystemRos
-  "${cpp_typesupport_target}"
 )
 
 # MRS Simulator
@@ -95,7 +82,6 @@ add_library(MrsMultirotorSimulator_Simulator SHARED
 
 target_link_libraries(MrsMultirotorSimulator_Simulator
   MrsMultirotorSimulator_SimulatorSystemRos
-  "${cpp_typesupport_target}"
   )
 
 ament_target_dependencies(MrsMultirotorSimulator_Simulator

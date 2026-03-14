@@ -5,6 +5,9 @@
 #include <rosgraph_msgs/msg/clock.hpp>
 #include <geometry_msgs/msg/pose_array.hpp>
 
+#include <mrs_msgs/srv/spawn.hpp>
+#include <mrs_msgs/srv/kill.hpp>
+
 #include <mrs_lib/param_loader.h>
 #include <mrs_lib/publisher_handler.h>
 #include <mrs_lib/timer_handler.h>
@@ -18,8 +21,6 @@
 
 #include <mrs_multirotor_simulator/uav_system_ros.h>
 #include <mrs_multirotor_simulator/rate_counter.h>
-#include <mrs_multirotor_simulator/srv/spawn.hpp>
-#include <mrs_multirotor_simulator/srv/kill.hpp>
 
 using namespace std::chrono_literals;
 
@@ -68,15 +69,13 @@ private:
 
   // | ----------------------- services ----------------------- |
 
-  rclcpp::Service<mrs_multirotor_simulator::srv::Spawn>::SharedPtr service_spawn_;
+  rclcpp::Service<mrs_msgs::srv::Spawn>::SharedPtr service_spawn_;
 
-  void callbackSpawn(const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Request>  request,
-                     const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Response> response);
+  void callbackSpawn(const std::shared_ptr<mrs_msgs::srv::Spawn::Request> request, const std::shared_ptr<mrs_msgs::srv::Spawn::Response> response);
 
-  rclcpp::Service<mrs_multirotor_simulator::srv::Kill>::SharedPtr service_kill_;
+  rclcpp::Service<mrs_msgs::srv::Kill>::SharedPtr service_kill_;
 
-  void callbackKill(const std::shared_ptr<mrs_multirotor_simulator::srv::Kill::Request>  request,
-                    const std::shared_ptr<mrs_multirotor_simulator::srv::Kill::Response> response);
+  void callbackKill(const std::shared_ptr<mrs_msgs::srv::Kill::Request> request, const std::shared_ptr<mrs_msgs::srv::Kill::Response> response);
 
   // | ------------------------ rtf check ----------------------- |
 
@@ -254,13 +253,15 @@ void MultirotorSimulator::initialize() {
   ph_poses_ = mrs_lib::PublisherHandler<geometry_msgs::msg::PoseArray>(node_, "~/uav_poses_out");
 
   // | ----------------------- services ----------------------- |
-  service_spawn_ = node_->create_service<mrs_multirotor_simulator::srv::Spawn>(
-      "~/spawn", [this](const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Request>  request,
-                        const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Response> response) { callbackSpawn(request, response); });
+  service_spawn_ = node_->create_service<mrs_msgs::srv::Spawn>(
+      "~/spawn", [this](const std::shared_ptr<mrs_msgs::srv::Spawn::Request> request, const std::shared_ptr<mrs_msgs::srv::Spawn::Response> response) {
+        callbackSpawn(request, response);
+      });
 
-  service_kill_ = node_->create_service<mrs_multirotor_simulator::srv::Kill>(
-      "~/kill", [this](const std::shared_ptr<mrs_multirotor_simulator::srv::Kill::Request>  request,
-                       const std::shared_ptr<mrs_multirotor_simulator::srv::Kill::Response> response) { callbackKill(request, response); });
+  service_kill_ = node_->create_service<mrs_msgs::srv::Kill>(
+      "~/kill", [this](const std::shared_ptr<mrs_msgs::srv::Kill::Request> request, const std::shared_ptr<mrs_msgs::srv::Kill::Response> response) {
+        callbackKill(request, response);
+      });
 
   // | ------------------------- timers ------------------------- |
 
@@ -506,8 +507,8 @@ void MultirotorSimulator::publishPoses(void) {
 
 /* callbackSpawn() //{ */
 
-void MultirotorSimulator::callbackSpawn(const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Request>  request,
-                                        const std::shared_ptr<mrs_multirotor_simulator::srv::Spawn::Response> response) {
+void MultirotorSimulator::callbackSpawn(const std::shared_ptr<mrs_msgs::srv::Spawn::Request>  request,
+                                        const std::shared_ptr<mrs_msgs::srv::Spawn::Response> response) {
 
   RCLCPP_INFO(node_->get_logger(), "callbackSpawn(): spawning '%s' of type '%s' at [%.2f, %.2f, %.2f], heading: %.2f", request->name.c_str(),
               request->type.c_str(), request->x, request->y, request->z, request->heading);
@@ -570,8 +571,8 @@ void MultirotorSimulator::callbackSpawn(const std::shared_ptr<mrs_multirotor_sim
 
 /* callbackKill() //{ */
 
-void MultirotorSimulator::callbackKill(const std::shared_ptr<mrs_multirotor_simulator::srv::Kill::Request>  request,
-                                       const std::shared_ptr<mrs_multirotor_simulator::srv::Kill::Response> response) {
+void MultirotorSimulator::callbackKill(const std::shared_ptr<mrs_msgs::srv::Kill::Request>  request,
+                                       const std::shared_ptr<mrs_msgs::srv::Kill::Response> response) {
 
   RCLCPP_INFO(node_->get_logger(), "callbackKill(): removing UAV '%s'", request->name.c_str());
 
