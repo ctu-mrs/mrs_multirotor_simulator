@@ -18,6 +18,7 @@
 #include <KDTreeVectorOfVectorsAdaptor.h>
 #include <Eigen/Dense>
 #include <vector>
+#include <algorithm>
 
 #include <mrs_multirotor_simulator/uav_system_ros.h>
 #include <mrs_multirotor_simulator/rate_counter.h>
@@ -253,15 +254,21 @@ void MultirotorSimulator::initialize() {
   ph_poses_ = mrs_lib::PublisherHandler<geometry_msgs::msg::PoseArray>(node_, "~/uav_poses_out");
 
   // | ----------------------- services ----------------------- |
+
   service_spawn_ = node_->create_service<mrs_msgs::srv::Spawn>(
-      "~/spawn", [this](const std::shared_ptr<mrs_msgs::srv::Spawn::Request> request, const std::shared_ptr<mrs_msgs::srv::Spawn::Response> response) {
+      "~/spawn",
+      [this](const std::shared_ptr<mrs_msgs::srv::Spawn::Request> request, const std::shared_ptr<mrs_msgs::srv::Spawn::Response> response) {
         callbackSpawn(request, response);
-      });
+      },
+      rclcpp::ServicesQoS(), cbgrp_main_);
 
   service_kill_ = node_->create_service<mrs_msgs::srv::Kill>(
-      "~/kill", [this](const std::shared_ptr<mrs_msgs::srv::Kill::Request> request, const std::shared_ptr<mrs_msgs::srv::Kill::Response> response) {
+      "~/kill",
+      [this](const std::shared_ptr<mrs_msgs::srv::Kill::Request> request, const std::shared_ptr<mrs_msgs::srv::Kill::Response> response) {
         callbackKill(request, response);
-      });
+      },
+      rclcpp::ServicesQoS(), cbgrp_main_);
+
 
   // | ------------------------- timers ------------------------- |
 
