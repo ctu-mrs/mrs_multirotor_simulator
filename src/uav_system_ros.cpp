@@ -74,7 +74,11 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
 
   // | ------------------ model-specific params ----------------- |
 
-  param_loader.loadParam(type + "/n_motors", model_params_.n_motors);
+  // Validate that UAV type is specified and first type-specific parameter (n_motors) can be loaded successfully
+  if (type.empty() || !param_loader.loadParam(type + "/n_motors", model_params_.n_motors)) {
+    RCLCPP_ERROR(node_->get_logger(), "UAV type is not specified or invalid.");
+    throw std::runtime_error("UAV type '" + type + "' is not specified or invalid.");
+  }
   param_loader.loadParam(type + "/mass", model_params_.mass);
   param_loader.loadParam(type + "/arm_length", model_params_.arm_length);
   param_loader.loadParam(type + "/body_height", model_params_.body_height);
@@ -186,7 +190,7 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
 
   if (!param_loader.loadedSuccessfully()) {
     RCLCPP_ERROR(node_->get_logger(), "failed to load all parameters");
-    rclcpp::shutdown();
+    throw std::runtime_error("UavSystemRos: failed to load all parameters");
   }
 
   // | ----------------------- publishers ----------------------- |

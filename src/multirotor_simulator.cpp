@@ -570,7 +570,6 @@ void MultirotorSimulator::callbackSpawn(const std::shared_ptr<mrs_msgs::srv::Spa
   }
   catch (const std::exception &e) {
     response->message = "Failed to spawn UAV: " + std::string(e.what());
-    RCLCPP_ERROR(node_->get_logger(), "callbackSpawn(): %s", response->message.c_str());
   }
 }
 
