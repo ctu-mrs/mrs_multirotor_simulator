@@ -32,6 +32,7 @@ plugin:
     altitude:             true
     magnetometer_heading: true
     rc_channels:          true
+    rc_rssi:              true
     battery_state:        true
     position:             true
     orientation:          true

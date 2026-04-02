@@ -220,6 +220,7 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
   local_param_loader.loadParam("outputs/altitude", (bool &)_capabilities_.produces_altitude);
   local_param_loader.loadParam("outputs/magnetometer_heading", (bool &)_capabilities_.produces_magnetometer_heading);
   local_param_loader.loadParam("outputs/rc_channels", (bool &)_capabilities_.produces_rc_channels);
+  local_param_loader.loadParam("outputs/rc_rssi", (bool &)_capabilities_.produces_rc_rssi);
   local_param_loader.loadParam("outputs/battery_state", (bool &)_capabilities_.produces_battery_state);
   local_param_loader.loadParam("outputs/position", (bool &)_capabilities_.produces_position);
   local_param_loader.loadParam("outputs/orientation", (bool &)_capabilities_.produces_orientation);
@@ -934,6 +935,13 @@ void Api::publishRC(void) {
     rc.channels.push_back(0);
 
     common_handlers_->publishers.publishRcChannels(rc);
+  }
+
+  if (_capabilities_.produces_rc_rssi) {
+    mrs_msgs::msg::HwApiRcRssi rssi_out;
+    rssi_out.stamp = clock_->now(); 
+    rssi_out.rssi  = 0; 
+    common_handlers_->publishers.publishRcRssi(rssi_out);
   }
 }
 
