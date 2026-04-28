@@ -1,6 +1,8 @@
 #ifndef UAV_SYSTEM_H
 #define UAV_SYSTEM_H
 
+#include <optional>
+
 #include "multirotor_model.hpp"
 
 #include "controllers/mixer.hpp"

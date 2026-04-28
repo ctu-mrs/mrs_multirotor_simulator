@@ -42,6 +42,7 @@ set(DEPENDENCIES
   mrs_uav_hw_api
   Eigen3
   backward_ros
+  mrs_multirotor_simulator_core
 )
 
 set(LIBRARIES
@@ -56,9 +57,6 @@ endforeach()
 
 include_directories(
   include
-  include/mrs_multirotor_simulator
-  include/mrs_multirotor_simulator/uav_system
-  include/mrs_multirotor_simulator/uav_system/controllers
   ${rclcpp_INCLUDE_DIRS}
   ${mrs_lib_INCLUDE_DIRS}
   ${mrs_uav_hw_api_INCLUDE_DIRS}
@@ -83,6 +81,7 @@ target_link_libraries(MrsMultirotorSimulator_SimulatorSystemRos
   mrs_uav_hw_api::mrs_uav_hw_api
   Eigen3::Eigen
   ${bakward_ros_TARGETS}
+  mrs_multirotor_simulator_core::mrs_multirotor_simulator_core
 )
 
 # MRS Simulator
@@ -108,6 +107,7 @@ target_link_libraries(MrsMultirotorSimulator_Simulator
   mrs_uav_hw_api::mrs_uav_hw_api
   Eigen3::Eigen
   ${bakward_ros_TARGETS}
+  mrs_multirotor_simulator_core::mrs_multirotor_simulator_core
 )
 
 rclcpp_components_register_nodes(MrsMultirotorSimulator_Simulator PLUGIN "mrs_multirotor_simulator::MultirotorSimulator" EXECUTABLE MrsMultirotorSimulator_Simulator)
@@ -131,6 +131,7 @@ target_link_libraries(MrsMultirotorSimulator_HwApiPlugin
   mrs_uav_hw_api::mrs_uav_hw_api
   Eigen3::Eigen
   ${bakward_ros_TARGETS}
+  mrs_multirotor_simulator_core::mrs_multirotor_simulator_core
 )
 
 target_compile_definitions(MrsMultirotorSimulator_HwApiPlugin PRIVATE USE_ROS_TIMER=${USE_ROS_TIMER})
@@ -159,8 +160,8 @@ install(
 )
 
 install(
-  DIRECTORY include
-  DESTINATION .
+  DIRECTORY "include/"
+  DESTINATION "include/${PROJECT_NAME}"
 )
 
 install(

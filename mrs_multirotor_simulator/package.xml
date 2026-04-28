@@ -32,6 +32,7 @@
   <depend>mrs_lib</depend>
   <depend>mrs_msgs</depend>
   <depend>mrs_uav_hw_api</depend>
+  <depend>mrs_multirotor_simulator_core</depend>
 
   <depend>backward_ros</depend>
 
