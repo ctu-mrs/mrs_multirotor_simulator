@@ -10,7 +10,8 @@
 #define N_INTERNAL_STATES 18
 
 #include <boost/array.hpp>
-#include "ode/boost/numeric/odeint.hpp"
+#include <boost/numeric/odeint.hpp>
+#include <Eigen/Dense>
 #include "controllers/references.hpp"
 
 namespace odeint = boost::numeric::odeint;
