@@ -61,7 +61,7 @@ public:
   void setFeedforward(const reference::VelocityHdg& cmd);
   void setFeedforward(const reference::VelocityHdgRate& cmd);
 
-  MultirotorModel::State       getState(void);
+  MultirotorModel::State       getState(void) const;
   MultirotorModel::ModelParams getParams(void);
 
   void setParams(const MultirotorModel::ModelParams& params);
@@ -385,7 +385,7 @@ void UavSystem::makeStep(const double dt) {
 
 /* getState() //{ */
 
-MultirotorModel::State UavSystem::getState(void) {
+MultirotorModel::State UavSystem::getState(void) const {
 
   return multirotor_model_.getState();
 }
