@@ -26,14 +26,14 @@ private:
 
 /* AccelerationController() //{ */
 
-AccelerationController::AccelerationController() {
+inline AccelerationController::AccelerationController() {
 }
 
 //}
 
 /* AccelerationController() //{ */
 
-AccelerationController::AccelerationController(const MultirotorModel::ModelParams& model_params) {
+inline AccelerationController::AccelerationController(const MultirotorModel::ModelParams& model_params) {
   model_params_ = model_params;
 }
 
@@ -41,7 +41,7 @@ AccelerationController::AccelerationController(const MultirotorModel::ModelParam
 
 /* getControlSignal(const MultirotorModel::State& state, const reference::AccelerationHdg& reference, const double dt) //{ */
 
-reference::Attitude AccelerationController::getControlSignal(const MultirotorModel::State& state, const reference::AccelerationHdg& reference,
+inline reference::Attitude AccelerationController::getControlSignal(const MultirotorModel::State& state, const reference::AccelerationHdg& reference,
                                                              [[maybe_unused]] const double dt) {
 
   const Eigen::Vector3d fd      = (reference.acceleration + Eigen::Vector3d(0, 0, model_params_.g)) * model_params_.mass;
@@ -100,7 +100,7 @@ reference::Attitude AccelerationController::getControlSignal(const MultirotorMod
 
 /* getControlSignal(const MultirotorModel::State& state, const reference::AccelerationHdg& reference, const double dt) //{ */
 
-reference::TiltHdgRate AccelerationController::getControlSignal(const MultirotorModel::State& state, const reference::AccelerationHdgRate& reference,
+inline reference::TiltHdgRate AccelerationController::getControlSignal(const MultirotorModel::State& state, const reference::AccelerationHdgRate& reference,
                                                                 [[maybe_unused]] const double dt) {
 
   const Eigen::Vector3d fd      = (reference.acceleration + Eigen::Vector3d(0, 0, model_params_.g)) * model_params_.mass;

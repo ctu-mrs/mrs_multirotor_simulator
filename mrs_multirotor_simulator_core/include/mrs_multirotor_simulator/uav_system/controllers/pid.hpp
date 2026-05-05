@@ -39,12 +39,12 @@ public:
 // |                       implementation                       |
 // --------------------------------------------------------------
 
-PIDController::PIDController() {
+inline PIDController::PIDController() {
 
   this->reset();
 }
 
-void PIDController::setParams(const double &kp, const double &kd, const double &ki, const double &saturation, const double &antiwindup) {
+inline void PIDController::setParams(const double &kp, const double &kd, const double &ki, const double &saturation, const double &antiwindup) {
 
   this->_kp_       = kp;
   this->_kd_       = kd;
@@ -53,18 +53,18 @@ void PIDController::setParams(const double &kp, const double &kd, const double &
   this->antiwindup = antiwindup;
 }
 
-void PIDController::setSaturation(const double saturation) {
+inline void PIDController::setSaturation(const double saturation) {
 
   this->saturation = saturation;
 }
 
-void PIDController::reset(void) {
+inline void PIDController::reset(void) {
 
   this->last_error_ = 0;
   this->integral_   = 0;
 }
 
-double PIDController::update(const double &error, const double &dt) {
+inline double PIDController::update(const double &error, const double &dt) {
 
   // calculate the control error difference
   double difference = (error - last_error_) / dt;

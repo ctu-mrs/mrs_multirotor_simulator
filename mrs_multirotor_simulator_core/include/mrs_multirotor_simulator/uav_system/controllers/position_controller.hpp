@@ -43,12 +43,12 @@ private:
 
 /* PositionController() //{ */
 
-PositionController::PositionController() {
+inline PositionController::PositionController() {
 
   initializePIDs();
 }
 
-PositionController::PositionController(const MultirotorModel::ModelParams& model_params) {
+inline PositionController::PositionController(const MultirotorModel::ModelParams& model_params) {
 
   model_params_ = model_params;
 
@@ -59,7 +59,7 @@ PositionController::PositionController(const MultirotorModel::ModelParams& model
 
 /* setParams() //{ */
 
-void PositionController::setParams(const Params& params) {
+inline void PositionController::setParams(const Params& params) {
 
   params_ = params;
 
@@ -70,7 +70,7 @@ void PositionController::setParams(const Params& params) {
 
 /* getControlSignal() //{ */
 
-reference::VelocityHdg PositionController::getControlSignal(const MultirotorModel::State& state, const reference::Position& reference, const double& dt) {
+inline reference::VelocityHdg PositionController::getControlSignal(const MultirotorModel::State& state, const reference::Position& reference, const double& dt) {
 
   Eigen::Vector3d pos_error = reference.position - state.x;
 
@@ -91,7 +91,7 @@ reference::VelocityHdg PositionController::getControlSignal(const MultirotorMode
 
 /* initializedPIDs() //{ */
 
-void PositionController::initializePIDs(void) {
+inline void PositionController::initializePIDs(void) {
 
   pid_x_.reset();
   pid_y_.reset();

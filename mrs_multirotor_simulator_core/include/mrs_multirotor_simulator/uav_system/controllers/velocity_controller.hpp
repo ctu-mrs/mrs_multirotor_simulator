@@ -40,11 +40,11 @@ private:
 
 /* VelocityController() //{ */
 
-VelocityController::VelocityController() {
+inline VelocityController::VelocityController() {
   initializePIDs();
 }
 
-VelocityController::VelocityController(const MultirotorModel::ModelParams& model_params) {
+inline VelocityController::VelocityController(const MultirotorModel::ModelParams& model_params) {
   model_params_ = model_params;
 
   initializePIDs();
@@ -54,7 +54,7 @@ VelocityController::VelocityController(const MultirotorModel::ModelParams& model
 
 /* setParams() //{ */
 
-void VelocityController::setParams(const Params& params) {
+inline void VelocityController::setParams(const Params& params) {
 
   params_ = params;
 
@@ -65,7 +65,7 @@ void VelocityController::setParams(const Params& params) {
 
 /* getControlSignal(const MultirotorModel::State& state, const reference::VelocityHdg& reference, const double& dt) //{ */
 
-reference::AccelerationHdg VelocityController::getControlSignal(const MultirotorModel::State& state, const reference::VelocityHdg& reference,
+inline reference::AccelerationHdg VelocityController::getControlSignal(const MultirotorModel::State& state, const reference::VelocityHdg& reference,
                                                                 const double& dt) {
 
   Eigen::Vector3d vel_error = reference.velocity - state.v;
@@ -85,7 +85,7 @@ reference::AccelerationHdg VelocityController::getControlSignal(const Multirotor
 
 /* getControlSignal(const MultirotorModel::State& state, const reference::VelocityHdgRate& reference, const double& dt) //{ */
 
-reference::AccelerationHdgRate VelocityController::getControlSignal(const MultirotorModel::State& state, const reference::VelocityHdgRate& reference,
+inline reference::AccelerationHdgRate VelocityController::getControlSignal(const MultirotorModel::State& state, const reference::VelocityHdgRate& reference,
                                                                     const double& dt) {
 
   Eigen::Vector3d vel_error = reference.velocity - state.v;
@@ -107,7 +107,7 @@ reference::AccelerationHdgRate VelocityController::getControlSignal(const Multir
 
 /* initializePIDs() //{ */
 
-void VelocityController::initializePIDs(void) {
+inline void VelocityController::initializePIDs(void) {
 
   pid_x_.reset();
   pid_y_.reset();

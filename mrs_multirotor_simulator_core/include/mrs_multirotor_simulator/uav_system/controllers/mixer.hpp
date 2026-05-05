@@ -44,10 +44,10 @@ private:
 
 /* Mixer() //{ */
 
-Mixer::Mixer() {
+inline Mixer::Mixer() {
 }
 
-Mixer::Mixer(const MultirotorModel::ModelParams& model_params) {
+inline Mixer::Mixer(const MultirotorModel::ModelParams& model_params) {
 
   model_params_ = model_params;
 
@@ -58,7 +58,7 @@ Mixer::Mixer(const MultirotorModel::ModelParams& model_params) {
 
 /* setParams() //{ */
 
-void Mixer::setParams(const Params& params) {
+inline void Mixer::setParams(const Params& params) {
 
   params_ = params;
 
@@ -69,7 +69,7 @@ void Mixer::setParams(const Params& params) {
 
 /* calculateAllocation() //{ */
 
-void Mixer::calculateAllocation(void) {
+inline void Mixer::calculateAllocation(void) {
 
   Eigen::MatrixXd allocation_tmp = model_params_.allocation_matrix;
 
@@ -104,7 +104,7 @@ void Mixer::calculateAllocation(void) {
 
 /* getControlSignal() //{ */
 
-reference::Actuators Mixer::getControlSignal(const reference::ControlGroup& reference) {
+inline reference::Actuators Mixer::getControlSignal(const reference::ControlGroup& reference) {
 
   Eigen::Vector4d ctrl_group(reference.roll, reference.pitch, reference.yaw, reference.throttle);
 
@@ -147,7 +147,7 @@ reference::Actuators Mixer::getControlSignal(const reference::ControlGroup& refe
 
 /* getAllocationMatrix() //{ */
 
-Eigen::MatrixXd Mixer::getAllocationMatrix(void) {
+inline Eigen::MatrixXd Mixer::getAllocationMatrix(void) {
   return allocation_matrix_inv_;
 }
 

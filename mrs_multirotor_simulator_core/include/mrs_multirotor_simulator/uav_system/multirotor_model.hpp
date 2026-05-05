@@ -156,14 +156,14 @@ private:
 
 /* constructor MultirotorModel //{ */
 
-MultirotorModel::MultirotorModel(void) {
+inline MultirotorModel::MultirotorModel(void) {
 
   initializeState();
 
   updateInternalState();
 }
 
-MultirotorModel::MultirotorModel(const MultirotorModel::ModelParams& params, const Eigen::Vector3d& spawn_pos, const double spawn_heading) {
+inline MultirotorModel::MultirotorModel(const MultirotorModel::ModelParams& params, const Eigen::Vector3d& spawn_pos, const double spawn_heading) {
 
   params_ = params;
 
@@ -181,7 +181,7 @@ MultirotorModel::MultirotorModel(const MultirotorModel::ModelParams& params, con
 
 /* initializeState() //{ */
 
-void MultirotorModel::initializeState(void) {
+inline void MultirotorModel::initializeState(void) {
 
   state_.x      = Eigen::Vector3d::Zero();
   state_.v      = Eigen::Vector3d::Zero();
@@ -202,7 +202,7 @@ void MultirotorModel::initializeState(void) {
 
 /* updatedInternalState() //{ */
 
-void MultirotorModel::updateInternalState(void) {
+inline void MultirotorModel::updateInternalState(void) {
 
   for (int i = 0; i < 3; i++) {
     internal_state_.at(0 + i)  = state_.x(i);
@@ -218,7 +218,7 @@ void MultirotorModel::updateInternalState(void) {
 
 /* step() //{ */
 
-void MultirotorModel::step(const double& dt) {
+inline void MultirotorModel::step(const double& dt) {
 
   auto save = internal_state_;
 
@@ -290,7 +290,7 @@ void MultirotorModel::step(const double& dt) {
 
 /* applyModel() //{ */
 
-void MultirotorModel::applyForce(const Eigen::Vector3d& force) {
+inline void MultirotorModel::applyForce(const Eigen::Vector3d& force) {
 
   external_force_ = force;
 }
@@ -299,7 +299,7 @@ void MultirotorModel::applyForce(const Eigen::Vector3d& force) {
 
 /* operator() //{ */
 
-void MultirotorModel::operator()(const MultirotorModel::InternalState& x, MultirotorModel::InternalState& dxdt, [[maybe_unused]] const double t) {
+inline void MultirotorModel::operator()(const MultirotorModel::InternalState& x, MultirotorModel::InternalState& dxdt, [[maybe_unused]] const double t) {
 
   State cur_state;
 
@@ -372,7 +372,7 @@ void MultirotorModel::operator()(const MultirotorModel::InternalState& x, Multir
 
 /* setParams() //{ */
 
-void MultirotorModel::setParams(const MultirotorModel::ModelParams& params) {
+inline void MultirotorModel::setParams(const MultirotorModel::ModelParams& params) {
 
   params_ = params;
 }
@@ -381,7 +381,7 @@ void MultirotorModel::setParams(const MultirotorModel::ModelParams& params) {
 
 /* getParams() //{ */
 
-MultirotorModel::ModelParams MultirotorModel::getParams(void) {
+inline MultirotorModel::ModelParams MultirotorModel::getParams(void) {
 
   return params_;
 }
@@ -390,7 +390,7 @@ MultirotorModel::ModelParams MultirotorModel::getParams(void) {
 
 /* setInput() //{ */
 
-void MultirotorModel::setInput(const reference::Actuators& input) {
+inline void MultirotorModel::setInput(const reference::Actuators& input) {
 
   for (int i = 0; i < params_.n_motors; i++) {
 
@@ -414,7 +414,7 @@ void MultirotorModel::setInput(const reference::Actuators& input) {
 
 /* getState() //{ */
 
-const MultirotorModel::State& MultirotorModel::getState(void) const {
+inline const MultirotorModel::State& MultirotorModel::getState(void) const {
   return state_;
 }
 
@@ -422,7 +422,7 @@ const MultirotorModel::State& MultirotorModel::getState(void) const {
 
 /* setState() //{ */
 
-void MultirotorModel::setState(const MultirotorModel::State& state) {
+inline void MultirotorModel::setState(const MultirotorModel::State& state) {
 
   state_.x         = state.x;
   state_.v         = state.v;
@@ -437,7 +437,7 @@ void MultirotorModel::setState(const MultirotorModel::State& state) {
 
 /* setStatePos() //{ */
 
-void MultirotorModel::setStatePos(const Eigen::Vector3d& pos, const double heading) {
+inline void MultirotorModel::setStatePos(const Eigen::Vector3d& pos, const double heading) {
 
   _initial_pos_ = pos;
   state_.x      = pos;
@@ -450,7 +450,7 @@ void MultirotorModel::setStatePos(const Eigen::Vector3d& pos, const double headi
 
 /* getExternalForce() //{ */
 
-const Eigen::Vector3d& MultirotorModel::getExternalForce(void) const {
+inline const Eigen::Vector3d& MultirotorModel::getExternalForce(void) const {
   return external_force_;
 }
 
@@ -458,7 +458,7 @@ const Eigen::Vector3d& MultirotorModel::getExternalForce(void) const {
 
 /* setExternalForce() //{ */
 
-void MultirotorModel::setExternalForce(const Eigen::Vector3d& force) {
+inline void MultirotorModel::setExternalForce(const Eigen::Vector3d& force) {
   external_force_ = force;
 }
 
@@ -466,7 +466,7 @@ void MultirotorModel::setExternalForce(const Eigen::Vector3d& force) {
 
 /* getExternalMoment() //{ */
 
-const Eigen::Vector3d& MultirotorModel::getExternalMoment(void) const {
+inline const Eigen::Vector3d& MultirotorModel::getExternalMoment(void) const {
   return external_moment_;
 }
 
@@ -474,7 +474,7 @@ const Eigen::Vector3d& MultirotorModel::getExternalMoment(void) const {
 
 /* setExternalMoment() //{ */
 
-void MultirotorModel::setExternalMoment(const Eigen::Vector3d& moment) {
+inline void MultirotorModel::setExternalMoment(const Eigen::Vector3d& moment) {
   external_moment_ = moment;
 }
 
@@ -482,7 +482,7 @@ void MultirotorModel::setExternalMoment(const Eigen::Vector3d& moment) {
 
 /* getImuAcceleration() //{ */
 
-Eigen::Vector3d MultirotorModel::getImuAcceleration() const {
+inline Eigen::Vector3d MultirotorModel::getImuAcceleration() const {
   return imu_acceleration_;
 }
 
