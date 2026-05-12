@@ -14,6 +14,8 @@
 
 #include <mrs_lib/gps_conversions.h>
 
+#include <mrs_lib/errorgraph/error_publisher.h>
+
 //}
 
 /* typedefs //{ */
@@ -34,7 +36,7 @@ namespace mrs_uav_simulator_hw_api_plugin
 class Api : public mrs_uav_hw_api::MrsUavHwApi {
 
 public:
-  ~Api() {};
+  ~Api(){};
 
   void initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_uav_hw_api::CommonHandlers_t> common_handlers);
 
@@ -46,6 +48,9 @@ public:
   rclcpp::CallbackGroup::SharedPtr cbgrp_subs_;
   rclcpp::CallbackGroup::SharedPtr cbgrp_sc_;
   rclcpp::CallbackGroup::SharedPtr cbgrp_timers_;
+
+  // | ------------------------- errorgraph ------------------------- |
+  std::unique_ptr<mrs_lib::errorgraph::ErrorPublisher> error_publisher_;
 
   // | ------------------------- params ------------------------- |
 
@@ -159,6 +164,7 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
   cbgrp_sc_     = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
   cbgrp_timers_ = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
+  error_publisher_ = std::make_unique<mrs_lib::errorgraph::ErrorPublisher>(node_, clock_, "HwApiManager", "MrsUavSimulatorHwApi");
   common_handlers_ = common_handlers;
 
   _capabilities_.api_name = "MrsSimulator";
@@ -186,8 +192,8 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
 
   if (!common_handlers_->main_param_loader->loadedSuccessfully()) {
     RCLCPP_ERROR(node_->get_logger(), "Could not load all parameters!");
-    rclcpp::shutdown();
-    exit(1);
+    error_publisher_->addOneshotError("Could not load all parameters");
+    error_publisher_->flushAndShutdown();
   }
 
   for (auto config_file : config_files) {
@@ -233,7 +239,8 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
 
   if (!local_param_loader.loadedSuccessfully()) {
     RCLCPP_ERROR(node_->get_logger(), "Could not load all parameters!");
-    rclcpp::shutdown();
+    error_publisher_->addOneshotError("Could not load all parameters");
+    error_publisher_->flushAndShutdown();
   }
 
   // | ----------------------- subscribers ---------------------- |
