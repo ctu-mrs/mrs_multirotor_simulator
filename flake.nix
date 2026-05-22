@@ -66,7 +66,6 @@
           propagatedBuildInputs = [ 
             mrs_uav_hw_api_pkg
           ];
-        };
           
           buildInputs = simulator_deps;
         };
