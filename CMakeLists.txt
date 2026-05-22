@@ -128,7 +128,6 @@ target_link_libraries(MrsMultirotorSimulator_HwApiPlugin
   ${nav_msgs_TARGETS}
   ${std_msgs_TARGETS}
   ${sensor_msgs_TARGETS}
-  sensor_msgs::sensor_msgs
   mrs_uav_hw_api::mrs_uav_hw_api
   Eigen3::Eigen
   ${bakward_ros_TARGETS}
