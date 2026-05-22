@@ -60,6 +60,13 @@
             ros.ament-cmake 
             ros.rosidl-default-generators 
           ];
+
+          # PUBLIC dependencies. 
+          # These automatically transition to any downstream package.
+          propagatedBuildInputs = [ 
+            mrs_uav_hw_api_pkg
+          ];
+        };
           
           buildInputs = simulator_deps;
         };
