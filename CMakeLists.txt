@@ -73,13 +73,13 @@ add_library(MrsMultirotorSimulator_SimulatorSystemRos SHARED
 target_link_libraries(MrsMultirotorSimulator_SimulatorSystemRos
   rclcpp::rclcpp
   rclcpp_components::component
-  mrs_msgs::mrs_msgs
+  ${mrs_msgs_TARGETS}
   mrs_lib::mrs_lib
   pluginlib::pluginlib
-  geometry_msgs::geometry_msgs
-  nav_msgs::nav_msgs
-  std_msgs::std_msgs
-  sensor_msgs::sensor_msgs
+  ${geometry_msgs_TARGETS}
+  ${nav_msgs_TARGETS}
+  ${std_msgs_TARGETS}
+  ${sensor_msgs_TARGETS}
   mrs_uav_hw_api::mrs_uav_hw_api
   Eigen3::Eigen
   ${bakward_ros_TARGETS}
@@ -98,13 +98,13 @@ target_link_libraries(MrsMultirotorSimulator_Simulator
 target_link_libraries(MrsMultirotorSimulator_Simulator
   rclcpp::rclcpp
   rclcpp_components::component
-  mrs_msgs::mrs_msgs
+  ${mrs_msgs_TARGETS}
   mrs_lib::mrs_lib
   pluginlib::pluginlib
-  geometry_msgs::geometry_msgs
-  nav_msgs::nav_msgs
-  std_msgs::std_msgs
-  sensor_msgs::sensor_msgs
+  ${geometry_msgs_TARGETS}
+  ${nav_msgs_TARGETS}
+  ${std_msgs_TARGETS}
+  ${sensor_msgs_TARGETS}
   mrs_uav_hw_api::mrs_uav_hw_api
   Eigen3::Eigen
   ${bakward_ros_TARGETS}
@@ -121,12 +121,13 @@ add_library(MrsMultirotorSimulator_HwApiPlugin SHARED
 target_link_libraries(MrsMultirotorSimulator_HwApiPlugin
   rclcpp::rclcpp
   rclcpp_components::component
-  mrs_msgs::mrs_msgs
+  ${mrs_msgs_TARGETS}
   mrs_lib::mrs_lib
   pluginlib::pluginlib
-  geometry_msgs::geometry_msgs
-  nav_msgs::nav_msgs
-  std_msgs::std_msgs
+  ${geometry_msgs_TARGETS}
+  ${nav_msgs_TARGETS}
+  ${std_msgs_TARGETS}
+  ${sensor_msgs_TARGETS}
   sensor_msgs::sensor_msgs
   mrs_uav_hw_api::mrs_uav_hw_api
   Eigen3::Eigen
