@@ -3,7 +3,7 @@ root: ./
 name: simulation
 socket_name: mrs
 attach: false
-tmux_options: -f /etc/ctu-mrs/tmux.conf
+tmux_options: -f <%= @settings["config"] %>
 # you can modify these
 startup_window: status
 pre_window: export UAV_NAME=uav1;
@@ -40,11 +40,11 @@ windows:
       layout: tiled
       panes:
         - ros2 launch mrs_uav_autostart automatic_start.launch.py custom_config:=./config/automatic_start.yaml
-        - ./waitForCore && ./takeoff.sh
+        - waitForCore && ./takeoff.sh
   - commands:
       layout: tiled
       panes:
-        - ./waitForTakeoff && ./goto.py
+        - waitForTakeoff && ./goto.py
   - rviz:
       layout: tiled
       panes:
@@ -56,4 +56,4 @@ windows:
   - layout:
       layout: tiled
       panes:
-        - ./waitForCore; ~/.i3/layout_manager.sh ./layout.json
+        - waitForCore; ~/.i3/layout_manager.sh ./layout.json

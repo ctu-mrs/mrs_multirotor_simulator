@@ -1,5 +1,9 @@
-collisions:
-  crash: false
+dynamic:
+
+  collisions:
+
+    enabled: true
+    crash: false
 
 frames:
   world:
