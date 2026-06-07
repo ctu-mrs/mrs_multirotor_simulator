@@ -2,7 +2,7 @@
 #define REFERENCES_H
 
 #include <iostream>
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 
 namespace mrs_multirotor_simulator
 {
