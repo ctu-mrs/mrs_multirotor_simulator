@@ -70,8 +70,19 @@ add_library(MrsMultirotorSimulator_SimulatorSystemRos SHARED
   src/uav_system_ros.cpp
 )
 
-ament_target_dependencies(MrsMultirotorSimulator_SimulatorSystemRos
-  ${DEPENDENCIES}
+target_link_libraries(MrsMultirotorSimulator_SimulatorSystemRos
+  rclcpp::rclcpp
+  rclcpp_components::component
+  ${mrs_msgs_TARGETS}
+  mrs_lib::mrs_lib
+  pluginlib::pluginlib
+  ${geometry_msgs_TARGETS}
+  ${nav_msgs_TARGETS}
+  ${std_msgs_TARGETS}
+  ${sensor_msgs_TARGETS}
+  mrs_uav_hw_api::mrs_uav_hw_api
+  Eigen3::Eigen
+  ${bakward_ros_TARGETS}
 )
 
 # MRS Simulator
@@ -84,8 +95,19 @@ target_link_libraries(MrsMultirotorSimulator_Simulator
   MrsMultirotorSimulator_SimulatorSystemRos
   )
 
-ament_target_dependencies(MrsMultirotorSimulator_Simulator
-  ${DEPENDENCIES}
+target_link_libraries(MrsMultirotorSimulator_Simulator
+  rclcpp::rclcpp
+  rclcpp_components::component
+  ${mrs_msgs_TARGETS}
+  mrs_lib::mrs_lib
+  pluginlib::pluginlib
+  ${geometry_msgs_TARGETS}
+  ${nav_msgs_TARGETS}
+  ${std_msgs_TARGETS}
+  ${sensor_msgs_TARGETS}
+  mrs_uav_hw_api::mrs_uav_hw_api
+  Eigen3::Eigen
+  ${bakward_ros_TARGETS}
 )
 
 rclcpp_components_register_nodes(MrsMultirotorSimulator_Simulator PLUGIN "mrs_multirotor_simulator::MultirotorSimulator" EXECUTABLE MrsMultirotorSimulator_Simulator)
@@ -96,8 +118,19 @@ add_library(MrsMultirotorSimulator_HwApiPlugin SHARED
   src/hw_api_plugin.cpp
 )
 
-ament_target_dependencies(MrsMultirotorSimulator_HwApiPlugin
-  ${DEPENDENCIES}
+target_link_libraries(MrsMultirotorSimulator_HwApiPlugin
+  rclcpp::rclcpp
+  rclcpp_components::component
+  ${mrs_msgs_TARGETS}
+  mrs_lib::mrs_lib
+  pluginlib::pluginlib
+  ${geometry_msgs_TARGETS}
+  ${nav_msgs_TARGETS}
+  ${std_msgs_TARGETS}
+  ${sensor_msgs_TARGETS}
+  mrs_uav_hw_api::mrs_uav_hw_api
+  Eigen3::Eigen
+  ${bakward_ros_TARGETS}
 )
 
 target_compile_definitions(MrsMultirotorSimulator_HwApiPlugin PRIVATE USE_ROS_TIMER=${USE_ROS_TIMER})
