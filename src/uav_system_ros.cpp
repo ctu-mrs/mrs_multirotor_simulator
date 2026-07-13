@@ -286,6 +286,11 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
     tf_broadcaster_ = std::make_shared<mrs_lib::TransformBroadcaster>(node_);
   }
 
+  if (_publish_rangefinder_tf_) {
+    static_tf_broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(node_);
+    publishRangefinderStaticTF();
+  }
+
   // | --------------------- service servers -------------------- |
 
   ss_set_mass_ = mrs_lib::ServiceServerHandler<mrs_msgs::srv::Float64Srv>(
@@ -518,8 +523,6 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State &state) {
     return;
   }
 
-  // | ----------------------- publish tf ----------------------- |
-
   const Eigen::Vector3d body_z          = state.R.col(2);
   const Eigen::Vector3d rangefinder_dir = -body_z;
 
@@ -549,23 +552,27 @@ void UavSystemRos::publishRangefinder(const MultirotorModel::State &state) {
   range.field_of_view   = 0.01;
 
   ph_rangefinder_->publish(range);
+}
 
-  if (_publish_rangefinder_tf_) {
+//}
 
-    geometry_msgs::msg::TransformStamped tf;
+/* publishRangefinderStaticTF() //{ */
 
-    tf.header.stamp    = time_stamp_;
-    tf.header.frame_id = _frame_fcu_;
-    tf.child_frame_id  = _frame_rangefinder_;
+void UavSystemRos::publishRangefinderStaticTF(void) {
 
-    tf.transform.translation.x = 0;
-    tf.transform.translation.y = 0;
-    tf.transform.translation.z = -0.05;
+  geometry_msgs::msg::TransformStamped tf;
 
-    tf.transform.rotation = mrs_lib::AttitudeConverter(0, 1.57, 0);
+  tf.header.stamp    = node_->get_clock()->now();
+  tf.header.frame_id = _frame_fcu_;
+  tf.child_frame_id  = _frame_rangefinder_;
 
-    tf_broadcaster_->sendTransform(tf);
-  }
+  tf.transform.translation.x = 0;
+  tf.transform.translation.y = 0;
+  tf.transform.translation.z = -0.05;
+
+  tf.transform.rotation = mrs_lib::AttitudeConverter(0, 1.57, 0);
+
+  static_tf_broadcaster_->sendTransform(tf);
 }
 
 //}

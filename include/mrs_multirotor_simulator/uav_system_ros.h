@@ -4,6 +4,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <mrs_lib/transform_broadcaster.h>
+#include <tf2_ros/static_transform_broadcaster.h>
 
 #include <mrs_lib/param_loader.h>
 #include <mrs_lib/publisher_handler.h>
@@ -115,7 +116,10 @@ private:
 
   // | --------------------------- tf --------------------------- |
 
-  std::shared_ptr<mrs_lib::TransformBroadcaster> tf_broadcaster_;
+  std::shared_ptr<mrs_lib::TransformBroadcaster>       tf_broadcaster_;
+  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> static_tf_broadcaster_;
+
+  void publishRangefinderStaticTF(void);
 
   // | ----------------------- subscribers ---------------------- |
 
