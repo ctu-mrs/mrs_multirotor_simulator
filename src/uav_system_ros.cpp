@@ -37,7 +37,12 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
   }
 
   std::string type;
-  param_loader.loadParam(_uav_name_ + "/type", type);
+  if (common_handlers.spawn_params.has_value()) {
+    type = common_handlers.spawn_params.value().type;
+    RCLCPP_INFO(node_->get_logger(), "[%s]: using dynamic spawn type: %s", _uav_name_.c_str(), type.c_str());
+  } else {
+    param_loader.loadParam(_uav_name_ + "/type", type);
+  }
 
   // | --------------------- general params --------------------- |
 
@@ -69,7 +74,11 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
 
   // | ------------------ model-specific params ----------------- |
 
-  param_loader.loadParam(type + "/n_motors", model_params_.n_motors);
+  // Validate that UAV type is specified and first type-specific parameter (n_motors) can be loaded successfully
+  if (type.empty() || !param_loader.loadParam(type + "/n_motors", model_params_.n_motors)) {
+    RCLCPP_ERROR(node_->get_logger(), "UAV type is not specified or invalid.");
+    throw std::runtime_error("UAV type '" + type + "' is not specified or invalid.");
+  }
   param_loader.loadParam(type + "/mass", model_params_.mass);
   param_loader.loadParam(type + "/arm_length", model_params_.arm_length);
   param_loader.loadParam(type + "/body_height", model_params_.body_height);
@@ -88,10 +97,21 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
   double spawn_z;
   double spawn_heading;
 
-  param_loader.loadParam(_uav_name_ + "/spawn/x", spawn_x);
-  param_loader.loadParam(_uav_name_ + "/spawn/y", spawn_y);
-  param_loader.loadParam(_uav_name_ + "/spawn/z", spawn_z);
-  param_loader.loadParam(_uav_name_ + "/spawn/heading", spawn_heading);
+  // Use provided spawn parameters if available, otherwise load from config
+  if (common_handlers.spawn_params.has_value()) {
+    const auto &params = common_handlers.spawn_params.value();
+    spawn_x            = params.x;
+    spawn_y            = params.y;
+    spawn_z            = params.z;
+    spawn_heading      = params.heading;
+    RCLCPP_INFO(node_->get_logger(), "[%s]: using dynamic spawn position: [%.2f, %.2f, %.2f], heading: %.2f", _uav_name_.c_str(), spawn_x, spawn_y, spawn_z,
+                spawn_heading);
+  } else {
+    param_loader.loadParam(_uav_name_ + "/spawn/x", spawn_x);
+    param_loader.loadParam(_uav_name_ + "/spawn/y", spawn_y);
+    param_loader.loadParam(_uav_name_ + "/spawn/z", spawn_z);
+    param_loader.loadParam(_uav_name_ + "/spawn/heading", spawn_heading);
+  }
 
   param_loader.loadParam("randomization/enabled", _randomization_enabled_);
   param_loader.loadParam("randomization/bounds/x", _randomization_bounds_x_);
@@ -170,7 +190,7 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
 
   if (!param_loader.loadedSuccessfully()) {
     RCLCPP_ERROR(node_->get_logger(), "failed to load all parameters");
-    rclcpp::shutdown();
+    throw std::runtime_error("UavSystemRos: failed to load all parameters");
   }
 
   // | ----------------------- publishers ----------------------- |
@@ -391,6 +411,15 @@ MultirotorModel::ModelParams UavSystemRos::getParams() {
 MultirotorModel::State UavSystemRos::getState() {
 
   return uav_system_.getState();
+}
+
+//}
+
+/* getUavName() //{ */
+
+std::string UavSystemRos::getUavName(void) const {
+
+  return _uav_name_;
 }
 
 //}
