@@ -224,7 +224,7 @@ inline void MultirotorModel::step(const double& dt) {
 
   boost::numeric::odeint::runge_kutta4<InternalState> rk;
 
-  odeint::integrate_n_steps(rk, boost::ref(*this), internal_state_, 0.0, dt, 1);
+  odeint::integrate_n_steps(std::ref(rk), std::ref(*this), internal_state_, 0.0, dt, 1);
 
   for (int i = 0; i < N_INTERNAL_STATES; ++i) {
     if (std::isnan(internal_state_.at(i))) {
