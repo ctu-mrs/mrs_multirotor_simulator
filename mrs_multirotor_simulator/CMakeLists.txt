@@ -68,6 +68,12 @@ add_library(MrsMultirotorSimulator_SimulatorSystemRos SHARED
   src/uav_system_ros.cpp
 )
 
+target_include_directories(MrsMultirotorSimulator_SimulatorSystemRos
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
 target_link_libraries(MrsMultirotorSimulator_SimulatorSystemRos
   rclcpp::rclcpp
   rclcpp_components::component
@@ -187,7 +193,7 @@ install(
 )
 
 ament_export_include_directories(
-  include
+  "include/${PROJECT_NAME}"
 )
 
 ament_export_targets(
