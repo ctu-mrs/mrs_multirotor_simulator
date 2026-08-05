@@ -31,6 +31,7 @@ plugin:
     imu:                  true
     altitude:             true
     magnetometer_heading: true
+    magnetic_field:       true
     rc_channels:          true
     rc_rssi:              true
     battery_state:        true

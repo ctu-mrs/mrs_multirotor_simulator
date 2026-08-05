@@ -141,7 +141,7 @@ private:
   // | ------------------------- methods ------------------------ |
 
   void publishBatteryState(void);
-
+  void publishMagneticField(void);
   void publishRC(void);
 
   void timeoutInputs(void);
@@ -234,8 +234,7 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
   local_param_loader.loadParam("outputs/angular_velocity", (bool &)_capabilities_.produces_angular_velocity);
   local_param_loader.loadParam("outputs/odometry", (bool &)_capabilities_.produces_odometry);
   local_param_loader.loadParam("outputs/ground_truth", (bool &)_capabilities_.produces_ground_truth);
-
-  _capabilities_.produces_magnetic_field = false;
+  local_param_loader.loadParam("outputs/magnetic_field", (bool &)_capabilities_.produces_magnetic_field);
 
   if (!local_param_loader.loadedSuccessfully()) {
     RCLCPP_ERROR(node_->get_logger(), "Could not load all parameters!");
@@ -896,6 +895,8 @@ void Api::timerMain() {
 
   publishRC();
 
+  publishMagneticField();
+
   timeoutInputs();
 }
 
@@ -917,6 +918,30 @@ void Api::publishBatteryState(void) {
     msg.charge   = 0.8;
 
     common_handlers_->publishers.publishBatteryState(msg);
+  }
+}
+
+//}
+
+/* publishMagneticField() //{ */
+
+void Api::publishMagneticField(void) {
+
+  if (_capabilities_.produces_magnetic_field) {
+
+    sensor_msgs::msg::MagneticField magnetic_field;
+
+    magnetic_field.header.stamp    = node_->get_clock()->now();
+    magnetic_field.header.frame_id = _uav_name_ + "/" + _body_frame_name_;
+
+    // roughly the Earth's magnetic field in central Europe [T]
+    magnetic_field.magnetic_field.x = 2.1e-5;
+    magnetic_field.magnetic_field.y = 0.1e-5;
+    magnetic_field.magnetic_field.z = 4.3e-5;
+
+    magnetic_field.magnetic_field_covariance = {1e-12, 0.0, 0.0, 0.0, 1e-12, 0.0, 0.0, 0.0, 1e-12};
+
+    common_handlers_->publishers.publishMagneticField(magnetic_field);
   }
 }
 
@@ -946,8 +971,8 @@ void Api::publishRC(void) {
 
   if (_capabilities_.produces_rc_rssi) {
     mrs_msgs::msg::HwApiRcRssi rssi_out;
-    rssi_out.stamp = clock_->now(); 
-    rssi_out.rssi  = 0; 
+    rssi_out.stamp = clock_->now();
+    rssi_out.rssi  = 0;
     common_handlers_->publishers.publishRcRssi(rssi_out);
   }
 }
