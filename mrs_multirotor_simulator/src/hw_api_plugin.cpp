@@ -16,6 +16,8 @@
 
 #include <mrs_lib/errorgraph/error_publisher.h>
 
+#include <tf2_ros/static_transform_broadcaster.hpp>
+
 //}
 
 /* typedefs //{ */
@@ -129,6 +131,10 @@ private:
   std::shared_ptr<TimerType> timer_main_;
 
   void timerMain();
+
+  // | --------------------------- tfs -------------------------- |
+
+  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> static_tf_broadcaster_;
 
   // | ------------------------ variables ----------------------- |
 
@@ -314,6 +320,42 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
     opts.callback_group = cbgrp_timers_;
 
     timer_main_ = std::make_shared<TimerType>(opts, rclcpp::Rate(10.0, clock_), callback_fcn);
+  }
+
+  // | --------------------------- tfs -------------------------- |
+
+  static_tf_broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(node_);
+
+  {
+    geometry_msgs::msg::TransformStamped tf;
+
+    tf.header.stamp    = node_->get_clock()->now();
+    tf.header.frame_id = common_handlers_->getUavName() + "/" + common_handlers_->getBodyFrameName();
+    tf.child_frame_id  = common_handlers_->getUavName() + "/garmin";
+
+    tf.transform.translation.x = 0;
+    tf.transform.translation.y = 0;
+    tf.transform.translation.z = 0;
+
+    tf.transform.rotation = mrs_lib::AttitudeConverter(0, 1.57, 0);
+
+    static_tf_broadcaster_->sendTransform(tf);
+  }
+
+  {
+    geometry_msgs::msg::TransformStamped tf;
+
+    tf.header.stamp    = node_->get_clock()->now();
+    tf.header.frame_id = common_handlers_->getUavName() + "/" + common_handlers_->getBodyFrameName();
+    tf.child_frame_id  = common_handlers_->getUavName() + "/rtk_antenna";
+
+    tf.transform.translation.x = 0;
+    tf.transform.translation.y = 0;
+    tf.transform.translation.z = 0;
+
+    tf.transform.rotation = mrs_lib::AttitudeConverter(0, 0, 0);
+
+    static_tf_broadcaster_->sendTransform(tf);
   }
 
   // | ----------------------- finish init ---------------------- |
@@ -946,8 +988,8 @@ void Api::publishRC(void) {
 
   if (_capabilities_.produces_rc_rssi) {
     mrs_msgs::msg::HwApiRcRssi rssi_out;
-    rssi_out.stamp = clock_->now(); 
-    rssi_out.rssi  = 0; 
+    rssi_out.stamp = clock_->now();
+    rssi_out.rssi  = 0;
     common_handlers_->publishers.publishRcRssi(rssi_out);
   }
 }
