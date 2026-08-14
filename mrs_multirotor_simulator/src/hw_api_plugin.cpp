@@ -825,7 +825,31 @@ void Api::callbackOdom(const nav_msgs::msg::Odometry::ConstSharedPtr msg) {
     gnss.longitude = lon;
     gnss.altitude  = odom->pose.pose.position.z + _amsl_;
 
+    gnss.position_covariance[0] = 0.5;  // east variance [m^2]
+    gnss.position_covariance[4] = 0.5;  // north variance [m^2]
+    gnss.position_covariance[8] = 1.5;  // up variance [m^2]
+
+    gnss.position_covariance_type = sensor_msgs::msg::NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
+
     common_handlers_->publishers.publishGNSS(gnss);
+  }
+
+  // | ------------------- publish gnss status ------------------ |
+
+  if (_capabilities_.produces_gnss) {
+
+    mrs_msgs::msg::GpsInfo gnss_status;
+
+    gnss_status.stamp = odom->header.stamp;
+
+    gnss_status.fix_type = mrs_msgs::msg::GpsInfo::GPS_FIX_TYPE_3D_FIX;
+
+    gnss_status.satellites_visible = 12;
+
+    gnss_status.h_acc = 0.5;
+    gnss_status.v_acc = 0.8;
+
+    common_handlers_->publishers.publishGNSSStatus(gnss_status);
   }
 
   // | ----------------------- publish rtk ---------------------- |
