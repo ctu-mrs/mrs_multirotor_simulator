@@ -16,15 +16,15 @@ public:
     double kp           = 2.0;
     double kd           = 0.15;
     double ki           = 0.2;
-    double max_velocity = 6.0;  // m/s
+    double max_velocity = 6.0; // m/s
   };
 
   PositionController();
-  PositionController(const MultirotorModel::ModelParams& model_params);
+  PositionController(const MultirotorModel::ModelParams &model_params);
 
-  void setParams(const Params& params);
+  void setParams(const Params &params);
 
-  reference::VelocityHdg getControlSignal(const MultirotorModel::State& state, const reference::Position& reference, const double& dt);
+  reference::VelocityHdg getControlSignal(const MultirotorModel::State &state, const reference::Position &reference, const double &dt);
 
 private:
   MultirotorModel::ModelParams model_params_;
@@ -48,7 +48,7 @@ inline PositionController::PositionController() {
   initializePIDs();
 }
 
-inline PositionController::PositionController(const MultirotorModel::ModelParams& model_params) {
+inline PositionController::PositionController(const MultirotorModel::ModelParams &model_params) {
 
   model_params_ = model_params;
 
@@ -59,7 +59,7 @@ inline PositionController::PositionController(const MultirotorModel::ModelParams
 
 /* setParams() //{ */
 
-inline void PositionController::setParams(const Params& params) {
+inline void PositionController::setParams(const Params &params) {
 
   params_ = params;
 
@@ -70,7 +70,8 @@ inline void PositionController::setParams(const Params& params) {
 
 /* getControlSignal() //{ */
 
-inline reference::VelocityHdg PositionController::getControlSignal(const MultirotorModel::State& state, const reference::Position& reference, const double& dt) {
+inline reference::VelocityHdg PositionController::getControlSignal(const MultirotorModel::State &state, const reference::Position &reference,
+                                                                   const double &dt) {
 
   Eigen::Vector3d pos_error = reference.position - state.x;
 
@@ -104,6 +105,6 @@ inline void PositionController::initializePIDs(void) {
 
 //}
 
-}  // namespace mrs_multirotor_simulator
+} // namespace mrs_multirotor_simulator
 
-#endif  // POSITION_CONTROLLER_H
+#endif // POSITION_CONTROLLER_H

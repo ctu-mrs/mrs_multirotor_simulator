@@ -20,7 +20,7 @@ public:
    */
   Eigen::VectorXd motors;
 
-  friend std::ostream& operator<<(std::ostream& os, const Actuators& data) {
+  friend std::ostream &operator<<(std::ostream &os, const Actuators &data) {
     os << "Actuators = " << data.motors.transpose();
     return os;
   }
@@ -52,7 +52,7 @@ public:
    */
   double throttle = 0;
 
-  friend std::ostream& operator<<(std::ostream& os, const ControlGroup& data) {
+  friend std::ostream &operator<<(std::ostream &os, const ControlGroup &data) {
     os << "Control group: roll = " << data.roll << ", pitch = " << data.pitch << ", yaw = " << data.yaw << ", throttle " << data.throttle;
     return os;
   }
@@ -84,7 +84,7 @@ public:
    */
   double throttle = 0;
 
-  friend std::ostream& operator<<(std::ostream& os, const AttitudeRate& data) {
+  friend std::ostream &operator<<(std::ostream &os, const AttitudeRate &data) {
     os << "Attitude rate: roll = " << data.rate_x << ", pitch = " << data.rate_y << ", yaw = " << data.rate_z << ", throttle " << data.throttle;
     return os;
   }
@@ -107,7 +107,7 @@ public:
    */
   double throttle = 0;
 
-  friend std::ostream& operator<<(std::ostream& os, const Attitude& data) {
+  friend std::ostream &operator<<(std::ostream &os, const Attitude &data) {
     os << "Attitude: throttle " << data.throttle << ", R = " << std::endl << data.orientation;
     return os;
   }
@@ -132,7 +132,7 @@ public:
    */
   double throttle = 0;
 
-  friend std::ostream& operator<<(std::ostream& os, const TiltHdgRate& data) {
+  friend std::ostream &operator<<(std::ostream &os, const TiltHdgRate &data) {
     os << "Attitude: throttle " << data.throttle << ", tilt = " << std::endl << data.tilt_vector.transpose() << ", heading rate = " << data.heading_rate;
     return os;
   }
@@ -144,7 +144,7 @@ public:
 
 class AccelerationHdgRate {
 public:
-  AccelerationHdgRate(const Eigen::Vector3d& acceleration, const double& heading_rate) {
+  AccelerationHdgRate(const Eigen::Vector3d &acceleration, const double &heading_rate) {
     this->acceleration = acceleration;
     this->heading_rate = heading_rate;
   }
@@ -157,7 +157,7 @@ public:
 
   double heading_rate = 0;
 
-  friend std::ostream& operator<<(std::ostream& os, const AccelerationHdgRate& data) {
+  friend std::ostream &operator<<(std::ostream &os, const AccelerationHdgRate &data) {
     os << "Acceleration: acc = " << data.acceleration.transpose() << ", heading rate = " << data.heading_rate;
     return os;
   }
@@ -169,7 +169,7 @@ public:
 
 class AccelerationHdg {
 public:
-  AccelerationHdg(const Eigen::Vector3d& acceleration, const double& heading) {
+  AccelerationHdg(const Eigen::Vector3d &acceleration, const double &heading) {
     this->acceleration = acceleration;
     this->heading      = heading;
   }
@@ -185,7 +185,7 @@ public:
    */
   double heading = 0;
 
-  friend std::ostream& operator<<(std::ostream& os, const AccelerationHdg& data) {
+  friend std::ostream &operator<<(std::ostream &os, const AccelerationHdg &data) {
     os << "Acceleration: acc = " << data.acceleration.transpose() << ", heading = " << data.heading;
     return os;
   }
@@ -197,7 +197,7 @@ public:
 
 class VelocityHdgRate {
 public:
-  VelocityHdgRate(const Eigen::Vector3d& velocity, const double& heading_rate) {
+  VelocityHdgRate(const Eigen::Vector3d &velocity, const double &heading_rate) {
     this->velocity     = velocity;
     this->heading_rate = heading_rate;
   }
@@ -213,7 +213,7 @@ public:
    */
   double heading_rate = 0;
 
-  friend std::ostream& operator<<(std::ostream& os, const VelocityHdgRate& data) {
+  friend std::ostream &operator<<(std::ostream &os, const VelocityHdgRate &data) {
     os << "Velocity: vel = " << data.velocity.transpose() << ", heading rate = " << data.heading_rate;
     return os;
   }
@@ -225,7 +225,7 @@ public:
 
 class VelocityHdg {
 public:
-  VelocityHdg(const Eigen::Vector3d& velocity, const double& heading) {
+  VelocityHdg(const Eigen::Vector3d &velocity, const double &heading) {
     this->velocity = velocity;
     this->heading  = heading;
   }
@@ -241,7 +241,7 @@ public:
    */
   double heading = 0;
 
-  friend std::ostream& operator<<(std::ostream& os, const VelocityHdg& data) {
+  friend std::ostream &operator<<(std::ostream &os, const VelocityHdg &data) {
     os << "Velocity: vel = " << data.velocity.transpose() << ", heading rate = " << data.heading;
     return os;
   }
@@ -264,7 +264,7 @@ public:
    */
   double heading = 0;
 
-  friend std::ostream& operator<<(std::ostream& os, const Position& data) {
+  friend std::ostream &operator<<(std::ostream &os, const Position &data) {
     os << "Position: pos = " << data.position.transpose() << ", heading = " << data.heading;
     return os;
   }
@@ -272,8 +272,8 @@ public:
 
 //}
 
-}  // namespace reference
+} // namespace reference
 
-}  // namespace mrs_multirotor_simulator
+} // namespace mrs_multirotor_simulator
 
-#endif  // REFERENCES_H
+#endif // REFERENCES_H
