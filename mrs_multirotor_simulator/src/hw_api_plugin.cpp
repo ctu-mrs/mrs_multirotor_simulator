@@ -824,9 +824,9 @@ void Api::callbackOdom(const nav_msgs::msg::Odometry::ConstSharedPtr msg) {
     gnss.longitude = lon;
     gnss.altitude  = odom->pose.pose.position.z + _amsl_;
 
-    gnss.position_covariance[0] = 0.5;  // east variance [m^2]
-    gnss.position_covariance[4] = 0.5;  // north variance [m^2]
-    gnss.position_covariance[8] = 1.5;  // up variance [m^2]
+    gnss.position_covariance[0] = 0.5; // east variance [m^2]
+    gnss.position_covariance[4] = 0.5; // north variance [m^2]
+    gnss.position_covariance[8] = 1.5; // up variance [m^2]
 
     gnss.position_covariance_type = sensor_msgs::msg::NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
 
