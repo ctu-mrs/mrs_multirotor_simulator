@@ -16,11 +16,11 @@ public:
   };
 
   Mixer();
-  Mixer(const MultirotorModel::ModelParams& model_params);
+  Mixer(const MultirotorModel::ModelParams &model_params);
 
-  void setParams(const Params& params);
+  void setParams(const Params &params);
 
-  reference::Actuators getControlSignal(const reference::ControlGroup& reference);
+  reference::Actuators getControlSignal(const reference::ControlGroup &reference);
 
   /**
    * @brief get the normalized allocation matrix used in the mixer
@@ -47,7 +47,7 @@ private:
 inline Mixer::Mixer() {
 }
 
-inline Mixer::Mixer(const MultirotorModel::ModelParams& model_params) {
+inline Mixer::Mixer(const MultirotorModel::ModelParams &model_params) {
 
   model_params_ = model_params;
 
@@ -58,7 +58,7 @@ inline Mixer::Mixer(const MultirotorModel::ModelParams& model_params) {
 
 /* setParams() //{ */
 
-inline void Mixer::setParams(const Params& params) {
+inline void Mixer::setParams(const Params &params) {
 
   params_ = params;
 
@@ -104,7 +104,7 @@ inline void Mixer::calculateAllocation(void) {
 
 /* getControlSignal() //{ */
 
-inline reference::Actuators Mixer::getControlSignal(const reference::ControlGroup& reference) {
+inline reference::Actuators Mixer::getControlSignal(const reference::ControlGroup &reference) {
 
   Eigen::Vector4d ctrl_group(reference.roll, reference.pitch, reference.yaw, reference.throttle);
 
@@ -153,6 +153,6 @@ inline Eigen::MatrixXd Mixer::getAllocationMatrix(void) {
 
 //}
 
-}  // namespace mrs_multirotor_simulator
+} // namespace mrs_multirotor_simulator
 
-#endif  // MIXER_H
+#endif // MIXER_H

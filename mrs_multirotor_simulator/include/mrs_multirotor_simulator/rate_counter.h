@@ -4,7 +4,7 @@ namespace utils
 {
 class RateCounter {
 public:
-  RateCounter(const rclcpp::Clock::SharedPtr& clk_ptr) : clk_ptr_(clk_ptr), prev_call_(clk_ptr_->now()), avg_dt_(0.1){};
+  RateCounter(const rclcpp::Clock::SharedPtr &clk_ptr) : clk_ptr_(clk_ptr), prev_call_(clk_ptr_->now()), avg_dt_(0.1){};
 
   double update_rate() {
 
@@ -30,4 +30,4 @@ private:
   double                   avg_dt_;
 };
 
-}  // namespace utils
+} // namespace utils

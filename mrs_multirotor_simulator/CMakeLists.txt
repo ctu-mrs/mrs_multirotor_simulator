@@ -150,6 +150,19 @@ target_compile_definitions(MrsMultirotorSimulator_HwApiPlugin PRIVATE USE_ROS_TI
 pluginlib_export_plugin_description_file(mrs_uav_hw_api plugins.xml)
 
 ## --------------------------------------------------------------
+## |                           tests                            |
+## --------------------------------------------------------------
+
+if(ENABLE_TESTS)
+
+  find_package(ament_cmake_clang_format REQUIRED)
+  ament_clang_format(CONFIG_FILE "${PROJECT_SOURCE_DIR}/.clang-format")
+  find_package(ament_cmake_xmllint REQUIRED)
+  ament_xmllint()
+
+endif()
+
+## --------------------------------------------------------------
 ## |                           install                          |
 ## --------------------------------------------------------------
 

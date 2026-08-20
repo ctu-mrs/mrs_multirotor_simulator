@@ -81,6 +81,16 @@ if(PROJECT_IS_TOP_LEVEL AND ENABLE_TESTS)
     mrs_multirotor_simulator_core_mrs_multirotor_simulator_core
   )
 
+  find_package(ament_cmake_clang_format REQUIRED)
+  ament_clang_format(
+    CONFIG_FILE "${PROJECT_SOURCE_DIR}/.clang-format"
+    # List of paths to check
+    # We need to specify them explicitly to exclude the nanoflann files.
+    "${PROJECT_SOURCE_DIR}/include/mrs_multirotor_simulator"
+  )
+  find_package(ament_cmake_xmllint REQUIRED)
+  ament_xmllint()
+
 endif()
 
 ## --------------------------------------------------------------

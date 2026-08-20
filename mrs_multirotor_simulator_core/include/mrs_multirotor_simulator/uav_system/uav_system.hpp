@@ -34,45 +34,45 @@ public:
   };
 
   UavSystem(void);
-  UavSystem(const MultirotorModel::ModelParams& model_params);
-  UavSystem(const MultirotorModel::ModelParams& model_params, const Eigen::Vector3d spawn_pos, const double spawn_heading);
+  UavSystem(const MultirotorModel::ModelParams &model_params);
+  UavSystem(const MultirotorModel::ModelParams &model_params, const Eigen::Vector3d spawn_pos, const double spawn_heading);
 
   void makeStep(const double dt);
 
   void crash(void);
   bool hasCrashed(void);
 
-  void applyForce(const Eigen::Vector3d& force);
+  void applyForce(const Eigen::Vector3d &force);
 
-  void setInput(const reference::Actuators& actuators);
-  void setInput(const reference::ControlGroup& control_group);
-  void setInput(const reference::AttitudeRate& attitude_rate);
-  void setInput(const reference::Attitude& attitude);
-  void setInput(const reference::TiltHdgRate& tilt);
-  void setInput(const reference::AccelerationHdgRate& acceleration);
-  void setInput(const reference::AccelerationHdg& acceleration);
-  void setInput(const reference::VelocityHdgRate& velocity);
-  void setInput(const reference::VelocityHdg& velocity);
-  void setInput(const reference::Position& position);
+  void setInput(const reference::Actuators &actuators);
+  void setInput(const reference::ControlGroup &control_group);
+  void setInput(const reference::AttitudeRate &attitude_rate);
+  void setInput(const reference::Attitude &attitude);
+  void setInput(const reference::TiltHdgRate &tilt);
+  void setInput(const reference::AccelerationHdgRate &acceleration);
+  void setInput(const reference::AccelerationHdg &acceleration);
+  void setInput(const reference::VelocityHdgRate &velocity);
+  void setInput(const reference::VelocityHdg &velocity);
+  void setInput(const reference::Position &position);
   void setInput(void);
 
-  void setFeedforward(const reference::AccelerationHdgRate& cmd);
-  void setFeedforward(const reference::AccelerationHdg& cmd);
-  void setFeedforward(const reference::VelocityHdg& cmd);
-  void setFeedforward(const reference::VelocityHdgRate& cmd);
+  void setFeedforward(const reference::AccelerationHdgRate &cmd);
+  void setFeedforward(const reference::AccelerationHdg &cmd);
+  void setFeedforward(const reference::VelocityHdg &cmd);
+  void setFeedforward(const reference::VelocityHdgRate &cmd);
 
   MultirotorModel::State       getState(void) const;
   MultirotorModel::ModelParams getParams(void);
 
-  void setParams(const MultirotorModel::ModelParams& params);
+  void setParams(const MultirotorModel::ModelParams &params);
 
   Eigen::Vector3d getImuAcceleration(void);
 
-  void setMixerParams(const Mixer::Params& params);
-  void setRateControllerParams(const RateController::Params& params);
-  void setAttitudeControllerParams(const AttitudeController::Params& params);
-  void setVelocityControllerParams(const VelocityController::Params& params);
-  void setPositionControllerParams(const PositionController::Params& params);
+  void setMixerParams(const Mixer::Params &params);
+  void setRateControllerParams(const RateController::Params &params);
+  void setAttitudeControllerParams(const AttitudeController::Params &params);
+  void setVelocityControllerParams(const VelocityController::Params &params);
+  void setPositionControllerParams(const PositionController::Params &params);
 
   Eigen::MatrixXd getMixerAllocation(void);
 
@@ -134,7 +134,7 @@ inline UavSystem::UavSystem(void) {
 }
 
 // constructor
-inline UavSystem::UavSystem(const MultirotorModel::ModelParams& model_params) {
+inline UavSystem::UavSystem(const MultirotorModel::ModelParams &model_params) {
 
   multirotor_model_.setParams(model_params);
 
@@ -143,7 +143,7 @@ inline UavSystem::UavSystem(const MultirotorModel::ModelParams& model_params) {
   initializeControllers();
 }
 
-inline UavSystem::UavSystem(const MultirotorModel::ModelParams& model_params, const Eigen::Vector3d spawn_pos, const double spawn_heading) {
+inline UavSystem::UavSystem(const MultirotorModel::ModelParams &model_params, const Eigen::Vector3d spawn_pos, const double spawn_heading) {
 
   multirotor_model_.setParams(model_params);
 
@@ -174,70 +174,70 @@ inline void UavSystem::initializeControllers(void) {
 
 /* setInput() //{ */
 
-inline void UavSystem::setInput(const reference::Actuators& cmd) {
+inline void UavSystem::setInput(const reference::Actuators &cmd) {
 
   actuators_cmd_ = cmd;
 
   active_input_ = ACTUATOR_CMD;
 }
 
-inline void UavSystem::setInput(const reference::ControlGroup& cmd) {
+inline void UavSystem::setInput(const reference::ControlGroup &cmd) {
 
   control_group_cmd_ = cmd;
 
   active_input_ = CONTROL_GROUP_CMD;
 }
 
-inline void UavSystem::setInput(const reference::AttitudeRate& cmd) {
+inline void UavSystem::setInput(const reference::AttitudeRate &cmd) {
 
   attitude_rate_cmd_ = cmd;
 
   active_input_ = ATTITUDE_RATE_CMD;
 }
 
-inline void UavSystem::setInput(const reference::Attitude& cmd) {
+inline void UavSystem::setInput(const reference::Attitude &cmd) {
 
   attitude_cmd_ = cmd;
 
   active_input_ = ATTITUDE_CMD;
 }
 
-inline void UavSystem::setInput(const reference::TiltHdgRate& cmd) {
+inline void UavSystem::setInput(const reference::TiltHdgRate &cmd) {
 
   tilt_hdg_rate_cmd_ = cmd;
 
   active_input_ = TILT_HDG_RATE_CMD;
 }
 
-inline void UavSystem::setInput(const reference::AccelerationHdgRate& cmd) {
+inline void UavSystem::setInput(const reference::AccelerationHdgRate &cmd) {
 
   acceleration_hdg_rate_cmd_ = cmd;
 
   active_input_ = ACCELERATION_HDG_RATE_CMD;
 }
 
-inline void UavSystem::setInput(const reference::AccelerationHdg& cmd) {
+inline void UavSystem::setInput(const reference::AccelerationHdg &cmd) {
 
   acceleration_hdg_cmd_ = cmd;
 
   active_input_ = ACCELERATION_HDG_CMD;
 }
 
-inline void UavSystem::setInput(const reference::VelocityHdgRate& cmd) {
+inline void UavSystem::setInput(const reference::VelocityHdgRate &cmd) {
 
   velocity_hdg_rate_cmd_ = cmd;
 
   active_input_ = VELOCITY_HDG_RATE_CMD;
 }
 
-inline void UavSystem::setInput(const reference::VelocityHdg& cmd) {
+inline void UavSystem::setInput(const reference::VelocityHdg &cmd) {
 
   velocity_hdg_cmd_ = cmd;
 
   active_input_ = VELOCITY_HDG_CMD;
 }
 
-inline void UavSystem::setInput(const reference::Position& cmd) {
+inline void UavSystem::setInput(const reference::Position &cmd) {
 
   position_cmd_ = cmd;
 
@@ -253,22 +253,22 @@ inline void UavSystem::setInput(void) {
 
 /* setFeedforward() //{ */
 
-inline void UavSystem::setFeedforward(const reference::AccelerationHdgRate& cmd) {
+inline void UavSystem::setFeedforward(const reference::AccelerationHdgRate &cmd) {
 
   acceleration_hdg_rate_ff_ = cmd;
 }
 
-inline void UavSystem::setFeedforward(const reference::AccelerationHdg& cmd) {
+inline void UavSystem::setFeedforward(const reference::AccelerationHdg &cmd) {
 
   acceleration_hdg_ff_ = cmd;
 }
 
-inline void UavSystem::setFeedforward(const reference::VelocityHdgRate& cmd) {
+inline void UavSystem::setFeedforward(const reference::VelocityHdgRate &cmd) {
 
   velocity_hdg_rate_ff_ = cmd;
 }
 
-inline void UavSystem::setFeedforward(const reference::VelocityHdg& cmd) {
+inline void UavSystem::setFeedforward(const reference::VelocityHdg &cmd) {
 
   velocity_hdg_ff_ = cmd;
 }
@@ -294,7 +294,7 @@ inline bool UavSystem::hasCrashed(void) {
 
 /* applyForce() //{ */
 
-inline void UavSystem::applyForce(const Eigen::Vector3d& force) {
+inline void UavSystem::applyForce(const Eigen::Vector3d &force) {
 
   multirotor_model_.applyForce(force);
 }
@@ -403,7 +403,7 @@ inline MultirotorModel::ModelParams UavSystem::getParams(void) {
 
 /* setParams() //{ */
 
-inline void UavSystem::setParams(const MultirotorModel::ModelParams& params) {
+inline void UavSystem::setParams(const MultirotorModel::ModelParams &params) {
 
   multirotor_model_.setParams(params);
 
@@ -432,28 +432,28 @@ inline Eigen::Vector3d UavSystem::getImuAcceleration(void) {
 
 /* setters for controllers' params //{ */
 
-inline void UavSystem::setMixerParams(const Mixer::Params& params) {
+inline void UavSystem::setMixerParams(const Mixer::Params &params) {
   mixer_.setParams(params);
 }
 
-inline void UavSystem::setRateControllerParams(const RateController::Params& params) {
+inline void UavSystem::setRateControllerParams(const RateController::Params &params) {
   rate_controller_.setParams(params);
 }
 
-inline void UavSystem::setAttitudeControllerParams(const AttitudeController::Params& params) {
+inline void UavSystem::setAttitudeControllerParams(const AttitudeController::Params &params) {
   attitude_controller_.setParams(params);
 }
 
-inline void UavSystem::setVelocityControllerParams(const VelocityController::Params& params) {
+inline void UavSystem::setVelocityControllerParams(const VelocityController::Params &params) {
   velocity_controller_.setParams(params);
 }
 
-inline void UavSystem::setPositionControllerParams(const PositionController::Params& params) {
+inline void UavSystem::setPositionControllerParams(const PositionController::Params &params) {
   position_controller_.setParams(params);
 }
 
 //}
 
-}  // namespace mrs_multirotor_simulator
+} // namespace mrs_multirotor_simulator
 
-#endif  // UAV_SYSTEM_H
+#endif // UAV_SYSTEM_H

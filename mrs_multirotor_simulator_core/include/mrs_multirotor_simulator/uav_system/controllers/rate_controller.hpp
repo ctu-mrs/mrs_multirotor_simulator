@@ -19,11 +19,11 @@ public:
   };
 
   RateController();
-  RateController(const MultirotorModel::ModelParams& model_params);
+  RateController(const MultirotorModel::ModelParams &model_params);
 
-  void setParams(const Params& params);
+  void setParams(const Params &params);
 
-  reference::ControlGroup getControlSignal(const MultirotorModel::State& state, const reference::AttitudeRate& reference, const double& dt);
+  reference::ControlGroup getControlSignal(const MultirotorModel::State &state, const reference::AttitudeRate &reference, const double &dt);
 
 private:
   MultirotorModel::ModelParams model_params_;
@@ -41,12 +41,12 @@ inline RateController::RateController() {
   initializePIDs();
 }
 
-inline RateController::RateController(const MultirotorModel::ModelParams& model_params) {
+inline RateController::RateController(const MultirotorModel::ModelParams &model_params) {
   model_params_ = model_params;
   initializePIDs();
 }
 
-inline void RateController::setParams(const Params& params) {
+inline void RateController::setParams(const Params &params) {
 
   params_ = params;
 
@@ -64,7 +64,8 @@ inline void RateController::initializePIDs(void) {
   pid_z_.setParams(params_.kp * model_params_.J(2, 2), params_.kd * model_params_.J(2, 2), params_.ki * model_params_.J(2, 2), -1, 1.0);
 }
 
-inline reference::ControlGroup RateController::getControlSignal(const MultirotorModel::State& state, const reference::AttitudeRate& reference, const double& dt) {
+inline reference::ControlGroup RateController::getControlSignal(const MultirotorModel::State &state, const reference::AttitudeRate &reference,
+                                                                const double &dt) {
 
   Eigen::Vector3d ang_rate_ref = Eigen::Vector3d(reference.rate_x, reference.rate_y, reference.rate_z);
 
@@ -80,6 +81,6 @@ inline reference::ControlGroup RateController::getControlSignal(const Multirotor
   return output;
 }
 
-}  // namespace mrs_multirotor_simulator
+} // namespace mrs_multirotor_simulator
 
-#endif  // RATE_CONTROLLER_H
+#endif // RATE_CONTROLLER_H

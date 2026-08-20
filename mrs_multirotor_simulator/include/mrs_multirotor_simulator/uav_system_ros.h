@@ -54,7 +54,7 @@ public:
 
   bool hasCrashed(void);
 
-  void applyForce(const Eigen::Vector3d& force);
+  void applyForce(const Eigen::Vector3d &force);
 
   Eigen::Vector3d getPose(void);
 
@@ -107,10 +107,10 @@ private:
   std::shared_ptr<mrs_lib::PublisherHandler<nav_msgs::msg::Odometry>> ph_odom_;
   std::shared_ptr<mrs_lib::PublisherHandler<sensor_msgs::msg::Range>> ph_rangefinder_;
 
-  void publishOdometry(const MultirotorModel::State& state);
-  void publishFCUTF(const MultirotorModel::State& state);
-  void publishIMU(const MultirotorModel::State& state);
-  void publishRangefinder(const MultirotorModel::State& state);
+  void publishOdometry(const MultirotorModel::State &state);
+  void publishFCUTF(const MultirotorModel::State &state);
+  void publishIMU(const MultirotorModel::State &state);
+  void publishRangefinder(const MultirotorModel::State &state);
 
   void timeoutInput(void);
 
@@ -159,9 +159,9 @@ private:
 
   // | ------------------------ routines ------------------------ |
 
-  void calculateInertia(MultirotorModel::ModelParams& params);
+  void calculateInertia(MultirotorModel::ModelParams &params);
 };
 
-}  // namespace mrs_multirotor_simulator
+} // namespace mrs_multirotor_simulator
 
-#endif  // UAV_SYSTEM_ROS_H
+#endif // UAV_SYSTEM_ROS_H
