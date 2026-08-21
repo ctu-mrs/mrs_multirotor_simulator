@@ -16,16 +16,16 @@ public:
     double kp               = 2.0;
     double kd               = 0.05;
     double ki               = 0.01;
-    double max_acceleration = 4.0;  // m/s^2;
+    double max_acceleration = 4.0; // m/s^2;
   };
 
   VelocityController();
-  VelocityController(const MultirotorModel::ModelParams& model_params);
+  VelocityController(const MultirotorModel::ModelParams &model_params);
 
-  void setParams(const Params& params);
+  void setParams(const Params &params);
 
-  reference::AccelerationHdgRate getControlSignal(const MultirotorModel::State& state, const reference::VelocityHdgRate& reference, const double& dt);
-  reference::AccelerationHdg     getControlSignal(const MultirotorModel::State& state, const reference::VelocityHdg& reference, const double& dt);
+  reference::AccelerationHdgRate getControlSignal(const MultirotorModel::State &state, const reference::VelocityHdgRate &reference, const double &dt);
+  reference::AccelerationHdg     getControlSignal(const MultirotorModel::State &state, const reference::VelocityHdg &reference, const double &dt);
 
 private:
   MultirotorModel::ModelParams model_params_;
@@ -44,7 +44,7 @@ inline VelocityController::VelocityController() {
   initializePIDs();
 }
 
-inline VelocityController::VelocityController(const MultirotorModel::ModelParams& model_params) {
+inline VelocityController::VelocityController(const MultirotorModel::ModelParams &model_params) {
   model_params_ = model_params;
 
   initializePIDs();
@@ -54,7 +54,7 @@ inline VelocityController::VelocityController(const MultirotorModel::ModelParams
 
 /* setParams() //{ */
 
-inline void VelocityController::setParams(const Params& params) {
+inline void VelocityController::setParams(const Params &params) {
 
   params_ = params;
 
@@ -65,8 +65,8 @@ inline void VelocityController::setParams(const Params& params) {
 
 /* getControlSignal(const MultirotorModel::State& state, const reference::VelocityHdg& reference, const double& dt) //{ */
 
-inline reference::AccelerationHdg VelocityController::getControlSignal(const MultirotorModel::State& state, const reference::VelocityHdg& reference,
-                                                                const double& dt) {
+inline reference::AccelerationHdg VelocityController::getControlSignal(const MultirotorModel::State &state, const reference::VelocityHdg &reference,
+                                                                       const double &dt) {
 
   Eigen::Vector3d vel_error = reference.velocity - state.v;
 
@@ -85,8 +85,8 @@ inline reference::AccelerationHdg VelocityController::getControlSignal(const Mul
 
 /* getControlSignal(const MultirotorModel::State& state, const reference::VelocityHdgRate& reference, const double& dt) //{ */
 
-inline reference::AccelerationHdgRate VelocityController::getControlSignal(const MultirotorModel::State& state, const reference::VelocityHdgRate& reference,
-                                                                    const double& dt) {
+inline reference::AccelerationHdgRate VelocityController::getControlSignal(const MultirotorModel::State &state, const reference::VelocityHdgRate &reference,
+                                                                           const double &dt) {
 
   Eigen::Vector3d vel_error = reference.velocity - state.v;
 
@@ -120,6 +120,6 @@ inline void VelocityController::initializePIDs(void) {
 
 //}
 
-}  // namespace mrs_multirotor_simulator
+} // namespace mrs_multirotor_simulator
 
-#endif  // VELOCITY_CONTROLLER_H
+#endif // VELOCITY_CONTROLLER_H

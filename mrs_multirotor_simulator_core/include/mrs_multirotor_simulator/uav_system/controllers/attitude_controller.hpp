@@ -16,17 +16,17 @@ public:
     double kp                  = 6.0;
     double kd                  = 0.05;
     double ki                  = 0.01;
-    double max_rate_roll_pitch = 10.0;  // rad/s
-    double max_rate_yaw        = 1.0;   // rad/s
+    double max_rate_roll_pitch = 10.0; // rad/s
+    double max_rate_yaw        = 1.0;  // rad/s
   };
 
   AttitudeController();
-  AttitudeController(const MultirotorModel::ModelParams& model_params);
+  AttitudeController(const MultirotorModel::ModelParams &model_params);
 
-  void setParams(const Params& params);
+  void setParams(const Params &params);
 
-  reference::AttitudeRate getControlSignal(const MultirotorModel::State& state, const reference::Attitude& reference, const double& dt);
-  reference::AttitudeRate getControlSignal(const MultirotorModel::State& state, const reference::TiltHdgRate& reference, const double& dt);
+  reference::AttitudeRate getControlSignal(const MultirotorModel::State &state, const reference::Attitude &reference, const double &dt);
+  reference::AttitudeRate getControlSignal(const MultirotorModel::State &state, const reference::TiltHdgRate &reference, const double &dt);
 
 private:
   Params                       params_;
@@ -34,8 +34,8 @@ private:
 
   void initializePIDS(void);
 
-  double intrinsicBodyRateToHeadingRate(const Eigen::Matrix3d& R, const Eigen::Vector3d& attitude_rate);
-  double getYawRateIntrinsic(const Eigen::Matrix3d& R, const double& heading_rate);
+  double intrinsicBodyRateToHeadingRate(const Eigen::Matrix3d &R, const Eigen::Vector3d &attitude_rate);
+  double getYawRateIntrinsic(const Eigen::Matrix3d &R, const double &heading_rate);
 
   PIDController pid_x_;
   PIDController pid_y_;
@@ -56,7 +56,7 @@ inline AttitudeController::AttitudeController() {
 
 /* AttitudeController() //{ */
 
-inline AttitudeController::AttitudeController(const MultirotorModel::ModelParams& model_params) {
+inline AttitudeController::AttitudeController(const MultirotorModel::ModelParams &model_params) {
   model_params_ = model_params;
   initializePIDS();
 }
@@ -65,7 +65,7 @@ inline AttitudeController::AttitudeController(const MultirotorModel::ModelParams
 
 /* setParams() //{ */
 
-inline void AttitudeController::setParams(const Params& params) {
+inline void AttitudeController::setParams(const Params &params) {
 
   params_ = params;
 
@@ -76,7 +76,8 @@ inline void AttitudeController::setParams(const Params& params) {
 
 /* getControlSignal(const MultirotorModel::State& state, const reference::Attitude& reference, const double& dt) //{ */
 
-inline reference::AttitudeRate AttitudeController::getControlSignal(const MultirotorModel::State& state, const reference::Attitude& reference, const double& dt) {
+inline reference::AttitudeRate AttitudeController::getControlSignal(const MultirotorModel::State &state, const reference::Attitude &reference,
+                                                                    const double &dt) {
 
   // orientation error
   Eigen::Matrix3d R_error = 0.5 * (reference.orientation.transpose() * state.R - state.R.transpose() * reference.orientation);
@@ -103,7 +104,8 @@ inline reference::AttitudeRate AttitudeController::getControlSignal(const Multir
 
 /* getControlSignal(const MultirotorModel::State& state, const reference::TiltHdgRate& reference, const double& dt) //{ */
 
-inline reference::AttitudeRate AttitudeController::getControlSignal(const MultirotorModel::State& state, const reference::TiltHdgRate& reference, const double& dt) {
+inline reference::AttitudeRate AttitudeController::getControlSignal(const MultirotorModel::State &state, const reference::TiltHdgRate &reference,
+                                                                    const double &dt) {
 
   Eigen::Matrix3d Rd = Eigen::Matrix3d::Zero();
 
@@ -174,7 +176,7 @@ inline void AttitudeController::initializePIDS(void) {
 
 /* intrinsicBodyRateToHeadingRate() //{ */
 
-inline double AttitudeController::intrinsicBodyRateToHeadingRate(const Eigen::Matrix3d& R, const Eigen::Vector3d& w) {
+inline double AttitudeController::intrinsicBodyRateToHeadingRate(const Eigen::Matrix3d &R, const Eigen::Vector3d &w) {
 
   // create the angular velocity tensor
   Eigen::Matrix3d W;
@@ -184,8 +186,8 @@ inline double AttitudeController::intrinsicBodyRateToHeadingRate(const Eigen::Ma
   Eigen::Matrix3d R_d = R * W;
 
   // atan2 derivative
-  double rx = R(0, 0);  // x-component of body X
-  double ry = R(1, 0);  // y-component of body Y
+  double rx = R(0, 0); // x-component of body X
+  double ry = R(1, 0); // y-component of body Y
 
   double denom = rx * rx + ry * ry;
 
@@ -209,7 +211,7 @@ inline double AttitudeController::intrinsicBodyRateToHeadingRate(const Eigen::Ma
 
 /* getYawRateIntrinsic() //{ */
 
-inline double AttitudeController::getYawRateIntrinsic(const Eigen::Matrix3d& R, const double& heading_rate) {
+inline double AttitudeController::getYawRateIntrinsic(const Eigen::Matrix3d &R, const double &heading_rate) {
 
   // when the heading rate is very small, it does not make sense to compute the
   // yaw rate (the math would break), return 0
@@ -252,6 +254,6 @@ inline double AttitudeController::getYawRateIntrinsic(const Eigen::Matrix3d& R, 
 
 //}
 
-}  // namespace mrs_multirotor_simulator
+} // namespace mrs_multirotor_simulator
 
-#endif  // ATTITUDE_CONTROLLER_H
+#endif // ATTITUDE_CONTROLLER_H

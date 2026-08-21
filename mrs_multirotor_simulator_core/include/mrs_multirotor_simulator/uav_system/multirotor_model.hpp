@@ -100,39 +100,38 @@ public:
 
   MultirotorModel();
 
-  MultirotorModel(const ModelParams& params, const Eigen::Vector3d& spawn_pos, const double spawn_heading);
+  MultirotorModel(const ModelParams &params, const Eigen::Vector3d &spawn_pos, const double spawn_heading);
 
-  const MultirotorModel::State& getState(void) const;
+  const MultirotorModel::State &getState(void) const;
 
-  void setState(const MultirotorModel::State& state);
+  void setState(const MultirotorModel::State &state);
 
-  void applyForce(const Eigen::Vector3d& state);
+  void applyForce(const Eigen::Vector3d &state);
 
-  void setStatePos(const Eigen::Vector3d& pos, const double heading);
+  void setStatePos(const Eigen::Vector3d &pos, const double heading);
 
-  const Eigen::Vector3d& getExternalForce(void) const;
-  void                   setExternalForce(const Eigen::Vector3d& force);
+  const Eigen::Vector3d &getExternalForce(void) const;
+  void                   setExternalForce(const Eigen::Vector3d &force);
 
-  const Eigen::Vector3d& getExternalMoment(void) const;
-  void                   setExternalMoment(const Eigen::Vector3d& moment);
+  const Eigen::Vector3d &getExternalMoment(void) const;
+  void                   setExternalMoment(const Eigen::Vector3d &moment);
 
-  void setInput(const reference::Actuators& input);
+  void setInput(const reference::Actuators &input);
 
-  void step(const double& dt);
+  void step(const double &dt);
 
   typedef boost::array<double, N_INTERNAL_STATES> InternalState;
 
-  void operator()(const MultirotorModel::InternalState& x, MultirotorModel::InternalState& dxdt, const double t);
+  void operator()(const MultirotorModel::InternalState &x, MultirotorModel::InternalState &dxdt, const double t);
 
   Eigen::Vector3d getImuAcceleration() const;
 
   ModelParams getParams(void);
-  void        setParams(const ModelParams& params);
+  void        setParams(const ModelParams &params);
 
   void initializeState(void);
 
 private:
-
   void updateInternalState(void);
 
   MultirotorModel::State state_;
@@ -163,7 +162,7 @@ inline MultirotorModel::MultirotorModel(void) {
   updateInternalState();
 }
 
-inline MultirotorModel::MultirotorModel(const MultirotorModel::ModelParams& params, const Eigen::Vector3d& spawn_pos, const double spawn_heading) {
+inline MultirotorModel::MultirotorModel(const MultirotorModel::ModelParams &params, const Eigen::Vector3d &spawn_pos, const double spawn_heading) {
 
   params_ = params;
 
@@ -218,7 +217,7 @@ inline void MultirotorModel::updateInternalState(void) {
 
 /* step() //{ */
 
-inline void MultirotorModel::step(const double& dt) {
+inline void MultirotorModel::step(const double &dt) {
 
   auto save = internal_state_;
 
@@ -290,7 +289,7 @@ inline void MultirotorModel::step(const double& dt) {
 
 /* applyModel() //{ */
 
-inline void MultirotorModel::applyForce(const Eigen::Vector3d& force) {
+inline void MultirotorModel::applyForce(const Eigen::Vector3d &force) {
 
   external_force_ = force;
 }
@@ -299,7 +298,7 @@ inline void MultirotorModel::applyForce(const Eigen::Vector3d& force) {
 
 /* operator() //{ */
 
-inline void MultirotorModel::operator()(const MultirotorModel::InternalState& x, MultirotorModel::InternalState& dxdt, [[maybe_unused]] const double t) {
+inline void MultirotorModel::operator()(const MultirotorModel::InternalState &x, MultirotorModel::InternalState &dxdt, [[maybe_unused]] const double t) {
 
   State cur_state;
 
@@ -372,7 +371,7 @@ inline void MultirotorModel::operator()(const MultirotorModel::InternalState& x,
 
 /* setParams() //{ */
 
-inline void MultirotorModel::setParams(const MultirotorModel::ModelParams& params) {
+inline void MultirotorModel::setParams(const MultirotorModel::ModelParams &params) {
 
   params_ = params;
 }
@@ -390,7 +389,7 @@ inline MultirotorModel::ModelParams MultirotorModel::getParams(void) {
 
 /* setInput() //{ */
 
-inline void MultirotorModel::setInput(const reference::Actuators& input) {
+inline void MultirotorModel::setInput(const reference::Actuators &input) {
 
   for (int i = 0; i < params_.n_motors; i++) {
 
@@ -414,7 +413,7 @@ inline void MultirotorModel::setInput(const reference::Actuators& input) {
 
 /* getState() //{ */
 
-inline const MultirotorModel::State& MultirotorModel::getState(void) const {
+inline const MultirotorModel::State &MultirotorModel::getState(void) const {
   return state_;
 }
 
@@ -422,7 +421,7 @@ inline const MultirotorModel::State& MultirotorModel::getState(void) const {
 
 /* setState() //{ */
 
-inline void MultirotorModel::setState(const MultirotorModel::State& state) {
+inline void MultirotorModel::setState(const MultirotorModel::State &state) {
 
   state_.x         = state.x;
   state_.v         = state.v;
@@ -437,7 +436,7 @@ inline void MultirotorModel::setState(const MultirotorModel::State& state) {
 
 /* setStatePos() //{ */
 
-inline void MultirotorModel::setStatePos(const Eigen::Vector3d& pos, const double heading) {
+inline void MultirotorModel::setStatePos(const Eigen::Vector3d &pos, const double heading) {
 
   _initial_pos_ = pos;
   state_.x      = pos;
@@ -450,7 +449,7 @@ inline void MultirotorModel::setStatePos(const Eigen::Vector3d& pos, const doubl
 
 /* getExternalForce() //{ */
 
-inline const Eigen::Vector3d& MultirotorModel::getExternalForce(void) const {
+inline const Eigen::Vector3d &MultirotorModel::getExternalForce(void) const {
   return external_force_;
 }
 
@@ -458,7 +457,7 @@ inline const Eigen::Vector3d& MultirotorModel::getExternalForce(void) const {
 
 /* setExternalForce() //{ */
 
-inline void MultirotorModel::setExternalForce(const Eigen::Vector3d& force) {
+inline void MultirotorModel::setExternalForce(const Eigen::Vector3d &force) {
   external_force_ = force;
 }
 
@@ -466,7 +465,7 @@ inline void MultirotorModel::setExternalForce(const Eigen::Vector3d& force) {
 
 /* getExternalMoment() //{ */
 
-inline const Eigen::Vector3d& MultirotorModel::getExternalMoment(void) const {
+inline const Eigen::Vector3d &MultirotorModel::getExternalMoment(void) const {
   return external_moment_;
 }
 
@@ -474,7 +473,7 @@ inline const Eigen::Vector3d& MultirotorModel::getExternalMoment(void) const {
 
 /* setExternalMoment() //{ */
 
-inline void MultirotorModel::setExternalMoment(const Eigen::Vector3d& moment) {
+inline void MultirotorModel::setExternalMoment(const Eigen::Vector3d &moment) {
   external_moment_ = moment;
 }
 
@@ -489,6 +488,6 @@ inline Eigen::Vector3d MultirotorModel::getImuAcceleration() const {
 //}
 
 
-}  // namespace mrs_multirotor_simulator
+} // namespace mrs_multirotor_simulator
 
 #endif
