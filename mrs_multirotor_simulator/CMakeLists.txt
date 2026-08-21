@@ -16,7 +16,7 @@ endif()
 set(USE_ROS_TIMER 0)
 
 if(${USE_ROS_TIMER})
-  MESSAGE(WARNING "[mrs_uav_managers]: Compiling with ROS Timers. This can cause high CPU load in runtime.")
+  MESSAGE(WARNING "[mrs_multirotor_simulator]: Compiling with ROS Timers. This can cause high CPU load in runtime.")
 endif()
 
 if(ENABLE_COVERAGE)
