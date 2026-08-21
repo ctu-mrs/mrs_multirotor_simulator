@@ -190,7 +190,11 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
   common_handlers_->main_param_loader->loadParam("custom_config", custom_config_path);
 
   if (custom_config_path != "") {
-    local_param_loader.addYamlFile(custom_config_path);
+    if (!local_param_loader.addYamlFile(custom_config_path)) {
+      RCLCPP_ERROR(node_->get_logger(), "failed to load custom_config");
+      error_publisher_->addOneshotError("failed to load custom_config");
+      error_publisher_->flushAndShutdown();
+    }
   }
 
   std::vector<std::string> config_files;
@@ -204,7 +208,11 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
 
   for (auto config_file : config_files) {
     RCLCPP_INFO(node_->get_logger(), "loading config file '%s'", config_file.c_str());
-    local_param_loader.addYamlFile(config_file);
+    if (!local_param_loader.addYamlFile(config_file)) {
+      RCLCPP_ERROR(node_->get_logger(), "failed to load config file '%s'", config_file.c_str());
+      error_publisher_->addOneshotError("failed to load config file '" + config_file + "'");
+      error_publisher_->flushAndShutdown();
+    }
   }
 
   local_param_loader.loadParam("input_timeout", _input_timeout_);
