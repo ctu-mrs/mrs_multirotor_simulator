@@ -1,0 +1,36 @@
+# example config for BoidsUavPlugin.
+#
+# NOTE: the plugin's own mrs_lib::ParamLoader is scoped to the ROS2 sub-namespace
+# "uav_plugin/<uav_name>/<instance_name>" (where <instance_name> is whatever name
+# you listed it under in "plugins" for that uav, here "boids"), so your yaml keys
+# have to be nested under that exact, per-uav-per-instance path to be picked up --
+# repeat the block below once per uav that uses the plugin. See
+# mrs_multirotor_simulator/tmux/mrs_plugins_demo/custom_configs/simulator.yaml
+# for a complete, working example with several uavs and several plugins at once.
+
+uav_plugin:
+  uav1:
+    boids:
+
+      # classic boids flocking gains
+      separation_weight: 1.5
+      alignment_weight: 1.0
+      cohesion_weight: 1.0
+
+      max_speed: 3.0 # [m/s]
+
+      # local filtering distances within whatever neighbors were already provided
+      # by the simulator's shared, dynamically-reconfigurable neighbor radius
+      perception_radius: 10.0 # [m]
+      separation_radius: 3.0  # [m]
+
+      # a shared attractor towards a common altitude -- separation/alignment/cohesion only
+      # react to relative neighbor state, so without this the flock's shared mean altitude
+      # has no restoring force and drifts (typically into the ground, since it's a hard
+      # floor but there's no equivalent ceiling); once a few uavs settle on the ground,
+      # cohesion actively pulls the rest down after them too, so this needs a weight
+      # comparable to (or larger than) the flocking weights above to reliably win against
+      # that, not just a gentle nudge. Use the *same* cruise_altitude for every uav so they
+      # still converge into one shared layer via cohesion, rather than each holding its own
+      cruise_altitude: 5.0      # [m]
+      altitude_bias_weight: 2.0

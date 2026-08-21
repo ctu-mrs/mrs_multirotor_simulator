@@ -4,17 +4,26 @@ simulation_rate: 100.0 # Hz
 # the rate of publishing of /clock
 clock_rate:      400.0 # Hz, should be >= simulation_rate, ideally in whole multiples of simulation_rate
 
+# names of the world plugins to load, each name must have a "<name>/address" entry defined
+# (in this file or in a custom_config) with the pluginlib address of the implementation
+world_plugins: []
+
 dynamic:
 
   realtime_factor: 1.0 # [-]
 
   collisions:
 
-    enabled: true
-    crash: true
+    enabled: false
+    crash: false
 
     # if crash==false, then the collisions are elastic
     rebounce: 100.0
+
+  uav_plugins:
+
+    # neighbor search radius for uav plugins, shared by all uavs [m]
+    neighbor_radius: 10.0
 
 # when true, the simulation time will get initialized from wall time
 sim_time_from_wall_time: true

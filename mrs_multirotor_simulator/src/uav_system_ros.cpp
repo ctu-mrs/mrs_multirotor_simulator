@@ -14,72 +14,72 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
 
   _uav_name_ = common_handlers.uav_name;
 
-  mrs_lib::ParamLoader param_loader(node_, node_->get_name() + std::string("_") + _uav_name_);
+  param_loader_ = std::make_shared<mrs_lib::ParamLoader>(node_, node_->get_name() + std::string("_") + _uav_name_);
 
   // load custom config
 
   std::string custom_config_path;
-  param_loader.loadParam("custom_config", custom_config_path);
+  param_loader_->loadParam("custom_config", custom_config_path);
 
   if (custom_config_path != "") {
     RCLCPP_INFO(node_->get_logger(), "[%s] loading custom config '%s", _uav_name_.c_str(), custom_config_path.c_str());
-    param_loader.addYamlFile(custom_config_path);
+    param_loader_->addYamlFile(custom_config_path);
   }
 
   // load other configs
 
   std::vector<std::string> config_files;
-  param_loader.loadParam("uav_configs", config_files);
+  param_loader_->loadParam("uav_configs", config_files);
 
   for (auto config_file : config_files) {
     RCLCPP_INFO(node_->get_logger(), "[%s] loading config file '%s'", _uav_name_.c_str(), config_file.c_str());
-    param_loader.addYamlFile(config_file);
+    param_loader_->addYamlFile(config_file);
   }
 
   std::string type;
-  param_loader.loadParam(_uav_name_ + "/type", type);
+  param_loader_->loadParam(_uav_name_ + "/type", type);
 
   // | --------------------- general params --------------------- |
 
-  param_loader.loadParam("frames/world/name", _frame_world_);
+  param_loader_->loadParam("frames/world/name", _frame_world_);
   bool prefix_world_name;
-  param_loader.loadParam("frames/world/prefix_with_uav_name", prefix_world_name);
+  param_loader_->loadParam("frames/world/prefix_with_uav_name", prefix_world_name);
 
   if (prefix_world_name) {
     _frame_world_ = _uav_name_ + "/" + _frame_world_;
   }
 
-  param_loader.loadParam("frames/rangefinder/name", _frame_rangefinder_);
+  param_loader_->loadParam("frames/rangefinder/name", _frame_rangefinder_);
 
   _frame_rangefinder_ = _uav_name_ + "/" + _frame_rangefinder_;
 
-  param_loader.loadParam("frames/rangefinder/publish_tf", _publish_rangefinder_tf_);
-  param_loader.loadParam("frames/fcu/publish_tf", _publish_fcu_tf_);
+  param_loader_->loadParam("frames/rangefinder/publish_tf", _publish_rangefinder_tf_);
+  param_loader_->loadParam("frames/fcu/publish_tf", _publish_fcu_tf_);
 
-  param_loader.loadParam("frames/fcu/name", _frame_fcu_);
+  param_loader_->loadParam("frames/fcu/name", _frame_fcu_);
 
   _frame_fcu_ = _uav_name_ + "/" + _frame_fcu_;
 
-  param_loader.loadParam("g", model_params_.g);
-  param_loader.loadParam("iterate_without_input", _iterate_without_input_);
-  param_loader.loadParam("input_timeout", _input_timeout_);
-  param_loader.loadParam("ground/enabled", model_params_.ground_enabled);
-  param_loader.loadParam("ground/z", model_params_.ground_z);
-  param_loader.loadParam("individual_takeoff_platform/enabled", model_params_.takeoff_patch_enabled);
+  param_loader_->loadParam("g", model_params_.g);
+  param_loader_->loadParam("iterate_without_input", _iterate_without_input_);
+  param_loader_->loadParam("input_timeout", _input_timeout_);
+  param_loader_->loadParam("ground/enabled", model_params_.ground_enabled);
+  param_loader_->loadParam("ground/z", model_params_.ground_z);
+  param_loader_->loadParam("individual_takeoff_platform/enabled", model_params_.takeoff_patch_enabled);
 
   // | ------------------ model-specific params ----------------- |
 
-  param_loader.loadParam(type + "/n_motors", model_params_.n_motors);
-  param_loader.loadParam(type + "/mass", model_params_.mass);
-  param_loader.loadParam(type + "/arm_length", model_params_.arm_length);
-  param_loader.loadParam(type + "/body_height", model_params_.body_height);
-  param_loader.loadParam(type + "/air_resistance_coeff", model_params_.air_resistance_coeff);
-  param_loader.loadParam(type + "/motor_time_constant", model_params_.motor_time_constant);
-  param_loader.loadParam(type + "/propulsion/prop_radius", model_params_.prop_radius);
-  param_loader.loadParam(type + "/propulsion/force_constant", model_params_.kf);
-  param_loader.loadParam(type + "/propulsion/moment_constant", model_params_.km);
-  param_loader.loadParam(type + "/propulsion/rpm/min", model_params_.min_rpm);
-  param_loader.loadParam(type + "/propulsion/rpm/max", model_params_.max_rpm);
+  param_loader_->loadParam(type + "/n_motors", model_params_.n_motors);
+  param_loader_->loadParam(type + "/mass", model_params_.mass);
+  param_loader_->loadParam(type + "/arm_length", model_params_.arm_length);
+  param_loader_->loadParam(type + "/body_height", model_params_.body_height);
+  param_loader_->loadParam(type + "/air_resistance_coeff", model_params_.air_resistance_coeff);
+  param_loader_->loadParam(type + "/motor_time_constant", model_params_.motor_time_constant);
+  param_loader_->loadParam(type + "/propulsion/prop_radius", model_params_.prop_radius);
+  param_loader_->loadParam(type + "/propulsion/force_constant", model_params_.kf);
+  param_loader_->loadParam(type + "/propulsion/moment_constant", model_params_.km);
+  param_loader_->loadParam(type + "/propulsion/rpm/min", model_params_.min_rpm);
+  param_loader_->loadParam(type + "/propulsion/rpm/max", model_params_.max_rpm);
 
   // | --------------------- spawn location --------------------- |
 
@@ -88,15 +88,15 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
   double spawn_z;
   double spawn_heading;
 
-  param_loader.loadParam(_uav_name_ + "/spawn/x", spawn_x);
-  param_loader.loadParam(_uav_name_ + "/spawn/y", spawn_y);
-  param_loader.loadParam(_uav_name_ + "/spawn/z", spawn_z);
-  param_loader.loadParam(_uav_name_ + "/spawn/heading", spawn_heading);
+  param_loader_->loadParam(_uav_name_ + "/spawn/x", spawn_x);
+  param_loader_->loadParam(_uav_name_ + "/spawn/y", spawn_y);
+  param_loader_->loadParam(_uav_name_ + "/spawn/z", spawn_z);
+  param_loader_->loadParam(_uav_name_ + "/spawn/heading", spawn_heading);
 
-  param_loader.loadParam("randomization/enabled", _randomization_enabled_);
-  param_loader.loadParam("randomization/bounds/x", _randomization_bounds_x_);
-  param_loader.loadParam("randomization/bounds/y", _randomization_bounds_y_);
-  param_loader.loadParam("randomization/bounds/z", _randomization_bounds_z_);
+  param_loader_->loadParam("randomization/enabled", _randomization_enabled_);
+  param_loader_->loadParam("randomization/bounds/x", _randomization_bounds_x_);
+  param_loader_->loadParam("randomization/bounds/y", _randomization_bounds_y_);
+  param_loader_->loadParam("randomization/bounds/z", _randomization_bounds_z_);
 
   if (_randomization_enabled_) {
     spawn_x += randd(-_randomization_bounds_x_, _randomization_bounds_x_);
@@ -107,68 +107,68 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
 
   calculateInertia(model_params_);
 
-  model_params_.allocation_matrix = param_loader.loadMatrixDynamic2(type + "/propulsion/allocation_matrix", 4, -1);
+  model_params_.allocation_matrix = param_loader_->loadMatrixDynamic2(type + "/propulsion/allocation_matrix", 4, -1);
 
   model_params_.allocation_matrix.row(0) *= model_params_.arm_length * model_params_.kf;
   model_params_.allocation_matrix.row(1) *= model_params_.arm_length * model_params_.kf;
   model_params_.allocation_matrix.row(2) *= model_params_.km * (3.0 * model_params_.prop_radius) * model_params_.kf;
   model_params_.allocation_matrix.row(3) *= model_params_.kf;
 
-  uav_system_ = UavSystem(model_params_, Eigen::Vector3d(spawn_x, spawn_y, spawn_z), spawn_heading);
+  uav_system_ = std::make_shared<UavSystem>(model_params_, Eigen::Vector3d(spawn_x, spawn_y, spawn_z), spawn_heading);
 
   // | -------------------------- mixer ------------------------- |
 
   Mixer::Params mixer_params;
 
-  param_loader.loadParam("mixer/desaturation", mixer_params.desaturation);
+  param_loader_->loadParam("mixer/desaturation", mixer_params.desaturation);
 
-  uav_system_.setMixerParams(mixer_params);
+  uav_system_->setMixerParams(mixer_params);
 
   // | --------------------- rate controller -------------------- |
 
   RateController::Params rate_controller_params;
 
-  param_loader.loadParam("rate_controller/kp", rate_controller_params.kp);
-  param_loader.loadParam("rate_controller/kd", rate_controller_params.kd);
-  param_loader.loadParam("rate_controller/ki", rate_controller_params.ki);
+  param_loader_->loadParam("rate_controller/kp", rate_controller_params.kp);
+  param_loader_->loadParam("rate_controller/kd", rate_controller_params.kd);
+  param_loader_->loadParam("rate_controller/ki", rate_controller_params.ki);
 
-  uav_system_.setRateControllerParams(rate_controller_params);
+  uav_system_->setRateControllerParams(rate_controller_params);
 
   // | --------------------- attitude controller -------------------- |
 
   AttitudeController::Params attitude_controller_params;
 
-  param_loader.loadParam("attitude_controller/kp", attitude_controller_params.kp);
-  param_loader.loadParam("attitude_controller/kd", attitude_controller_params.kd);
-  param_loader.loadParam("attitude_controller/ki", attitude_controller_params.ki);
-  param_loader.loadParam("attitude_controller/max_rate_roll_pitch", attitude_controller_params.max_rate_roll_pitch);
-  param_loader.loadParam("attitude_controller/max_rate_yaw", attitude_controller_params.max_rate_yaw);
+  param_loader_->loadParam("attitude_controller/kp", attitude_controller_params.kp);
+  param_loader_->loadParam("attitude_controller/kd", attitude_controller_params.kd);
+  param_loader_->loadParam("attitude_controller/ki", attitude_controller_params.ki);
+  param_loader_->loadParam("attitude_controller/max_rate_roll_pitch", attitude_controller_params.max_rate_roll_pitch);
+  param_loader_->loadParam("attitude_controller/max_rate_yaw", attitude_controller_params.max_rate_yaw);
 
-  uav_system_.setAttitudeControllerParams(attitude_controller_params);
+  uav_system_->setAttitudeControllerParams(attitude_controller_params);
 
   // | ------------------- velocity controller ------------------ |
 
   VelocityController::Params velocity_controller_params;
 
-  param_loader.loadParam("velocity_controller/kp", velocity_controller_params.kp);
-  param_loader.loadParam("velocity_controller/kd", velocity_controller_params.kd);
-  param_loader.loadParam("velocity_controller/ki", velocity_controller_params.ki);
-  param_loader.loadParam("velocity_controller/max_acceleration", velocity_controller_params.max_acceleration);
+  param_loader_->loadParam("velocity_controller/kp", velocity_controller_params.kp);
+  param_loader_->loadParam("velocity_controller/kd", velocity_controller_params.kd);
+  param_loader_->loadParam("velocity_controller/ki", velocity_controller_params.ki);
+  param_loader_->loadParam("velocity_controller/max_acceleration", velocity_controller_params.max_acceleration);
 
-  uav_system_.setVelocityControllerParams(velocity_controller_params);
+  uav_system_->setVelocityControllerParams(velocity_controller_params);
 
   // | ------------------- position controller ------------------ |
 
   PositionController::Params position_controller_params;
 
-  param_loader.loadParam("position_controller/kp", position_controller_params.kp);
-  param_loader.loadParam("position_controller/kd", position_controller_params.kd);
-  param_loader.loadParam("position_controller/ki", position_controller_params.ki);
-  param_loader.loadParam("position_controller/max_velocity", position_controller_params.max_velocity);
+  param_loader_->loadParam("position_controller/kp", position_controller_params.kp);
+  param_loader_->loadParam("position_controller/kd", position_controller_params.kd);
+  param_loader_->loadParam("position_controller/ki", position_controller_params.ki);
+  param_loader_->loadParam("position_controller/max_velocity", position_controller_params.max_velocity);
 
-  uav_system_.setPositionControllerParams(position_controller_params);
+  uav_system_->setPositionControllerParams(position_controller_params);
 
-  if (!param_loader.loadedSuccessfully()) {
+  if (!param_loader_->loadedSuccessfully()) {
     RCLCPP_ERROR(node_->get_logger(), "failed to load all parameters");
     rclcpp::shutdown();
   }
@@ -179,9 +179,9 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
   bool pub_odom_enabled;
   bool pub_rangefinder_enabled;
 
-  param_loader.loadParam("publishers/imu/enabled", pub_imu_enabled);
-  param_loader.loadParam("publishers/rangefinder/enabled", pub_rangefinder_enabled);
-  param_loader.loadParam("publishers/odometry/enabled", pub_odom_enabled);
+  param_loader_->loadParam("publishers/imu/enabled", pub_imu_enabled);
+  param_loader_->loadParam("publishers/rangefinder/enabled", pub_rangefinder_enabled);
+  param_loader_->loadParam("publishers/odometry/enabled", pub_odom_enabled);
 
   if (pub_imu_enabled) {
     ph_imu_ = std::make_shared<mrs_lib::PublisherHandler<sensor_msgs::msg::Imu>>(node_, "~/" + _uav_name_ + "/imu");
@@ -217,16 +217,16 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
   bool sub_control_group_cmd_enabled;
   bool sub_actuators_cmd_enabled;
 
-  param_loader.loadParam("subscribers/tracker_cmd/enabled", sub_tracker_cmd_enabled);
-  param_loader.loadParam("subscribers/position_cmd/enabled", sub_pos_cmd_enabled);
-  param_loader.loadParam("subscribers/velocity_hdg_cmd/enabled", sub_vel_hdg_cmd_enabled);
-  param_loader.loadParam("subscribers/velocity_hdg_rate_cmd/enabled", sub_vel_hdg_rate_cmd_enabled);
-  param_loader.loadParam("subscribers/acceleration_hdg_cmd/enabled", sub_acc_hdg_cmd_enabled);
-  param_loader.loadParam("subscribers/acceleration_hdg_rate_cmd/enabled", sub_acc_hdg_rate_cmd_enabled);
-  param_loader.loadParam("subscribers/attitude_cmd/enabled", sub_attitude_cmd_enabled);
-  param_loader.loadParam("subscribers/attitude_rate_cmd/enabled", sub_attitude_rate_cmd_enabled);
-  param_loader.loadParam("subscribers/control_group_cmd/enabled", sub_control_group_cmd_enabled);
-  param_loader.loadParam("subscribers/actuators_group_cmd/enabled", sub_actuators_cmd_enabled);
+  param_loader_->loadParam("subscribers/tracker_cmd/enabled", sub_tracker_cmd_enabled);
+  param_loader_->loadParam("subscribers/position_cmd/enabled", sub_pos_cmd_enabled);
+  param_loader_->loadParam("subscribers/velocity_hdg_cmd/enabled", sub_vel_hdg_cmd_enabled);
+  param_loader_->loadParam("subscribers/velocity_hdg_rate_cmd/enabled", sub_vel_hdg_rate_cmd_enabled);
+  param_loader_->loadParam("subscribers/acceleration_hdg_cmd/enabled", sub_acc_hdg_cmd_enabled);
+  param_loader_->loadParam("subscribers/acceleration_hdg_rate_cmd/enabled", sub_acc_hdg_rate_cmd_enabled);
+  param_loader_->loadParam("subscribers/attitude_cmd/enabled", sub_attitude_cmd_enabled);
+  param_loader_->loadParam("subscribers/attitude_rate_cmd/enabled", sub_attitude_rate_cmd_enabled);
+  param_loader_->loadParam("subscribers/control_group_cmd/enabled", sub_control_group_cmd_enabled);
+  param_loader_->loadParam("subscribers/actuators_group_cmd/enabled", sub_actuators_cmd_enabled);
 
   if (sub_actuators_cmd_enabled) {
     sh_actuator_cmd_ =
@@ -299,6 +299,70 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
   ss_set_ground_z_ = mrs_lib::ServiceServerHandler<mrs_msgs::srv::Float64Srv>(
       node_, "~/" + _uav_name_ + "/set_ground_z", std::bind(&UavSystemRos::callbackSetGroundZ, this, std::placeholders::_1, std::placeholders::_2), cbgrp_ss_);
 
+  // | ------------------------ uav plugins ------------------------ |
+
+  getUavPluginNeighborRadius_ = common_handlers.getUavPluginNeighborRadius;
+
+  // a list of instance names, e.g. ["boids", "neighbor_counter"] -- several plugins can be
+  // attached to the same uav at once; each name is then looked up as "<name>/address" for
+  // its pluginlib address, exactly like the top-level "world_plugins" list
+  std::vector<std::string> uav_plugin_names;
+  param_loader_->loadParam(_uav_name_ + "/plugins", uav_plugin_names, std::vector<std::string>());
+
+  for (const auto &uav_plugin_name : uav_plugin_names) {
+
+    std::string uav_plugin_address;
+    param_loader_->loadParam(uav_plugin_name + "/address", uav_plugin_address);
+
+    std::shared_ptr<UavPlugin> uav_plugin;
+
+    // NOTE: on failure we throw rather than call rclcpp::shutdown() -- shutdown() tears down
+    // the process-wide default context, but the caller (MultirotorSimulator) is looping over
+    // multiple uavs and would keep constructing the next one against that now-dead context,
+    // producing a confusing unrelated failure later instead of a clear one here. Throwing
+    // aborts construction immediately and propagates a clear error to the component loader.
+    try {
+      RCLCPP_INFO(node_->get_logger(), "[%s] loading the uav plugin '%s' ('%s')", _uav_name_.c_str(), uav_plugin_name.c_str(), uav_plugin_address.c_str());
+      uav_plugin = common_handlers.uav_plugin_loader->createSharedInstance(uav_plugin_address.c_str());
+    }
+    catch (pluginlib::CreateClassException &ex1) {
+      RCLCPP_ERROR(node_->get_logger(), "[%s] CreateClassException for the uav plugin '%s'", _uav_name_.c_str(), uav_plugin_address.c_str());
+      RCLCPP_ERROR(node_->get_logger(), "[%s] Error: %s", _uav_name_.c_str(), ex1.what());
+      throw std::runtime_error("[" + _uav_name_ + "] CreateClassException for the uav plugin '" + uav_plugin_address + "': " + ex1.what());
+    }
+    catch (pluginlib::PluginlibException &ex) {
+      RCLCPP_ERROR(node_->get_logger(), "[%s] PluginlibException for the uav plugin '%s'", _uav_name_.c_str(), uav_plugin_address.c_str());
+      RCLCPP_ERROR(node_->get_logger(), "[%s] Error: %s", _uav_name_.c_str(), ex.what());
+      throw std::runtime_error("[" + _uav_name_ + "] PluginlibException for the uav plugin '" + uav_plugin_address + "': " + ex.what());
+    }
+
+    auto uav_plugin_common_handlers = std::make_shared<UavPluginCommonHandlers_t>();
+
+    uav_plugin_common_handlers->node              = node_;
+    uav_plugin_common_handlers->getNeighborRadius = getUavPluginNeighborRadius_;
+
+    // NOTE: sub-noded one level further by the plugin's own instance name, so that several
+    // plugins attached to the same uav each get their own, non-colliding yaml namespace
+    rclcpp::Node::SharedPtr plugin_node = node_->create_sub_node("uav_plugin")->create_sub_node(_uav_name_)->create_sub_node(uav_plugin_name);
+
+    auto uav_plugin_private_handlers = std::make_shared<UavPluginPrivateHandlers_t>();
+
+    uav_plugin_private_handlers->param_loader = std::make_unique<mrs_lib::ParamLoader>(plugin_node, _uav_name_ + "_" + uav_plugin_name);
+    uav_plugin_private_handlers->param_loader->copyYamls(*param_loader_);
+    uav_plugin_private_handlers->parent_param_loader = param_loader_;
+    uav_plugin_private_handlers->uav_name            = _uav_name_;
+    uav_plugin_private_handlers->uav_system          = uav_system_;
+
+    if (!uav_plugin->initialize(plugin_node, uav_plugin_common_handlers, uav_plugin_private_handlers)) {
+      RCLCPP_ERROR(node_->get_logger(), "[%s] failed to initialize the uav plugin '%s'", _uav_name_.c_str(), uav_plugin_address.c_str());
+      throw std::runtime_error("[" + _uav_name_ + "] failed to initialize the uav plugin '" + uav_plugin_address + "'");
+    }
+
+    RCLCPP_INFO(node_->get_logger(), "[%s] uav plugin '%s' initialized", _uav_name_.c_str(), uav_plugin_address.c_str());
+
+    uav_plugins_.push_back(uav_plugin);
+  }
+
   // | ------------------ first model iteration ----------------- |
 
   // * we need to iterate the model first to initialize its state
@@ -310,11 +374,11 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
   actuators_cmd.motors = Eigen::VectorXd::Zero(model_params_.n_motors);
 
   // set the motor input for the model
-  uav_system_.setInput(actuators_cmd);
+  uav_system_->setInput(actuators_cmd);
 
   // iterate the model twise to initialize all the states
-  uav_system_.makeStep(0.01);
-  uav_system_.makeStep(0.01);
+  uav_system_->makeStep(0.01);
+  uav_system_->makeStep(0.01);
 
   is_initialized_ = true;
 
@@ -325,40 +389,75 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
 
 /* makeStep() //{ */
 
-void UavSystemRos::makeStep(const double dt, const double time_stamp) {
+void UavSystemRos::makeStep(const double dt, const double time_stamp, const std::vector<std::pair<std::string, MultirotorModel::State>> &all_uav_states) {
 
   mrs_lib::set_mutexed(mutex_time_stamp_, rclcpp::Time(static_cast<int64_t>(time_stamp * 1e9), RCL_ROS_TIME), time_stamp_);
 
-  // | ---------------- check timeout of an input --------------- |
+  if (!uav_plugins_.empty()) {
 
-  auto time_last_input = mrs_lib::get_mutexed(mutex_time_last_input_, time_last_input_);
+    // | -------------------- uav plugin control ------------------- |
+    // * the attached plugin(s) fully take over control of this uav, the normal
+    //   ROS-input/timeout path below is bypassed entirely -- every attached plugin
+    //   gets its update() called, in order, before the physics step is taken once
 
-  if (time_last_input.seconds() > 0) {
+    const double radius = getUavPluginNeighborRadius_ ? getUavPluginNeighborRadius_() : 0.0;
 
-    if (time_stamp - time_last_input.seconds() > _input_timeout_) {
+    const Eigen::Vector3d self_pos = uav_system_->getState().x;
 
-      RCLCPP_WARN(node_->get_logger(), "input timeouted");
+    std::vector<UavPluginNeighborState_t> neighbors;
 
-      timeoutInput();
+    for (const auto &[name, state] : all_uav_states) {
 
-      time_last_input = rclcpp::Time(0.0);
+      if (name == _uav_name_) {
+        continue;
+      }
 
-      mrs_lib::set_mutexed(mutex_time_last_input_, time_last_input, time_last_input_);
+      if ((state.x - self_pos).norm() <= radius) {
+        neighbors.push_back({name, state});
+      }
+    }
+
+    const rclcpp::Time stamp(static_cast<int64_t>(time_stamp * 1e9), RCL_ROS_TIME);
+
+    for (auto &uav_plugin : uav_plugins_) {
+      uav_plugin->update(dt, stamp, neighbors);
+    }
+
+    uav_system_->makeStep(dt);
+
+  } else {
+
+    // | ---------------- check timeout of an input --------------- |
+
+    auto time_last_input = mrs_lib::get_mutexed(mutex_time_last_input_, time_last_input_);
+
+    if (time_last_input.seconds() > 0) {
+
+      if (time_stamp - time_last_input.seconds() > _input_timeout_) {
+
+        RCLCPP_WARN(node_->get_logger(), "input timeouted");
+
+        timeoutInput();
+
+        time_last_input = rclcpp::Time(0.0);
+
+        mrs_lib::set_mutexed(mutex_time_last_input_, time_last_input, time_last_input_);
+      }
+    }
+
+    // | --------------------- model iteration -------------------- |
+
+    if (_iterate_without_input_ || time_last_input.seconds() > 0) {
+
+      std::scoped_lock lock(mutex_uav_system_);
+
+      // iterate the model
+      uav_system_->makeStep(dt);
     }
   }
 
-  // | --------------------- model iteration -------------------- |
-
-  if (_iterate_without_input_ || time_last_input.seconds() > 0) {
-
-    std::scoped_lock lock(mutex_uav_system_);
-
-    // iterate the model
-    uav_system_.makeStep(dt);
-  }
-
   // extract the current state
-  MultirotorModel::State state = uav_system_.getState();
+  MultirotorModel::State state = uav_system_->getState();
 
   // publish data
 
@@ -377,7 +476,7 @@ void UavSystemRos::makeStep(const double dt, const double time_stamp) {
 
 Eigen::Vector3d UavSystemRos::getPose(void) {
 
-  return uav_system_.getState().x;
+  return uav_system_->getState().x;
 }
 
 //}
@@ -386,7 +485,25 @@ Eigen::Vector3d UavSystemRos::getPose(void) {
 
 MultirotorModel::ModelParams UavSystemRos::getParams() {
 
-  return uav_system_.getParams();
+  return uav_system_->getParams();
+}
+
+//}
+
+/* getUavSystem() //{ */
+
+std::shared_ptr<UavSystem> UavSystemRos::getUavSystem(void) const {
+
+  return uav_system_;
+}
+
+//}
+
+/* getUavName() //{ */
+
+std::string UavSystemRos::getUavName(void) const {
+
+  return _uav_name_;
 }
 
 //}
@@ -395,7 +512,7 @@ MultirotorModel::ModelParams UavSystemRos::getParams() {
 
 MultirotorModel::State UavSystemRos::getState() {
 
-  return uav_system_.getState();
+  return uav_system_->getState();
 }
 
 //}
@@ -403,7 +520,7 @@ MultirotorModel::State UavSystemRos::getState() {
 /* crash() //{ */
 
 void UavSystemRos::crash(void) {
-  uav_system_.crash();
+  uav_system_->crash();
 }
 
 //}
@@ -411,7 +528,7 @@ void UavSystemRos::crash(void) {
 /* hasCrashed() //{ */
 
 bool UavSystemRos::hasCrashed(void) {
-  return uav_system_.hasCrashed();
+  return uav_system_->hasCrashed();
 }
 
 //}
@@ -419,7 +536,7 @@ bool UavSystemRos::hasCrashed(void) {
 /* applyForce() //{ */
 
 void UavSystemRos::applyForce(const Eigen::Vector3d &force) {
-  uav_system_.applyForce(force);
+  uav_system_->applyForce(force);
 }
 
 //}
@@ -502,7 +619,7 @@ void UavSystemRos::publishIMU(const MultirotorModel::State &state) {
   imu.angular_velocity.y = state.omega(1);
   imu.angular_velocity.z = state.omega(2);
 
-  auto acc = uav_system_.getImuAcceleration();
+  auto acc = uav_system_->getImuAcceleration();
 
   imu.linear_acceleration.x = acc(0);
   imu.linear_acceleration.y = acc(1);
@@ -585,7 +702,7 @@ void UavSystemRos::timeoutInput(void) {
 
   auto last_input_mode = mrs_lib::get_mutexed(mutex_time_last_input_, last_input_mode_);
 
-  MultirotorModel::State state = uav_system_.getState();
+  MultirotorModel::State state = uav_system_->getState();
 
   switch (last_input_mode) {
 
@@ -598,7 +715,7 @@ void UavSystemRos::timeoutInput(void) {
 
     {
       std::scoped_lock lock(mutex_uav_system_);
-      uav_system_.setInput(cmd);
+      uav_system_->setInput(cmd);
     }
 
     break;
@@ -613,7 +730,7 @@ void UavSystemRos::timeoutInput(void) {
 
     {
       std::scoped_lock lock(mutex_uav_system_);
-      uav_system_.setInput(cmd);
+      uav_system_->setInput(cmd);
     }
 
     break;
@@ -628,7 +745,7 @@ void UavSystemRos::timeoutInput(void) {
 
     {
       std::scoped_lock lock(mutex_uav_system_);
-      uav_system_.setInput(cmd);
+      uav_system_->setInput(cmd);
     }
 
     break;
@@ -643,7 +760,7 @@ void UavSystemRos::timeoutInput(void) {
 
     {
       std::scoped_lock lock(mutex_uav_system_);
-      uav_system_.setInput(cmd);
+      uav_system_->setInput(cmd);
     }
 
     break;
@@ -658,7 +775,7 @@ void UavSystemRos::timeoutInput(void) {
 
     {
       std::scoped_lock lock(mutex_uav_system_);
-      uav_system_.setInput(cmd);
+      uav_system_->setInput(cmd);
     }
 
     break;
@@ -675,7 +792,7 @@ void UavSystemRos::timeoutInput(void) {
 
     {
       std::scoped_lock lock(mutex_uav_system_);
-      uav_system_.setInput(cmd);
+      uav_system_->setInput(cmd);
     }
 
     break;
@@ -690,7 +807,7 @@ void UavSystemRos::timeoutInput(void) {
 
     {
       std::scoped_lock lock(mutex_uav_system_);
-      uav_system_.setInput(cmd);
+      uav_system_->setInput(cmd);
     }
 
     break;
@@ -707,7 +824,7 @@ void UavSystemRos::timeoutInput(void) {
 
     {
       std::scoped_lock lock(mutex_uav_system_);
-      uav_system_.setInput(cmd);
+      uav_system_->setInput(cmd);
     }
 
     break;
@@ -724,7 +841,7 @@ void UavSystemRos::timeoutInput(void) {
 
     {
       std::scoped_lock lock(mutex_uav_system_);
-      uav_system_.setInput(cmd);
+      uav_system_->setInput(cmd);
     }
 
     break;
@@ -738,7 +855,7 @@ void UavSystemRos::timeoutInput(void) {
 
     {
       std::scoped_lock lock(mutex_uav_system_);
-      uav_system_.setInput(cmd);
+      uav_system_->setInput(cmd);
     }
 
     break;
@@ -748,7 +865,7 @@ void UavSystemRos::timeoutInput(void) {
 
     {
       std::scoped_lock lock(mutex_uav_system_);
-      uav_system_.setInput();
+      uav_system_->setInput();
     }
 
     break;
@@ -810,7 +927,7 @@ void UavSystemRos::callbackActuatorCmd(const mrs_msgs::msg::HwApiActuatorCmd::Co
   {
     std::scoped_lock lock(mutex_uav_system_);
 
-    uav_system_.setInput(cmd);
+    uav_system_->setInput(cmd);
   }
 
   {
@@ -843,7 +960,7 @@ void UavSystemRos::callbackControlGroupCmd(const mrs_msgs::msg::HwApiControlGrou
   {
     std::scoped_lock lock(mutex_uav_system_);
 
-    uav_system_.setInput(cmd);
+    uav_system_->setInput(cmd);
   }
 
   {
@@ -876,7 +993,7 @@ void UavSystemRos::callbackAttitudeRateCmd(const mrs_msgs::msg::HwApiAttitudeRat
   {
     std::scoped_lock lock(mutex_uav_system_);
 
-    uav_system_.setInput(cmd);
+    uav_system_->setInput(cmd);
   }
 
   {
@@ -908,7 +1025,7 @@ void UavSystemRos::callbackAttitudeCmd(const mrs_msgs::msg::HwApiAttitudeCmd::Co
   {
     std::scoped_lock lock(mutex_uav_system_);
 
-    uav_system_.setInput(cmd);
+    uav_system_->setInput(cmd);
   }
 
   {
@@ -942,7 +1059,7 @@ void UavSystemRos::callbackAccelerationHdgRateCmd(const mrs_msgs::msg::HwApiAcce
   {
     std::scoped_lock lock(mutex_uav_system_);
 
-    uav_system_.setInput(cmd);
+    uav_system_->setInput(cmd);
   }
 
   {
@@ -976,7 +1093,7 @@ void UavSystemRos::callbackAccelerationHdgCmd(const mrs_msgs::msg::HwApiAccelera
   {
     std::scoped_lock lock(mutex_uav_system_);
 
-    uav_system_.setInput(cmd);
+    uav_system_->setInput(cmd);
   }
 
   {
@@ -1010,7 +1127,7 @@ void UavSystemRos::callbackVelocityHdgRateCmd(const mrs_msgs::msg::HwApiVelocity
   {
     std::scoped_lock lock(mutex_uav_system_);
 
-    uav_system_.setInput(cmd);
+    uav_system_->setInput(cmd);
   }
 
   {
@@ -1044,7 +1161,7 @@ void UavSystemRos::callbackVelocityHdgCmd(const mrs_msgs::msg::HwApiVelocityHdgC
   {
     std::scoped_lock lock(mutex_uav_system_);
 
-    uav_system_.setInput(cmd);
+    uav_system_->setInput(cmd);
   }
 
   {
@@ -1078,7 +1195,7 @@ void UavSystemRos::callbackPositionCmd(const mrs_msgs::msg::HwApiPositionCmd::Co
   {
     std::scoped_lock lock(mutex_uav_system_);
 
-    uav_system_.setInput(cmd);
+    uav_system_->setInput(cmd);
   }
 
   {
@@ -1124,10 +1241,10 @@ void UavSystemRos::callbackTrackerCmd(const mrs_msgs::msg::TrackerCommand::Const
     acceleration(2) = msg->acceleration.z;
   }
 
-  uav_system_.setFeedforward(reference::VelocityHdg(velocity, 0));
-  uav_system_.setFeedforward(reference::VelocityHdgRate(velocity, heading_rate));
-  uav_system_.setFeedforward(reference::AccelerationHdg(acceleration, 0));
-  uav_system_.setFeedforward(reference::AccelerationHdgRate(acceleration, heading_rate));
+  uav_system_->setFeedforward(reference::VelocityHdg(velocity, 0));
+  uav_system_->setFeedforward(reference::VelocityHdgRate(velocity, heading_rate));
+  uav_system_->setFeedforward(reference::AccelerationHdg(acceleration, 0));
+  uav_system_->setFeedforward(reference::AccelerationHdgRate(acceleration, heading_rate));
 }
 
 //}
@@ -1144,7 +1261,7 @@ bool UavSystemRos::callbackSetMass(const std::shared_ptr<mrs_msgs::srv::Float64S
   {
     std::scoped_lock lock(mutex_uav_system_);
 
-    model_params_ = uav_system_.getParams();
+    model_params_ = uav_system_->getParams();
 
     const double original_mass = model_params_.mass;
 
@@ -1154,7 +1271,7 @@ bool UavSystemRos::callbackSetMass(const std::shared_ptr<mrs_msgs::srv::Float64S
 
     calculateInertia(model_params_);
 
-    uav_system_.setParams(model_params_);
+    uav_system_->setParams(model_params_);
   }
 
   response->success = true;
@@ -1177,11 +1294,11 @@ bool UavSystemRos::callbackSetGroundZ(const std::shared_ptr<mrs_msgs::srv::Float
   {
     std::scoped_lock lock(mutex_uav_system_);
 
-    model_params_ = uav_system_.getParams();
+    model_params_ = uav_system_->getParams();
 
     model_params_.ground_z = request->value;
 
-    uav_system_.setParams(model_params_);
+    uav_system_->setParams(model_params_);
   }
 
   response->success = true;

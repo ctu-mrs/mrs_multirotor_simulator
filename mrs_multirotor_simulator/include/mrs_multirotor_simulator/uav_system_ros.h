@@ -14,6 +14,9 @@
 #include <mrs_lib/attitude_converter.h>
 
 #include <mrs_multirotor_simulator/uav_system/uav_system.hpp>
+#include <mrs_multirotor_simulator/plugins/uav_plugin.h>
+
+#include <pluginlib/class_loader.hpp>
 
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/range.hpp>
@@ -41,6 +44,9 @@ struct UavSystemRos_CommonHandlers_t
   rclcpp::Node::SharedPtr                                       node;
   std::string                                                   uav_name;
   std::optional<std::shared_ptr<mrs_lib::TransformBroadcaster>> transform_broadcaster;
+
+  std::shared_ptr<pluginlib::ClassLoader<UavPlugin>> uav_plugin_loader;
+  std::function<double(void)>                        getUavPluginNeighborRadius;
 };
 
 class UavSystemRos {
@@ -48,18 +54,22 @@ class UavSystemRos {
 public:
   UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers);
 
-  void makeStep(const double dt, const double time_stamp);
+  void makeStep(const double dt, const double time_stamp, const std::vector<std::pair<std::string, MultirotorModel::State>> &all_uav_states = {});
 
   void crash(void);
 
   bool hasCrashed(void);
 
-  void applyForce(const Eigen::Vector3d& force);
+  void applyForce(const Eigen::Vector3d &force);
 
   Eigen::Vector3d getPose(void);
 
   MultirotorModel::ModelParams getParams();
   MultirotorModel::State       getState();
+
+  std::shared_ptr<UavSystem> getUavSystem(void) const;
+
+  std::string getUavName(void) const;
 
 private:
   rclcpp::Node::SharedPtr node_;
@@ -73,6 +83,8 @@ private:
   std::atomic<bool> is_initialized_ = false;
   std::string       _uav_name_;
 
+  std::shared_ptr<mrs_lib::ParamLoader> param_loader_;
+
   double randd(double from, double to);
 
   bool   _randomization_enabled_;
@@ -84,13 +96,21 @@ private:
 
   UavSystem::INPUT_MODE last_input_mode_;
 
-  UavSystem  uav_system_;
-  std::mutex mutex_uav_system_;
+  std::shared_ptr<UavSystem> uav_system_;
+  std::mutex                 mutex_uav_system_;
 
   rclcpp::Time time_last_input_;
   std::mutex   mutex_time_last_input_;
 
   MultirotorModel::ModelParams model_params_;
+
+  // | ------------------------ uav plugins ------------------------ |
+
+  // several uav plugins can be attached to the same uav at once, e.g. a controlling
+  // plugin (boids) alongside a passive, observation-only plugin (neighbor counting) --
+  // all of them get their update() called every tick, in the order they were configured
+  std::vector<std::shared_ptr<UavPlugin>> uav_plugins_;
+  std::function<double(void)>             getUavPluginNeighborRadius_;
 
   bool   _iterate_without_input_;
   double _input_timeout_;
@@ -107,10 +127,10 @@ private:
   std::shared_ptr<mrs_lib::PublisherHandler<nav_msgs::msg::Odometry>> ph_odom_;
   std::shared_ptr<mrs_lib::PublisherHandler<sensor_msgs::msg::Range>> ph_rangefinder_;
 
-  void publishOdometry(const MultirotorModel::State& state);
-  void publishFCUTF(const MultirotorModel::State& state);
-  void publishIMU(const MultirotorModel::State& state);
-  void publishRangefinder(const MultirotorModel::State& state);
+  void publishOdometry(const MultirotorModel::State &state);
+  void publishFCUTF(const MultirotorModel::State &state);
+  void publishIMU(const MultirotorModel::State &state);
+  void publishRangefinder(const MultirotorModel::State &state);
 
   void timeoutInput(void);
 
@@ -159,9 +179,9 @@ private:
 
   // | ------------------------ routines ------------------------ |
 
-  void calculateInertia(MultirotorModel::ModelParams& params);
+  void calculateInertia(MultirotorModel::ModelParams &params);
 };
 
-}  // namespace mrs_multirotor_simulator
+} // namespace mrs_multirotor_simulator
 
-#endif  // UAV_SYSTEM_ROS_H
+#endif // UAV_SYSTEM_ROS_H

@@ -1,0 +1,675 @@
+# demo of the mrs_multirotor_simulator plugin interface:
+# * a RandomizePositionWorldPlugin, triggered via rqt_reconfigure (look for the
+#   "world_plugin/randomize_position/dynamic/trigger" param on /multirotor_simulator), e.g.:
+#     ros2 param set /multirotor_simulator "world_plugin/randomize_position/dynamic/trigger" true
+# * two UavPlugins attached to every uav at once, to show that's possible:
+#   - BoidsUavPlugin, flying every uav autonomously, no mrs_uav_core stack needed
+#   - NeighborCountUavPlugin, a minimal, purely observational plugin that just logs
+#     (throttled, once a second, independently per uav) how many other uavs are in
+#     its shared neighborhood
+# * the shared "dynamic/uav_plugins/neighbor_radius" param on /multirotor_simulator is
+#   also live-tunable from rqt_reconfigure
+# * uavs are spawned spread out in x, y, *and* z (a 5x5x2 grid) so the flock forms in 3D
+
+frames:
+  fcu:
+    publish_tf: true
+
+dynamic:
+  # the boids fly close together by design -- don't let the simulator's own hard
+  # contact-distance crash logic destroy them while they flock
+  collisions:
+    enabled: false
+    crash: false
+
+  uav_plugins:
+    neighbor_radius: 5.0 # [m], shared by all uavs, dynamically-reconfigurable
+
+# | ------------------------- world plugin ------------------------ |
+
+world_plugins: [
+  "randomize_position"
+]
+
+randomize_position:
+  address: "mrs_multirotor_simulator_plugins::RandomizePositionWorldPlugin"
+
+# RandomizePositionWorldPlugin params -- nested under "world_plugin/<name>" to match the
+# ROS2 sub-namespace the plugin's own ParamLoader is scoped to (see
+# mrs_multirotor_simulator_plugins/config/randomize_position_world_plugin.yaml)
+world_plugin:
+  randomize_position:
+    bounds:
+      x: 20.0
+      y: 20.0
+      z: 20.0
+
+# | -------------------------- uav plugins -------------------------- |
+
+# address of each uav plugin instance name used below, exactly like "world_plugins" above
+boids:
+  address: "mrs_multirotor_simulator_plugins::BoidsUavPlugin"
+
+neighbor_counter:
+  address: "mrs_multirotor_simulator_plugins::NeighborCountUavPlugin"
+
+# BoidsUavPlugin params -- nested under "uav_plugin/<uav_name>/<instance_name>" to match
+# the ROS2 sub-namespace the plugin's own ParamLoader is scoped to for each uav (see
+# mrs_multirotor_simulator_plugins/config/boids_uav_plugin.yaml); repeated identically per
+# uav below since each uav plugin instance loads its own, separately-namespaced params.
+# NeighborCountUavPlugin needs no params, so it has no entries here at all.
+uav_plugin:
+
+  uav1:
+    boids: &boids_gains
+      separation_weight: 1.5
+      alignment_weight: 1.0
+      cohesion_weight: 1.0
+      max_speed: 1.0
+      perception_radius: 10.0
+      separation_radius: 3.0
+      cruise_altitude: 5.0
+      altitude_bias_weight: 2.0
+  uav2:
+    boids: *boids_gains
+  uav3:
+    boids: *boids_gains
+  uav4:
+    boids: *boids_gains
+  uav5:
+    boids: *boids_gains
+  uav6:
+    boids: *boids_gains
+  uav7:
+    boids: *boids_gains
+  uav8:
+    boids: *boids_gains
+  uav9:
+    boids: *boids_gains
+  uav10:
+    boids: *boids_gains
+  uav11:
+    boids: *boids_gains
+  uav12:
+    boids: *boids_gains
+  uav13:
+    boids: *boids_gains
+  uav14:
+    boids: *boids_gains
+  uav15:
+    boids: *boids_gains
+  uav16:
+    boids: *boids_gains
+  uav17:
+    boids: *boids_gains
+  uav18:
+    boids: *boids_gains
+  uav19:
+    boids: *boids_gains
+  uav20:
+    boids: *boids_gains
+  uav21:
+    boids: *boids_gains
+  uav22:
+    boids: *boids_gains
+  uav23:
+    boids: *boids_gains
+  uav24:
+    boids: *boids_gains
+  uav25:
+    boids: *boids_gains
+  uav26:
+    boids: *boids_gains
+  uav27:
+    boids: *boids_gains
+  uav28:
+    boids: *boids_gains
+  uav29:
+    boids: *boids_gains
+  uav30:
+    boids: *boids_gains
+  uav31:
+    boids: *boids_gains
+  uav32:
+    boids: *boids_gains
+  uav33:
+    boids: *boids_gains
+  uav34:
+    boids: *boids_gains
+  uav35:
+    boids: *boids_gains
+  uav36:
+    boids: *boids_gains
+  uav37:
+    boids: *boids_gains
+  uav38:
+    boids: *boids_gains
+  uav39:
+    boids: *boids_gains
+  uav40:
+    boids: *boids_gains
+  uav41:
+    boids: *boids_gains
+  uav42:
+    boids: *boids_gains
+  uav43:
+    boids: *boids_gains
+  uav44:
+    boids: *boids_gains
+  uav45:
+    boids: *boids_gains
+  uav46:
+    boids: *boids_gains
+  uav47:
+    boids: *boids_gains
+  uav48:
+    boids: *boids_gains
+  uav49:
+    boids: *boids_gains
+  uav50:
+    boids: *boids_gains
+
+# | ------------------------------ uavs ----------------------------- |
+
+uav_names: [
+  "uav1",
+  "uav2",
+  "uav3",
+  "uav4",
+  "uav5",
+  "uav6",
+  "uav7",
+  "uav8",
+  "uav9",
+  "uav10",
+  "uav11",
+  "uav12",
+  "uav13",
+  "uav14",
+  "uav15",
+  "uav16",
+  "uav17",
+  "uav18",
+  "uav19",
+  "uav20",
+  "uav21",
+  "uav22",
+  "uav23",
+  "uav24",
+  "uav25",
+  "uav26",
+  "uav27",
+  "uav28",
+  "uav29",
+  "uav30",
+  "uav31",
+  "uav32",
+  "uav33",
+  "uav34",
+  "uav35",
+  "uav36",
+  "uav37",
+  "uav38",
+  "uav39",
+  "uav40",
+  "uav41",
+  "uav42",
+  "uav43",
+  "uav44",
+  "uav45",
+  "uav46",
+  "uav47",
+  "uav48",
+  "uav49",
+  "uav50",
+]
+
+uav1:
+  type: "x500"
+  spawn:
+    x: -8.0
+    y: -8.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav2:
+  type: "x500"
+  spawn:
+    x: -4.0
+    y: -8.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav3:
+  type: "x500"
+  spawn:
+    x: 0.0
+    y: -8.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav4:
+  type: "x500"
+  spawn:
+    x: 4.0
+    y: -8.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav5:
+  type: "x500"
+  spawn:
+    x: 8.0
+    y: -8.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav6:
+  type: "x500"
+  spawn:
+    x: -8.0
+    y: -4.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav7:
+  type: "x500"
+  spawn:
+    x: -4.0
+    y: -4.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav8:
+  type: "x500"
+  spawn:
+    x: 0.0
+    y: -4.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav9:
+  type: "x500"
+  spawn:
+    x: 4.0
+    y: -4.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav10:
+  type: "x500"
+  spawn:
+    x: 8.0
+    y: -4.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav11:
+  type: "x500"
+  spawn:
+    x: -8.0
+    y: 0.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav12:
+  type: "x500"
+  spawn:
+    x: -4.0
+    y: 0.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav13:
+  type: "x500"
+  spawn:
+    x: 0.0
+    y: 0.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav14:
+  type: "x500"
+  spawn:
+    x: 4.0
+    y: 0.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav15:
+  type: "x500"
+  spawn:
+    x: 8.0
+    y: 0.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav16:
+  type: "x500"
+  spawn:
+    x: -8.0
+    y: 4.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav17:
+  type: "x500"
+  spawn:
+    x: -4.0
+    y: 4.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav18:
+  type: "x500"
+  spawn:
+    x: 0.0
+    y: 4.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav19:
+  type: "x500"
+  spawn:
+    x: 4.0
+    y: 4.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav20:
+  type: "x500"
+  spawn:
+    x: 8.0
+    y: 4.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav21:
+  type: "x500"
+  spawn:
+    x: -8.0
+    y: 8.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav22:
+  type: "x500"
+  spawn:
+    x: -4.0
+    y: 8.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav23:
+  type: "x500"
+  spawn:
+    x: 0.0
+    y: 8.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav24:
+  type: "x500"
+  spawn:
+    x: 4.0
+    y: 8.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav25:
+  type: "x500"
+  spawn:
+    x: 8.0
+    y: 8.0
+    z: 3.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav26:
+  type: "x500"
+  spawn:
+    x: -8.0
+    y: -8.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav27:
+  type: "x500"
+  spawn:
+    x: -4.0
+    y: -8.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav28:
+  type: "x500"
+  spawn:
+    x: 0.0
+    y: -8.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav29:
+  type: "x500"
+  spawn:
+    x: 4.0
+    y: -8.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav30:
+  type: "x500"
+  spawn:
+    x: 8.0
+    y: -8.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav31:
+  type: "x500"
+  spawn:
+    x: -8.0
+    y: -4.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav32:
+  type: "x500"
+  spawn:
+    x: -4.0
+    y: -4.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav33:
+  type: "x500"
+  spawn:
+    x: 0.0
+    y: -4.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav34:
+  type: "x500"
+  spawn:
+    x: 4.0
+    y: -4.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav35:
+  type: "x500"
+  spawn:
+    x: 8.0
+    y: -4.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav36:
+  type: "x500"
+  spawn:
+    x: -8.0
+    y: 0.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav37:
+  type: "x500"
+  spawn:
+    x: -4.0
+    y: 0.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav38:
+  type: "x500"
+  spawn:
+    x: 0.0
+    y: 0.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav39:
+  type: "x500"
+  spawn:
+    x: 4.0
+    y: 0.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav40:
+  type: "x500"
+  spawn:
+    x: 8.0
+    y: 0.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav41:
+  type: "x500"
+  spawn:
+    x: -8.0
+    y: 4.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav42:
+  type: "x500"
+  spawn:
+    x: -4.0
+    y: 4.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav43:
+  type: "x500"
+  spawn:
+    x: 0.0
+    y: 4.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav44:
+  type: "x500"
+  spawn:
+    x: 4.0
+    y: 4.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav45:
+  type: "x500"
+  spawn:
+    x: 8.0
+    y: 4.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav46:
+  type: "x500"
+  spawn:
+    x: -8.0
+    y: 8.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav47:
+  type: "x500"
+  spawn:
+    x: -4.0
+    y: 8.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav48:
+  type: "x500"
+  spawn:
+    x: 0.0
+    y: 8.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav49:
+  type: "x500"
+  spawn:
+    x: 4.0
+    y: 8.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]
+
+uav50:
+  type: "x500"
+  spawn:
+    x: 8.0
+    y: 8.0
+    z: 7.0
+    heading: 0.0
+  plugins: ["boids", "neighbor_counter"]

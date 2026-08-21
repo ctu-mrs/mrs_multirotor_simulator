@@ -1,0 +1,17 @@
+# example config for RandomizePositionWorldPlugin.
+#
+# NOTE: the plugin's own mrs_lib::ParamLoader is scoped to the ROS2 sub-namespace
+# "world_plugin/<name>", where <name> is whatever key you used to list it under
+# "world_plugins" in multirotor_simulator.yaml/custom_config (here "randomize_position").
+# your yaml keys therefore have to be nested under that exact path to be picked up --
+# see mrs_multirotor_simulator/tmux/mrs_plugins_demo/custom_configs/simulator.yaml
+# for a complete, working example.
+
+world_plugin:
+  randomize_position:
+
+    # bounding box within which the uavs get randomized, centered on the origin (z is [0, bounds/z])
+    bounds:
+      x: 50.0
+      y: 50.0
+      z: 50.0

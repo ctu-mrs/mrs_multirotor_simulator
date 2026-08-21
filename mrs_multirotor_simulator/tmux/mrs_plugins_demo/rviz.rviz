@@ -1,0 +1,564 @@
+Panels:
+  - Class: rviz_common/Displays
+    Help Height: 78
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /Status1
+        - /TF1
+        - /TF1/Tree1
+        - /TF1/Tree1/simulator_origin1
+      Splitter Ratio: 0.5
+    Tree Height: 861
+  - Class: rviz_common/Selection
+    Name: Selection
+  - Class: rviz_common/Tool Properties
+    Expanded:
+      - /2D Goal Pose1
+      - /Publish Point1
+    Name: Tool Properties
+    Splitter Ratio: 0.5886790156364441
+  - Class: rviz_common/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+  - Class: rviz_common/Time
+    Experimental: false
+    Name: Time
+    SyncMode: 0
+    SyncSource: ""
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 5
+      Class: rviz_default_plugins/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.029999999329447746
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 50
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz_default_plugins/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.029999999329447746
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Class: rviz_default_plugins/TF
+      Enabled: true
+      Filter (blacklist): ""
+      Filter (whitelist): ""
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+        simulator_origin:
+          Value: true
+        uav1/fcu:
+          Value: true
+        uav1/garmin:
+          Value: true
+        uav10/fcu:
+          Value: true
+        uav10/garmin:
+          Value: true
+        uav11/fcu:
+          Value: true
+        uav11/garmin:
+          Value: true
+        uav12/fcu:
+          Value: true
+        uav12/garmin:
+          Value: true
+        uav13/fcu:
+          Value: true
+        uav13/garmin:
+          Value: true
+        uav14/fcu:
+          Value: true
+        uav14/garmin:
+          Value: true
+        uav15/fcu:
+          Value: true
+        uav15/garmin:
+          Value: true
+        uav16/fcu:
+          Value: true
+        uav16/garmin:
+          Value: true
+        uav17/fcu:
+          Value: true
+        uav17/garmin:
+          Value: true
+        uav18/fcu:
+          Value: true
+        uav18/garmin:
+          Value: true
+        uav19/fcu:
+          Value: true
+        uav19/garmin:
+          Value: true
+        uav2/fcu:
+          Value: true
+        uav2/garmin:
+          Value: true
+        uav20/fcu:
+          Value: true
+        uav20/garmin:
+          Value: true
+        uav21/fcu:
+          Value: true
+        uav21/garmin:
+          Value: true
+        uav22/fcu:
+          Value: true
+        uav22/garmin:
+          Value: true
+        uav23/fcu:
+          Value: true
+        uav23/garmin:
+          Value: true
+        uav24/fcu:
+          Value: true
+        uav24/garmin:
+          Value: true
+        uav25/fcu:
+          Value: true
+        uav25/garmin:
+          Value: true
+        uav26/fcu:
+          Value: true
+        uav26/garmin:
+          Value: true
+        uav27/fcu:
+          Value: true
+        uav27/garmin:
+          Value: true
+        uav28/fcu:
+          Value: true
+        uav28/garmin:
+          Value: true
+        uav29/fcu:
+          Value: true
+        uav29/garmin:
+          Value: true
+        uav3/fcu:
+          Value: true
+        uav3/garmin:
+          Value: true
+        uav30/fcu:
+          Value: true
+        uav30/garmin:
+          Value: true
+        uav31/fcu:
+          Value: true
+        uav31/garmin:
+          Value: true
+        uav32/fcu:
+          Value: true
+        uav32/garmin:
+          Value: true
+        uav33/fcu:
+          Value: true
+        uav33/garmin:
+          Value: true
+        uav34/fcu:
+          Value: true
+        uav34/garmin:
+          Value: true
+        uav35/fcu:
+          Value: true
+        uav35/garmin:
+          Value: true
+        uav36/fcu:
+          Value: true
+        uav36/garmin:
+          Value: true
+        uav37/fcu:
+          Value: true
+        uav37/garmin:
+          Value: true
+        uav38/fcu:
+          Value: true
+        uav38/garmin:
+          Value: true
+        uav39/fcu:
+          Value: true
+        uav39/garmin:
+          Value: true
+        uav4/fcu:
+          Value: true
+        uav4/garmin:
+          Value: true
+        uav40/fcu:
+          Value: true
+        uav40/garmin:
+          Value: true
+        uav41/fcu:
+          Value: true
+        uav41/garmin:
+          Value: true
+        uav42/fcu:
+          Value: true
+        uav42/garmin:
+          Value: true
+        uav43/fcu:
+          Value: true
+        uav43/garmin:
+          Value: true
+        uav44/fcu:
+          Value: true
+        uav44/garmin:
+          Value: true
+        uav45/fcu:
+          Value: true
+        uav45/garmin:
+          Value: true
+        uav46/fcu:
+          Value: true
+        uav46/garmin:
+          Value: true
+        uav47/fcu:
+          Value: true
+        uav47/garmin:
+          Value: true
+        uav48/fcu:
+          Value: true
+        uav48/garmin:
+          Value: true
+        uav49/fcu:
+          Value: true
+        uav49/garmin:
+          Value: true
+        uav5/fcu:
+          Value: true
+        uav5/garmin:
+          Value: true
+        uav50/fcu:
+          Value: true
+        uav50/garmin:
+          Value: true
+        uav6/fcu:
+          Value: true
+        uav6/garmin:
+          Value: true
+        uav7/fcu:
+          Value: true
+        uav7/garmin:
+          Value: true
+        uav8/fcu:
+          Value: true
+        uav8/garmin:
+          Value: true
+        uav82/fcu:
+          Value: true
+        uav82/fixed_origin:
+          Value: true
+        uav82/livox_back:
+          Value: true
+        uav82/livox_front:
+          Value: true
+        uav82/local_origin:
+          Value: true
+        uav82/mavros/base_link:
+          Value: true
+        uav82/mavros/base_link_frd:
+          Value: true
+        uav82/mavros/map:
+          Value: true
+        uav82/mavros/map_ned:
+          Value: true
+        uav82/mavros/odom:
+          Value: true
+        uav82/mavros/odom_ned:
+          Value: true
+        uav82/odin_body:
+          Value: true
+        uav82/odin_camera:
+          Value: true
+        uav82/point_lio_2_origin_att_only:
+          Value: true
+        uav82/rpi_cameras/back/left:
+          Value: true
+        uav82/rpi_cameras/back/right:
+          Value: true
+        uav82/rpi_cameras/front/left:
+          Value: true
+        uav82/rpi_cameras/front/right:
+          Value: true
+        uav82/stable_origin:
+          Value: true
+        uav82/vio_origin:
+          Value: true
+        uav82/vio_origin_att_only:
+          Value: true
+        uav9/fcu:
+          Value: true
+        uav9/garmin:
+          Value: true
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: false
+      Tree:
+        simulator_origin:
+          uav1/fcu:
+            uav1/garmin:
+              {}
+          uav10/fcu:
+            uav10/garmin:
+              {}
+          uav11/fcu:
+            uav11/garmin:
+              {}
+          uav12/fcu:
+            uav12/garmin:
+              {}
+          uav13/fcu:
+            uav13/garmin:
+              {}
+          uav14/fcu:
+            uav14/garmin:
+              {}
+          uav15/fcu:
+            uav15/garmin:
+              {}
+          uav16/fcu:
+            uav16/garmin:
+              {}
+          uav17/fcu:
+            uav17/garmin:
+              {}
+          uav18/fcu:
+            uav18/garmin:
+              {}
+          uav19/fcu:
+            uav19/garmin:
+              {}
+          uav2/fcu:
+            uav2/garmin:
+              {}
+          uav20/fcu:
+            uav20/garmin:
+              {}
+          uav21/fcu:
+            uav21/garmin:
+              {}
+          uav22/fcu:
+            uav22/garmin:
+              {}
+          uav23/fcu:
+            uav23/garmin:
+              {}
+          uav24/fcu:
+            uav24/garmin:
+              {}
+          uav25/fcu:
+            uav25/garmin:
+              {}
+          uav26/fcu:
+            uav26/garmin:
+              {}
+          uav27/fcu:
+            uav27/garmin:
+              {}
+          uav28/fcu:
+            uav28/garmin:
+              {}
+          uav29/fcu:
+            uav29/garmin:
+              {}
+          uav3/fcu:
+            uav3/garmin:
+              {}
+          uav30/fcu:
+            uav30/garmin:
+              {}
+          uav31/fcu:
+            uav31/garmin:
+              {}
+          uav32/fcu:
+            uav32/garmin:
+              {}
+          uav33/fcu:
+            uav33/garmin:
+              {}
+          uav34/fcu:
+            uav34/garmin:
+              {}
+          uav35/fcu:
+            uav35/garmin:
+              {}
+          uav36/fcu:
+            uav36/garmin:
+              {}
+          uav37/fcu:
+            uav37/garmin:
+              {}
+          uav38/fcu:
+            uav38/garmin:
+              {}
+          uav39/fcu:
+            uav39/garmin:
+              {}
+          uav4/fcu:
+            uav4/garmin:
+              {}
+          uav40/fcu:
+            uav40/garmin:
+              {}
+          uav41/fcu:
+            uav41/garmin:
+              {}
+          uav42/fcu:
+            uav42/garmin:
+              {}
+          uav43/fcu:
+            uav43/garmin:
+              {}
+          uav44/fcu:
+            uav44/garmin:
+              {}
+          uav45/fcu:
+            uav45/garmin:
+              {}
+          uav46/fcu:
+            uav46/garmin:
+              {}
+          uav47/fcu:
+            uav47/garmin:
+              {}
+          uav48/fcu:
+            uav48/garmin:
+              {}
+          uav49/fcu:
+            uav49/garmin:
+              {}
+          uav5/fcu:
+            uav5/garmin:
+              {}
+          uav50/fcu:
+            uav50/garmin:
+              {}
+          uav6/fcu:
+            uav6/garmin:
+              {}
+          uav7/fcu:
+            uav7/garmin:
+              {}
+          uav8/fcu:
+            uav8/garmin:
+              {}
+          uav9/fcu:
+            uav9/garmin:
+              {}
+      Update Interval: 0
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 255; 255; 255
+    Fixed Frame: simulator_origin
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+      Hide Inactive Objects: true
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/FocusCamera
+    - Class: rviz_default_plugins/Measure
+      Line color: 128; 128; 0
+    - Class: rviz_default_plugins/SetInitialPose
+      Covariance x: 0.25
+      Covariance y: 0.25
+      Covariance yaw: 0.06853891909122467
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /initialpose
+    - Class: rviz_default_plugins/SetGoal
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /goal_pose
+    - Class: rviz_default_plugins/PublishPoint
+      Single click: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /clicked_point
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 18.435449600219727
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0
+      Focal Shape Fixed Size: false
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.7853980660438538
+      Target Frame: uav1/fcu
+      Value: Orbit (rviz)
+      Yaw: 4.703586101531982
+    Saved: ~
+Window Geometry:
+  Displays:
+    collapsed: true
+  Height: 1158
+  Hide Left Dock: true
+  Hide Right Dock: true
+  QMainWindow State: 000000ff00000000fd0000000400000000000001b4000003e8fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073000000003d000003e8000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f00000569fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d00000569000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007800000003efc0100000002fb0000000800540069006d00650100000000000007800000026300fffffffb0000000800540069006d0065010000000000000450000000000000000000000780000003e800000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Selection:
+    collapsed: false
+  Time:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
+  Views:
+    collapsed: true
+  Width: 1920
+  X: 0
+  Y: 42

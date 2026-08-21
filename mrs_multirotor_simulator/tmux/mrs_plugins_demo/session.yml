@@ -1,0 +1,26 @@
+# do not modify these
+root: ./
+name: simulation
+socket_name: mrs
+attach: false
+tmux_options: -f <%= @settings["config"] %>
+# you can modify these
+startup_window: reconfigure
+pre_window: export RMW_IMPLEMENTATION=rmw_zenoh_cpp
+windows:
+  - router:
+      layout: tiled
+      panes:
+        - ros2 run rmw_zenoh_cpp rmw_zenohd
+  - simulator:
+      layout: tiled
+      panes:
+        - ros2 launch mrs_multirotor_simulator multirotor_simulator.launch.py custom_config:=./custom_configs/simulator.yaml
+  - rviz:
+      layout: tiled
+      panes:
+        - ros2 run rviz2 rviz2 -d ./rviz.rviz
+  - reconfigure:
+      layout: tiled
+      panes:
+        - ros2 run rqt_reconfigure rqt_reconfigure

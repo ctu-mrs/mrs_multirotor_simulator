@@ -16,8 +16,12 @@
 #include <Eigen/Dense>
 #include <vector>
 
+#include <pluginlib/class_loader.hpp>
+
 #include <mrs_multirotor_simulator/uav_system_ros.h>
 #include <mrs_multirotor_simulator/rate_counter.h>
+#include <mrs_multirotor_simulator/plugins/world_plugin.h>
+#include <mrs_multirotor_simulator/plugins/uav_plugin.h>
 
 using namespace std::chrono_literals;
 
@@ -44,6 +48,8 @@ private:
   std::atomic<bool>        is_initialized_ = false;
 
   std::shared_ptr<mrs_lib::ScopeTimerLogger> scope_timer_logger_;
+
+  std::shared_ptr<mrs_lib::ParamLoader> param_loader_;
 
   // | ------------------------- params ------------------------- |
 
@@ -92,18 +98,28 @@ private:
 
   struct drs_params
   {
-    double realtime_factor     = 1.0;
-    bool   paused              = false;
-    bool   collisions_enabled  = false;
-    bool   collisions_crash    = false;
-    double collisions_rebounce = 1;
+    double realtime_factor            = 1.0;
+    bool   paused                     = false;
+    bool   collisions_enabled         = false;
+    bool   collisions_crash           = false;
+    double collisions_rebounce        = 1;
+    double uav_plugin_neighbor_radius = 10.0;
   };
 
   void callbackRealtimeFactor(const double &param_value);
   void callbackPause(const bool &param_value);
 
+  double getUavPluginNeighborRadius(void);
+
   drs_params drs_params_;
   std::mutex mutex_drs_params_;
+
+  // | ------------------------- plugins ------------------------- |
+
+  std::unique_ptr<pluginlib::ClassLoader<WorldPlugin>> world_plugin_loader_;
+  std::vector<std::shared_ptr<WorldPlugin>>            world_plugins_;
+
+  std::shared_ptr<pluginlib::ClassLoader<UavPlugin>> uav_plugin_loader_;
 };
 
 //}
@@ -135,7 +151,7 @@ void MultirotorSimulator::initialize() {
 
   // | ---------------- initialize param wrappers --------------- |
 
-  mrs_lib::ParamLoader param_loader(node_, node_->get_name());
+  param_loader_ = std::make_shared<mrs_lib::ParamLoader>(node_, node_->get_name());
 
   dynparam_mgr_ = std::make_shared<mrs_lib::DynparamMgr>(node_, mutex_drs_params_);
 
@@ -144,31 +160,31 @@ void MultirotorSimulator::initialize() {
   // load custom config
 
   std::string custom_config_path;
-  param_loader.loadParam("custom_config", custom_config_path);
+  param_loader_->loadParam("custom_config", custom_config_path);
 
   if (custom_config_path != "") {
     RCLCPP_INFO(node_->get_logger(), "loading custom config '%s", custom_config_path.c_str());
 
-    param_loader.addYamlFile(custom_config_path);
+    param_loader_->addYamlFile(custom_config_path);
   }
 
   // load other configs
 
   std::vector<std::string> config_files;
-  param_loader.loadParam("simulator_configs", config_files);
+  param_loader_->loadParam("simulator_configs", config_files);
 
   for (auto config_file : config_files) {
     RCLCPP_INFO(node_->get_logger(), "loading config file '%s'", config_file.c_str());
 
-    param_loader.addYamlFile(config_file);
+    param_loader_->addYamlFile(config_file);
   }
 
-  dynparam_mgr_->get_param_provider().copyYamls(param_loader.getParamProvider());
+  dynparam_mgr_->get_param_provider().copyYamls(param_loader_->getParamProvider());
 
   // | ----------------------- load params ---------------------- |
 
-  param_loader.loadParam("simulation_rate", _simulation_rate_);
-  param_loader.loadParam("clock_rate", _clock_rate_);
+  param_loader_->loadParam("simulation_rate", _simulation_rate_);
+  param_loader_->loadParam("clock_rate", _clock_rate_);
 
   dynparam_mgr_->register_param("dynamic/realtime_factor", &drs_params_.realtime_factor, mrs_lib::DynparamMgr::range_t<double>(0.01, 10),
                                 (std::function<void(const double &)>)std::bind(&MultirotorSimulator::callbackRealtimeFactor, this, std::placeholders::_1));
@@ -182,10 +198,13 @@ void MultirotorSimulator::initialize() {
   dynparam_mgr_->register_param("dynamic/paused", &drs_params_.paused, false,
                                 (std::function<void(const bool &)>)std::bind(&MultirotorSimulator::callbackPause, this, std::placeholders::_1));
 
-  param_loader.loadParam("frames/world/name", _world_frame_name_);
+  dynparam_mgr_->register_param("dynamic/uav_plugins/neighbor_radius", &drs_params_.uav_plugin_neighbor_radius,
+                                mrs_lib::DynparamMgr::range_t<double>(0.0, 1000.0));
+
+  param_loader_->loadParam("frames/world/name", _world_frame_name_);
 
   bool sim_time_from_wall_time;
-  param_loader.loadParam("sim_time_from_wall_time", sim_time_from_wall_time);
+  param_loader_->loadParam("sim_time_from_wall_time", sim_time_from_wall_time);
 
   if (sim_time_from_wall_time) {
     sim_time_       = clock_->now();
@@ -201,9 +220,11 @@ void MultirotorSimulator::initialize() {
 
   tf_broadcaster_ = std::make_shared<mrs_lib::TransformBroadcaster>(node_);
 
+  uav_plugin_loader_ = std::make_shared<pluginlib::ClassLoader<UavPlugin>>("mrs_multirotor_simulator", "mrs_multirotor_simulator::UavPlugin");
+
   std::vector<std::string> uav_names;
 
-  param_loader.loadParam("uav_names", uav_names);
+  param_loader_->loadParam("uav_names", uav_names);
 
   for (size_t i = 0; i < uav_names.size(); i++) {
 
@@ -213,16 +234,85 @@ void MultirotorSimulator::initialize() {
 
     UavSystemRos_CommonHandlers_t common_handlers;
 
-    common_handlers.node                  = node_;
-    common_handlers.uav_name              = uav_name;
-    common_handlers.transform_broadcaster = tf_broadcaster_;
+    common_handlers.node                       = node_;
+    common_handlers.uav_name                   = uav_name;
+    common_handlers.transform_broadcaster      = tf_broadcaster_;
+    common_handlers.uav_plugin_loader          = uav_plugin_loader_;
+    common_handlers.getUavPluginNeighborRadius = std::bind(&MultirotorSimulator::getUavPluginNeighborRadius, this);
 
     uavs_.push_back(std::make_unique<UavSystemRos>(common_handlers));
   }
 
   RCLCPP_INFO(node_->get_logger(), "all uavs initialized");
 
-  if (!param_loader.loadedSuccessfully() || !dynparam_mgr_->loaded_successfully()) {
+  // | -------------------- load world plugins ------------------- |
+
+  std::vector<std::string> world_plugin_names;
+
+  param_loader_->loadParam("world_plugins", world_plugin_names, std::vector<std::string>());
+
+  if (!world_plugin_names.empty()) {
+
+    world_plugin_loader_ = std::make_unique<pluginlib::ClassLoader<WorldPlugin>>("mrs_multirotor_simulator", "mrs_multirotor_simulator::WorldPlugin");
+
+    auto world_plugin_common_handlers = std::make_shared<WorldPluginCommonHandlers_t>();
+
+    world_plugin_common_handlers->node = node_;
+
+    for (size_t i = 0; i < uavs_.size(); i++) {
+      world_plugin_common_handlers->uavs.push_back({uav_names.at(i), uavs_.at(i)->getUavSystem()});
+    }
+
+    for (const auto &world_plugin_name : world_plugin_names) {
+
+      std::string world_plugin_address;
+      param_loader_->loadParam(world_plugin_name + "/address", world_plugin_address);
+
+      std::shared_ptr<WorldPlugin> world_plugin;
+
+      // NOTE: on failure we throw rather than call rclcpp::shutdown() -- shutdown() tears down
+      // the process-wide default context but doesn't stop this function from continuing (and
+      // would otherwise fall through to calling initialize() on a null world_plugin below).
+      // Throwing aborts construction immediately and propagates a clear error to the component loader.
+      try {
+        RCLCPP_INFO(node_->get_logger(), "loading the world plugin '%s'", world_plugin_address.c_str());
+        world_plugin = world_plugin_loader_->createSharedInstance(world_plugin_address.c_str());
+      }
+      catch (pluginlib::CreateClassException &ex1) {
+        RCLCPP_ERROR(node_->get_logger(), "CreateClassException for the world plugin '%s'", world_plugin_address.c_str());
+        RCLCPP_ERROR(node_->get_logger(), "Error: %s", ex1.what());
+        throw std::runtime_error("CreateClassException for the world plugin '" + world_plugin_address + "': " + ex1.what());
+      }
+      catch (pluginlib::PluginlibException &ex) {
+        RCLCPP_ERROR(node_->get_logger(), "PluginlibException for the world plugin '%s'", world_plugin_address.c_str());
+        RCLCPP_ERROR(node_->get_logger(), "Error: %s", ex.what());
+        throw std::runtime_error("PluginlibException for the world plugin '" + world_plugin_address + "': " + ex.what());
+      }
+
+      // NOTE: the sub-node namespace ("world_plugin", singular) is intentionally different from the
+      // top-level "world_plugins" (plural) parameter, which lists the plugins to load -- using the
+      // same name for both would make mrs_lib::ParamProvider's yaml lookup collide with that list
+      rclcpp::Node::SharedPtr world_plugin_node = node_->create_sub_node("world_plugin")->create_sub_node(world_plugin_name);
+
+      auto world_plugin_private_handlers = std::make_shared<WorldPluginPrivateHandlers_t>();
+
+      world_plugin_private_handlers->param_loader = std::make_unique<mrs_lib::ParamLoader>(world_plugin_node, world_plugin_name);
+      world_plugin_private_handlers->param_loader->copyYamls(*param_loader_);
+      world_plugin_private_handlers->parent_param_loader = param_loader_;
+      world_plugin_private_handlers->runtime_name        = world_plugin_name;
+
+      if (!world_plugin->initialize(world_plugin_node, world_plugin_common_handlers, world_plugin_private_handlers)) {
+        RCLCPP_ERROR(node_->get_logger(), "failed to initialize the world plugin '%s'", world_plugin_address.c_str());
+        throw std::runtime_error("failed to initialize the world plugin '" + world_plugin_address + "'");
+      }
+
+      RCLCPP_INFO(node_->get_logger(), "world plugin '%s' initialized", world_plugin_address.c_str());
+
+      world_plugins_.push_back(world_plugin);
+    }
+  }
+
+  if (!param_loader_->loadedSuccessfully() || !dynparam_mgr_->loaded_successfully()) {
     RCLCPP_ERROR(node_->get_logger(), "could not load all parameters!");
     rclcpp::shutdown();
   }
@@ -280,9 +370,21 @@ void MultirotorSimulator::timerMain() {
 
   if (dt_since_last_step >= simulation_step_size) {
 
+    // snapshot of all uav states, taken before any of them are stepped, so that all uav
+    // plugins and world plugins see a consistent, order-independent view of the world
+    std::vector<std::pair<std::string, MultirotorModel::State>> uav_states_snapshot;
+
+    for (size_t i = 0; i < uavs_.size(); i++) {
+      uav_states_snapshot.push_back({uavs_.at(i)->getUavName(), uavs_.at(i)->getState()});
+    }
+
     for (size_t i = 0; i < uavs_.size(); i++) {
 
-      uavs_.at(i)->makeStep(dt_since_last_step, sim_time_.seconds());
+      uavs_.at(i)->makeStep(dt_since_last_step, sim_time.seconds(), uav_states_snapshot);
+    }
+
+    for (auto &world_plugin : world_plugins_) {
+      world_plugin->update(dt_since_last_step, sim_time);
     }
 
     publishPoses();
@@ -369,6 +471,17 @@ void MultirotorSimulator::callbackPause(const bool &param_value) {
 }
 
 //}
+
+//}
+
+/* getUavPluginNeighborRadius() //{ */
+
+double MultirotorSimulator::getUavPluginNeighborRadius(void) {
+
+  auto drs_params = mrs_lib::get_mutexed(mutex_drs_params_, drs_params_);
+
+  return drs_params.uav_plugin_neighbor_radius;
+}
 
 //}
 

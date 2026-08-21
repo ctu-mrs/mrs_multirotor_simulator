@@ -1,0 +1,19 @@
+<class_libraries>
+  <library path="MrsMultirotorSimulatorPlugins_RandomizePositionWorldPlugin">
+    <class type="mrs_multirotor_simulator_plugins::RandomizePositionWorldPlugin" base_class_type="mrs_multirotor_simulator::WorldPlugin">
+      <description>Randomizes the position of all UAVs within a bounding box, triggered via dynamic reconfigure.</description>
+    </class>
+  </library>
+
+  <library path="MrsMultirotorSimulatorPlugins_BoidsUavPlugin">
+    <class type="mrs_multirotor_simulator_plugins::BoidsUavPlugin" base_class_type="mrs_multirotor_simulator::UavPlugin">
+      <description>Boids flocking model (separation/alignment/cohesion) driving velocity-heading commands.</description>
+    </class>
+  </library>
+
+  <library path="MrsMultirotorSimulatorPlugins_NeighborCountUavPlugin">
+    <class type="mrs_multirotor_simulator_plugins::NeighborCountUavPlugin" base_class_type="mrs_multirotor_simulator::UavPlugin">
+      <description>Purely observational plugin that logs how many uavs are in the shared neighborhood.</description>
+    </class>
+  </library>
+</class_libraries>
