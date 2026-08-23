@@ -5,7 +5,7 @@ socket_name: mrs
 attach: false
 tmux_options: -f <%= @settings["config"] %>
 # you can modify these
-startup_window: reconfigure
+startup_window: goto
 pre_window: export RMW_IMPLEMENTATION=rmw_zenoh_cpp
 windows:
   - router:
@@ -16,6 +16,10 @@ windows:
       layout: tiled
       panes:
         - ros2 launch mrs_multirotor_simulator multirotor_simulator.launch.py custom_config:=./custom_configs/simulator.yaml
+  - goto:
+      layout: tiled
+      panes:
+        - 'history -s ./goto.py'
   - rviz:
       layout: tiled
       panes:
@@ -24,3 +28,7 @@ windows:
       layout: tiled
       panes:
         - ros2 run rqt_reconfigure rqt_reconfigure
+  - layout:
+      layout: tiled
+      panes:
+        - sleep 2.0; ~/.i3/layout_manager.sh ./layout.json

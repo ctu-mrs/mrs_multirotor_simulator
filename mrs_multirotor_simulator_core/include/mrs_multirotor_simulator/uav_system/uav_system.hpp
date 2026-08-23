@@ -1,6 +1,7 @@
 #ifndef UAV_SYSTEM_H
 #define UAV_SYSTEM_H
 
+#include <cmath>
 #include <optional>
 
 #include "multirotor_model.hpp"
@@ -120,6 +121,11 @@ private:
   std::optional<reference::AccelerationHdg>     acceleration_hdg_ff_;
 
   void initializeControllers(void);
+
+  void shiftPositionReference(const Eigen::Vector3d &translation, const double heading_delta);
+
+  static double extractHeading(const Eigen::Matrix3d &R);
+  static double wrapAngle(const double angle);
 };
 
 // --------------------------------------------------------------
@@ -419,7 +425,14 @@ inline void UavSystem::setParams(const MultirotorModel::ModelParams &params) {
 
 inline void UavSystem::setState(const MultirotorModel::State &state) {
 
+  const Eigen::Vector3d translation    = state.x - multirotor_model_.getState().x;
+  const double          heading_before = extractHeading(multirotor_model_.getState().R);
+
   multirotor_model_.setState(state);
+
+  const double heading_after = extractHeading(state.R);
+
+  shiftPositionReference(translation, wrapAngle(heading_after - heading_before));
 }
 
 //}
@@ -428,7 +441,55 @@ inline void UavSystem::setState(const MultirotorModel::State &state) {
 
 inline void UavSystem::setStatePos(const Eigen::Vector3d &pos, const double heading) {
 
+  const Eigen::Vector3d translation    = pos - multirotor_model_.getState().x;
+  const double          heading_before = extractHeading(multirotor_model_.getState().R);
+
   multirotor_model_.setStatePos(pos, heading);
+
+  // read back the achieved R instead of assuming it equals the "heading" argument, since
+  // setStatePos()'s heading-to-rotation convention doesn't match extractHeading() below
+  const double heading_after = extractHeading(multirotor_model_.getState().R);
+
+  shiftPositionReference(translation, wrapAngle(heading_after - heading_before));
+}
+
+//}
+
+/* shiftPositionReference() //{ */
+
+// keeps an active position reference relative to the uav unchanged across a teleport,
+// so it doesn't fly/spin back towards the pre-teleport reference
+inline void UavSystem::shiftPositionReference(const Eigen::Vector3d &translation, const double heading_delta) {
+
+  if (active_input_ == POSITION_CMD) {
+    position_cmd_.position += translation;
+    position_cmd_.heading = wrapAngle(position_cmd_.heading + heading_delta);
+  }
+}
+
+//}
+
+/* extractHeading() //{ */
+
+// mirrors mrs_lib::AttitudeConverter::getHeading(), avoiding an mrs_lib dependency here
+inline double UavSystem::extractHeading(const Eigen::Matrix3d &R) {
+
+  return atan2(R(1, 0), R(0, 0));
+}
+
+//}
+
+/* wrapAngle() //{ */
+
+inline double UavSystem::wrapAngle(const double angle) {
+
+  double wrapped = fmod(angle + M_PI, 2.0 * M_PI);
+
+  if (wrapped < 0) {
+    wrapped += 2.0 * M_PI;
+  }
+
+  return wrapped - M_PI;
 }
 
 //}

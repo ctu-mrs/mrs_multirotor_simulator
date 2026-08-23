@@ -1,23 +1,13 @@
-# demo of the mrs_multirotor_simulator plugin interface:
-# * a RandomizePositionWorldPlugin, triggered via rqt_reconfigure (look for the
-#   "world_plugin/randomize_position/dynamic/trigger" param on /multirotor_simulator), e.g.:
-#     ros2 param set /multirotor_simulator "world_plugin/randomize_position/dynamic/trigger" true
-# * two UavPlugins attached to every uav at once, to show that's possible:
-#   - BoidsUavPlugin, flying every uav autonomously, no mrs_uav_core stack needed
-#   - NeighborCountUavPlugin, a minimal, purely observational plugin that just logs
-#     (throttled, once a second, independently per uav) how many other uavs are in
-#     its shared neighborhood
-# * the shared "dynamic/uav_plugins/neighbor_radius" param on /multirotor_simulator is
-#   also live-tunable from rqt_reconfigure
-# * uavs are spawned spread out in x, y, *and* z (a 5x5x2 grid) so the flock forms in 3D
+# demo of the mrs_multirotor_simulator plugin interface: RandomizePositionWorldPlugin
+# (trigger via rqt_reconfigure) plus BoidsUavPlugin + NeighborCountUavPlugin attached to
+# every uav at once, spawned on a 5x5x2 grid so the flock forms in 3D
 
 frames:
   fcu:
     publish_tf: true
 
 dynamic:
-  # the boids fly close together by design -- don't let the simulator's own hard
-  # contact-distance crash logic destroy them while they flock
+  # boids fly close together by design, don't let hard-contact collisions destroy them
   collisions:
     enabled: false
     crash: false
@@ -34,9 +24,7 @@ world_plugins: [
 randomize_position:
   address: "mrs_multirotor_simulator_plugins::RandomizePositionWorldPlugin"
 
-# RandomizePositionWorldPlugin params -- nested under "world_plugin/<name>" to match the
-# ROS2 sub-namespace the plugin's own ParamLoader is scoped to (see
-# mrs_multirotor_simulator_plugins/config/randomize_position_world_plugin.yaml)
+# RandomizePositionWorldPlugin params, nested under "world_plugin/<name>"
 world_plugin:
   randomize_position:
     bounds:
@@ -46,18 +34,14 @@ world_plugin:
 
 # | -------------------------- uav plugins -------------------------- |
 
-# address of each uav plugin instance name used below, exactly like "world_plugins" above
 boids:
   address: "mrs_multirotor_simulator_plugins::BoidsUavPlugin"
 
 neighbor_counter:
   address: "mrs_multirotor_simulator_plugins::NeighborCountUavPlugin"
 
-# BoidsUavPlugin params -- nested under "uav_plugin/<uav_name>/<instance_name>" to match
-# the ROS2 sub-namespace the plugin's own ParamLoader is scoped to for each uav (see
-# mrs_multirotor_simulator_plugins/config/boids_uav_plugin.yaml); repeated identically per
-# uav below since each uav plugin instance loads its own, separately-namespaced params.
-# NeighborCountUavPlugin needs no params, so it has no entries here at all.
+# BoidsUavPlugin params, nested under "uav_plugin/<uav_name>/<instance_name>", repeated
+# per uav (NeighborCountUavPlugin needs no params, so it has no entries here)
 uav_plugin:
 
   uav1:

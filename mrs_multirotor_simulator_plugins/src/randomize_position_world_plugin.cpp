@@ -105,6 +105,10 @@ void RandomizePositionWorldPlugin::update([[maybe_unused]] const double dt, [[ma
 
     RCLCPP_INFO(node_->get_logger(), "[RandomizePositionWorldPlugin]: '%s' randomized to [%.1f, %.1f, %.1f]", uav_name.c_str(), pos.x(), pos.y(), pos.z());
   }
+
+  // untick the checkbox itself so it can be ticked again without manually unticking first
+  mrs_lib::set_mutexed(mutex_drs_params_, false, drs_params_.trigger);
+  dynparam_mgr_->update_to_ros();
 }
 
 //}

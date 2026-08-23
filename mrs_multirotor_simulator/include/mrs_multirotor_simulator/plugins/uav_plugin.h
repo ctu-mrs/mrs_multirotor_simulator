@@ -67,9 +67,9 @@ struct UavPluginPrivateHandlers_t
 /* class UavPlugin //{ */
 
 /**
- * @brief Abstract interface for a "UAV" plugin. A UAV plugin runs as one instance per UAV
- *        (opt-in, one plugin per UAV at most) and is given full API access to its own UavSystem,
- *        plus read-only states of neighboring UAVs within a configurable radius.
+ * @brief Abstract interface for a "UAV" plugin. Several can be attached to the same UAV at
+ *        once. Each instance is given full API access to its own UavSystem, plus read-only
+ *        states of neighboring UAVs within a configurable radius.
  */
 class UavPlugin {
 

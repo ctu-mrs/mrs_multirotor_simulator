@@ -106,9 +106,6 @@ private:
 
   // | ------------------------ uav plugins ------------------------ |
 
-  // several uav plugins can be attached to the same uav at once, e.g. a controlling
-  // plugin (boids) alongside a passive, observation-only plugin (neighbor counting) --
-  // all of them get their update() called every tick, in the order they were configured
   std::vector<std::shared_ptr<UavPlugin>> uav_plugins_;
   std::function<double(void)>             getUavPluginNeighborRadius_;
 

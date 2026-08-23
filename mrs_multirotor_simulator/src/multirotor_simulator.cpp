@@ -270,10 +270,8 @@ void MultirotorSimulator::initialize() {
 
       std::shared_ptr<WorldPlugin> world_plugin;
 
-      // NOTE: on failure we throw rather than call rclcpp::shutdown() -- shutdown() tears down
-      // the process-wide default context but doesn't stop this function from continuing (and
-      // would otherwise fall through to calling initialize() on a null world_plugin below).
-      // Throwing aborts construction immediately and propagates a clear error to the component loader.
+      // throw rather than rclcpp::shutdown(): shutdown() wouldn't stop this function, so it
+      // would fall through to calling initialize() on a null world_plugin below
       try {
         RCLCPP_INFO(node_->get_logger(), "loading the world plugin '%s'", world_plugin_address.c_str());
         world_plugin = world_plugin_loader_->createSharedInstance(world_plugin_address.c_str());
@@ -289,9 +287,7 @@ void MultirotorSimulator::initialize() {
         throw std::runtime_error("PluginlibException for the world plugin '" + world_plugin_address + "': " + ex.what());
       }
 
-      // NOTE: the sub-node namespace ("world_plugin", singular) is intentionally different from the
-      // top-level "world_plugins" (plural) parameter, which lists the plugins to load -- using the
-      // same name for both would make mrs_lib::ParamProvider's yaml lookup collide with that list
+      // "world_plugin" (singular) to avoid colliding with the top-level "world_plugins" list param
       rclcpp::Node::SharedPtr world_plugin_node = node_->create_sub_node("world_plugin")->create_sub_node(world_plugin_name);
 
       auto world_plugin_private_handlers = std::make_shared<WorldPluginPrivateHandlers_t>();
@@ -370,8 +366,7 @@ void MultirotorSimulator::timerMain() {
 
   if (dt_since_last_step >= simulation_step_size) {
 
-    // snapshot of all uav states, taken before any of them are stepped, so that all uav
-    // plugins and world plugins see a consistent, order-independent view of the world
+    // snapshot taken before any uav steps, so plugins see an order-independent view
     std::vector<std::pair<std::string, MultirotorModel::State>> uav_states_snapshot;
 
     for (size_t i = 0; i < uavs_.size(); i++) {

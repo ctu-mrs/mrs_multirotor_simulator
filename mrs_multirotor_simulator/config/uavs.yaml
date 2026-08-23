@@ -9,9 +9,6 @@ uav1:
     y: 15.0
     z: 0.0
     heading: 3.14
-  # optional: names of UavPlugins to attach to this uav (several can run at once,
-  # e.g. one controlling + one purely observing); leave empty to disable. Each name
-  # must have a "<name>/address" entry defined elsewhere with the pluginlib address,
-  # e.g.:
-  #   boids: {address: "mrs_multirotor_simulator_plugins::BoidsUavPlugin"}
+  # names of UavPlugins to attach (several can run at once); each needs a "<name>/address"
+  # entry elsewhere, e.g. boids: {address: "mrs_multirotor_simulator_plugins::BoidsUavPlugin"}
   plugins: []

@@ -14,10 +14,8 @@ namespace mrs_multirotor_simulator_plugins
 /* class NeighborCountUavPlugin //{ */
 
 /**
- * @brief A minimal, purely observational UAV plugin: it never touches the uav's controls,
- *        it just logs how many other uavs are currently within the shared neighbor radius.
- *        Meant to demonstrate attaching more than one UavPlugin to the same uav at once
- *        (e.g. alongside a controlling plugin such as BoidsUavPlugin).
+ * @brief A minimal, purely observational UAV plugin: logs how many other uavs are
+ *        currently within the shared neighbor radius, never touches the controls.
  */
 class NeighborCountUavPlugin : public mrs_multirotor_simulator::UavPlugin {
 
@@ -31,11 +29,8 @@ private:
   rclcpp::Node::SharedPtr node_;
   std::string             uav_name_;
 
-  // NOTE: RCLCPP_INFO_THROTTLE keys its "last logged" state to the call site (a static
-  // variable at that source line), which every instance of this plugin shares since they
-  // all execute the same compiled line -- that throttles across all uavs combined, not
-  // per uav. Tracking it ourselves, per instance, using the simulation time already handed
-  // to update() gives each uav its own independent 1 Hz cadence.
+  // not RCLCPP_INFO_THROTTLE: its "last logged" state is a static per call site, shared
+  // by every instance of this plugin, so it'd throttle across all uavs combined
   std::optional<rclcpp::Time> last_log_time_;
   static constexpr double     LOG_PERIOD = 1.0; // [s]
 };

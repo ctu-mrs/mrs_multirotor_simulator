@@ -303,9 +303,6 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
 
   getUavPluginNeighborRadius_ = common_handlers.getUavPluginNeighborRadius;
 
-  // a list of instance names, e.g. ["boids", "neighbor_counter"] -- several plugins can be
-  // attached to the same uav at once; each name is then looked up as "<name>/address" for
-  // its pluginlib address, exactly like the top-level "world_plugins" list
   std::vector<std::string> uav_plugin_names;
   param_loader_->loadParam(_uav_name_ + "/plugins", uav_plugin_names, std::vector<std::string>());
 
@@ -316,11 +313,8 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
 
     std::shared_ptr<UavPlugin> uav_plugin;
 
-    // NOTE: on failure we throw rather than call rclcpp::shutdown() -- shutdown() tears down
-    // the process-wide default context, but the caller (MultirotorSimulator) is looping over
-    // multiple uavs and would keep constructing the next one against that now-dead context,
-    // producing a confusing unrelated failure later instead of a clear one here. Throwing
-    // aborts construction immediately and propagates a clear error to the component loader.
+    // throw rather than rclcpp::shutdown(): shutdown() wouldn't stop the caller's uav loop,
+    // so subsequent uavs would fail confusingly against an already-dead context
     try {
       RCLCPP_INFO(node_->get_logger(), "[%s] loading the uav plugin '%s' ('%s')", _uav_name_.c_str(), uav_plugin_name.c_str(), uav_plugin_address.c_str());
       uav_plugin = common_handlers.uav_plugin_loader->createSharedInstance(uav_plugin_address.c_str());
@@ -341,8 +335,6 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
     uav_plugin_common_handlers->node              = node_;
     uav_plugin_common_handlers->getNeighborRadius = getUavPluginNeighborRadius_;
 
-    // NOTE: sub-noded one level further by the plugin's own instance name, so that several
-    // plugins attached to the same uav each get their own, non-colliding yaml namespace
     rclcpp::Node::SharedPtr plugin_node = node_->create_sub_node("uav_plugin")->create_sub_node(_uav_name_)->create_sub_node(uav_plugin_name);
 
     auto uav_plugin_private_handlers = std::make_shared<UavPluginPrivateHandlers_t>();
@@ -396,9 +388,6 @@ void UavSystemRos::makeStep(const double dt, const double time_stamp, const std:
   if (!uav_plugins_.empty()) {
 
     // | -------------------- uav plugin control ------------------- |
-    // * the attached plugin(s) fully take over control of this uav, the normal
-    //   ROS-input/timeout path below is bypassed entirely -- every attached plugin
-    //   gets its update() called, in order, before the physics step is taken once
 
     const double radius = getUavPluginNeighborRadius_ ? getUavPluginNeighborRadius_() : 0.0;
 

@@ -4,8 +4,7 @@ simulation_rate: 100.0 # Hz
 # the rate of publishing of /clock
 clock_rate:      400.0 # Hz, should be >= simulation_rate, ideally in whole multiples of simulation_rate
 
-# names of the world plugins to load, each name must have a "<name>/address" entry defined
-# (in this file or in a custom_config) with the pluginlib address of the implementation
+# names of the world plugins to load, each name must have a "<name>/address" entry
 world_plugins: []
 
 dynamic:

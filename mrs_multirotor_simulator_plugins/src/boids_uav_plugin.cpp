@@ -18,10 +18,8 @@ namespace mrs_multirotor_simulator_plugins
 /* class BoidsUavPlugin //{ */
 
 /**
- * @brief A classic boids flocking model (separation / alignment / cohesion), driving the uav
- *        through velocity-heading commands based on the states of nearby uavs. Operates in
- *        full 3D -- the flock will converge, spread and move together in altitude too, not
- *        just horizontally.
+ * @brief A classic 3D boids flocking model (separation / alignment / cohesion), driving the
+ *        uav through velocity-heading commands based on the states of nearby uavs.
  */
 class BoidsUavPlugin : public mrs_multirotor_simulator::UavPlugin {
 
@@ -45,11 +43,8 @@ private:
   double _perception_radius_;
   double _separation_radius_;
 
-  // separation/alignment/cohesion only react to *relative* neighbor state, so the flock's
-  // shared mean altitude has no restoring force of its own and will drift -- typically down
-  // into the ground, since it's a hard floor but there's no equivalent hard ceiling. A weak,
-  // shared cruise-altitude attractor (small weight, same target for every uav) fixes that
-  // without preventing uavs from actually converging/moving together in z via cohesion
+  // shared attractor pulling the flock's mean altitude back towards a common level, since
+  // separation/alignment/cohesion alone have no restoring force against it drifting away
   double _cruise_altitude_;
   double _altitude_bias_weight_;
 };
@@ -119,12 +114,8 @@ void BoidsUavPlugin::update([[maybe_unused]] const double dt, [[maybe_unused]] c
     cohesion += neighbor.state.x;
   }
 
-  // NOTE: the desired velocity is recomputed fresh every tick, purely as a function of the
-  // current (bounded) neighbor-relative quantities below, rather than integrated/accumulated
-  // on top of the previous tick's actual velocity -- an accumulating "velocity += dt*force"
-  // formulation has no restoring term, so any tiny asymmetry (numerical noise, a uav leaving
-  // perception range, ...) keeps compounding indefinitely instead of settling, which is what
-  // caused this plugin to visibly drift off (into the ground, in earlier testing).
+  // recomputed fresh each tick rather than accumulated onto the previous velocity, which
+  // has no restoring term and drifts unboundedly under any small asymmetry
   Eigen::Vector3d desired_velocity = Eigen::Vector3d::Zero();
 
   if (n_flockmates > 0) {
@@ -132,22 +123,15 @@ void BoidsUavPlugin::update([[maybe_unused]] const double dt, [[maybe_unused]] c
     alignment /= n_flockmates;
     cohesion = (cohesion / n_flockmates) - self_state.x;
 
-    // alignment steers *towards* the neighbors' average velocity, it must not add that
-    // average velocity outright -- otherwise, once the flock as a whole picks up speed,
-    // every uav keeps re-commanding that same (already large) velocity every tick, which
-    // is a positive feedback loop that overwhelms the max_speed clamp below via the
-    // velocity controller's own tracking overshoot on a sustained, near-constant target
+    // alignment steers towards the neighbors' average velocity, not adds it outright --
+    // otherwise a fast-moving flock keeps re-commanding its own already-large velocity
     desired_velocity = _separation_weight_ * separation + _alignment_weight_ * (alignment - self_state.v) + _cohesion_weight_ * cohesion;
   }
 
   desired_velocity.z() += _altitude_bias_weight_ * (_cruise_altitude_ - self_state.x.z());
 
-  // NOTE: max_speed bounds the *total* 3D speed -- it would be violated if the (already
-  // max_speed-clamped) horizontal component and the altitude correction were simply added
-  // together. Instead, the altitude correction gets first claim on the shared max_speed
-  // budget (clamped to max_speed on its own), and the horizontal component is then clamped
-  // to whatever budget remains, so ||velocity|| <= max_speed always holds, while altitude
-  // correction still isn't starved by a dominant horizontal boids force (see below).
+  // altitude gets first claim on the max_speed budget, horizontal gets whatever remains,
+  // so total speed stays <= max_speed without the altitude correction being starved out
   double z_component = desired_velocity.z();
 
   if (std::abs(z_component) > _max_speed_) {
