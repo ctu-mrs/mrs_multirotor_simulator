@@ -59,7 +59,7 @@ public:
 
       allocation_matrix.row(0) *= arm_length * kf;
       allocation_matrix.row(1) *= arm_length * kf;
-      allocation_matrix.row(2) *= km * (3.0 * prop_radius) * kf;
+      allocation_matrix.row(2) *= km * kf;
       allocation_matrix.row(3) *= kf;
 
       ground_enabled        = false;

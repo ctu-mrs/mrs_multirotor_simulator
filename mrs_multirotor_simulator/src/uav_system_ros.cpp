@@ -111,7 +111,7 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
 
   model_params_.allocation_matrix.row(0) *= model_params_.arm_length * model_params_.kf;
   model_params_.allocation_matrix.row(1) *= model_params_.arm_length * model_params_.kf;
-  model_params_.allocation_matrix.row(2) *= model_params_.km * (3.0 * model_params_.prop_radius) * model_params_.kf;
+  model_params_.allocation_matrix.row(2) *= model_params_.km * model_params_.kf;
   model_params_.allocation_matrix.row(3) *= model_params_.kf;
 
   uav_system_ = std::make_shared<UavSystem>(model_params_, Eigen::Vector3d(spawn_x, spawn_y, spawn_z), spawn_heading);
