@@ -50,11 +50,11 @@ public:
       allocation_matrix = Eigen::MatrixXd::Zero(4, 4);
 
       // clang-format off
-    allocation_matrix <<
-      -0.707, 0.707, 0.707,  -0.707,
-      -0.707, 0.707, -0.707, 0.707,
-      -1,     -1,    1,      1,
-      1,      1,     1,      1;
+      allocation_matrix <<
+        -0.707, 0.707, 0.707,  -0.707,
+        -0.707, 0.707, -0.707, 0.707,
+        -1,     -1,    1,      1,
+        1,      1,     1,      1;
       // clang-format on
 
       allocation_matrix.row(0) *= arm_length * kf;
