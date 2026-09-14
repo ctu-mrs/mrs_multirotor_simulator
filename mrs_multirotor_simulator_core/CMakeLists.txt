@@ -28,7 +28,7 @@ endif()
 find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-add_library(mrs_multirotor_simulator_core_mrs_multirotor_simulator_core INTERFACE)
+add_library(mrs_multirotor_simulator_core_mrs_multirotor_simulator_core STATIC) # EDITED
 add_library(mrs_multirotor_simulator_core::mrs_multirotor_simulator_core ALIAS
   mrs_multirotor_simulator_core_mrs_multirotor_simulator_core
 )
@@ -36,30 +36,33 @@ set_target_properties(mrs_multirotor_simulator_core_mrs_multirotor_simulator_cor
   PROPERTIES
     EXPORT_NAME mrs_multirotor_simulator_core
     OUTPUT_NAME mrs_multirotor_simulator_core
+    POSITION_INDEPENDENT_CODE ON # ADDED
 )
 
 target_sources(mrs_multirotor_simulator_core_mrs_multirotor_simulator_core
-  INTERFACE FILE_SET HEADERS BASE_DIRS "include"
+  PRIVATE
+    "include/mrs_multirotor_simulator/uav_system/simulink_planner/FlightMechanicsModelForMRS.c"
+  PUBLIC FILE_SET HEADERS BASE_DIRS "include"
   FILES
     # include
-    "include/KDTreeVectorOfVectorsAdaptor.h"
-    "include/nanoflann.hpp"
+    # "include/KDTreeVectorOfVectorsAdaptor.h"
+    # "include/nanoflann.hpp"
     # include/mrs_multirotor_simulator/uav_system
-    "include/mrs_multirotor_simulator/uav_system/multirotor_model.hpp"
+    # "include/mrs_multirotor_simulator/uav_system/multirotor_model.hpp"
     "include/mrs_multirotor_simulator/uav_system/uav_system.hpp"
-    # include/mrs_multirotor_simulator/uav_system/controllers
-    "include/mrs_multirotor_simulator/uav_system/controllers/acceleration_controller.hpp"
-    "include/mrs_multirotor_simulator/uav_system/controllers/attitude_controller.hpp"
-    "include/mrs_multirotor_simulator/uav_system/controllers/mixer.hpp"
-    "include/mrs_multirotor_simulator/uav_system/controllers/pid.hpp"
-    "include/mrs_multirotor_simulator/uav_system/controllers/position_controller.hpp"
-    "include/mrs_multirotor_simulator/uav_system/controllers/rate_controller.hpp"
-    "include/mrs_multirotor_simulator/uav_system/controllers/references.hpp"
-    "include/mrs_multirotor_simulator/uav_system/controllers/velocity_controller.hpp"
+    "include/mrs_multirotor_simulator/uav_system/fixedwing_model.hpp"
+    "include/mrs_multirotor_simulator/uav_system/simulink_planner/FlightMechanicsModelForMRS.h"
+    "include/mrs_multirotor_simulator/uav_system/simulink_planner/FlightMechanicsModelForMRS.h"
+
+    #simulink_planner
+    "include/mrs_multirotor_simulator/uav_system/simulink_planner/FlightMechanicsModelForMRS_private.h"
+    "include/mrs_multirotor_simulator/uav_system/simulink_planner/FlightMechanicsModelForMRS_types.h"
+    "include/mrs_multirotor_simulator/uav_system/simulink_planner/rtwtypes.h"
+    
 )
 
 target_link_libraries(mrs_multirotor_simulator_core_mrs_multirotor_simulator_core
-  INTERFACE
+  PUBLIC
     Boost::headers
     Eigen3::Eigen
 )

@@ -10,7 +10,7 @@ world_plugins: []
 dynamic:
 
   realtime_factor: 1.0 # [-]
-
+  pause: false
   collisions:
 
     enabled: false
@@ -83,7 +83,7 @@ frames:
     prefix_with_uav_name: false
   fcu:
     name: "fcu"
-    publish_tf: false
+    publish_tf: true
   rangefinder:
     name: "garmin"
     publish_tf: true
