@@ -36,7 +36,8 @@ public:
 
   UavSystem(void);
   UavSystem(const MultirotorModel::ModelParams &model_params);
-  UavSystem(const MultirotorModel::ModelParams &model_params, const Eigen::Vector3d spawn_pos, const double spawn_heading);
+  UavSystem(const MultirotorModel::ModelParams &model_params, const Eigen::Vector3d spawn_pos, const double spawn_heading, const double spawn_roll = 0.0,
+            const double spawn_pitch = 0.0);
 
   void makeStep(const double dt);
 
@@ -152,13 +153,14 @@ inline UavSystem::UavSystem(const MultirotorModel::ModelParams &model_params) {
   initializeControllers();
 }
 
-inline UavSystem::UavSystem(const MultirotorModel::ModelParams &model_params, const Eigen::Vector3d spawn_pos, const double spawn_heading) {
+inline UavSystem::UavSystem(const MultirotorModel::ModelParams &model_params, const Eigen::Vector3d spawn_pos, const double spawn_heading,
+                            const double spawn_roll, const double spawn_pitch) {
 
   multirotor_model_.setParams(model_params);
 
   multirotor_model_.initializeState();
 
-  multirotor_model_.setStatePos(spawn_pos, spawn_heading);
+  multirotor_model_.setStatePos(spawn_pos, spawn_heading, spawn_roll, spawn_pitch);
 
   initializeControllers();
 }
