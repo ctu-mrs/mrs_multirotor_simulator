@@ -446,11 +446,7 @@ inline void UavSystem::setStatePos(const Eigen::Vector3d &pos, const double head
 
   multirotor_model_.setStatePos(pos, heading);
 
-  // read back the achieved R instead of assuming it equals the "heading" argument, since
-  // setStatePos()'s heading-to-rotation convention doesn't match extractHeading() below
-  const double heading_after = extractHeading(multirotor_model_.getState().R);
-
-  shiftPositionReference(translation, wrapAngle(heading_after - heading_before));
+  shiftPositionReference(translation, wrapAngle(heading - heading_before));
 }
 
 //}
