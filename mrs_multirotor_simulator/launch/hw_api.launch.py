@@ -110,6 +110,7 @@ def generate_launch_description():
                 remappings=[
                   ("~/simulator_imu_in", ["/multirotor_simulator/", uav_name, "/imu"]),
                   ("~/simulator_odom_in", ["/multirotor_simulator/", uav_name, "/odom"]),
+                  ("~/simulator_on_ground_in", ["/multirotor_simulator/", uav_name, "/on_ground"]),
                   ("~/simulator_rangefinder_in", ["/multirotor_simulator/", uav_name, "/rangefinder"]),
                   ("~/simulator_actuators_cmd_out", ["/multirotor_simulator/", uav_name, "/actuators_cmd"]),
                   ("~/simulator_control_group_cmd_out", ["/multirotor_simulator/", uav_name, "/control_group_cmd"]),
