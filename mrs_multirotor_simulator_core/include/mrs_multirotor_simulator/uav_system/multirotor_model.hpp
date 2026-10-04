@@ -96,6 +96,7 @@ public:
     Eigen::Matrix3d R;
     Eigen::Vector3d omega;
     Eigen::VectorXd motor_rpm;
+    bool            on_ground = false;
   };
 
   MultirotorModel();
@@ -252,12 +253,15 @@ inline void MultirotorModel::step(const double &dt) {
   Eigen::Matrix3d R = state_.R * P.inverse();
   state_.R          = R;
 
+  state_.on_ground = false;
+
   // simulate the ground
   if (params_.ground_enabled) {
     if (state_.x(2) < params_.ground_z && state_.v(2) < 0) {
-      state_.x(2)  = params_.ground_z;
-      state_.v     = Eigen::Vector3d::Zero();
-      state_.omega = Eigen::Vector3d::Zero();
+      state_.x(2)      = params_.ground_z;
+      state_.v         = Eigen::Vector3d::Zero();
+      state_.omega     = Eigen::Vector3d::Zero();
+      state_.on_ground = true;
     }
   }
 
@@ -267,9 +271,10 @@ inline void MultirotorModel::step(const double &dt) {
     if (input_.mean() <= 0.90 * hover_rpm) {
 
       if (state_.x(2) < _initial_pos_(2) && state_.v(2) < 0) {
-        state_.x(2)  = _initial_pos_(2);
-        state_.v     = Eigen::Vector3d::Zero();
-        state_.omega = Eigen::Vector3d::Zero();
+        state_.x(2)      = _initial_pos_(2);
+        state_.v         = Eigen::Vector3d::Zero();
+        state_.omega     = Eigen::Vector3d::Zero();
+        state_.on_ground = true;
       }
     } else {
       params_.takeoff_patch_enabled = false;

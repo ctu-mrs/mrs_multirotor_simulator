@@ -21,6 +21,7 @@
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/range.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <std_msgs/msg/bool.hpp>
 #include <mrs_msgs/msg/float64.hpp>
 #include <mrs_msgs/srv/float64_srv.hpp>
 
@@ -123,8 +124,10 @@ private:
   std::shared_ptr<mrs_lib::PublisherHandler<sensor_msgs::msg::Imu>>   ph_imu_;
   std::shared_ptr<mrs_lib::PublisherHandler<nav_msgs::msg::Odometry>> ph_odom_;
   std::shared_ptr<mrs_lib::PublisherHandler<sensor_msgs::msg::Range>> ph_rangefinder_;
+  std::shared_ptr<mrs_lib::PublisherHandler<std_msgs::msg::Bool>>     ph_on_ground_;
 
   void publishOdometry(const MultirotorModel::State &state);
+  void publishOnGround(const MultirotorModel::State &state);
   void publishFCUTF(const MultirotorModel::State &state);
   void publishIMU(const MultirotorModel::State &state);
   void publishRangefinder(const MultirotorModel::State &state);

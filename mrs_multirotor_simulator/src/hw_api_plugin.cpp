@@ -5,6 +5,7 @@
 #include <mrs_uav_hw_api/api.h>
 
 #include <nav_msgs/msg/odometry.hpp>
+#include <std_msgs/msg/bool.hpp>
 
 #include <mrs_lib/param_loader.h>
 #include <mrs_lib/attitude_converter.h>
@@ -76,6 +77,8 @@ public:
   mrs_msgs::msg::HwApiStatus       getStatus();
   mrs_msgs::msg::HwApiCapabilities getCapabilities();
 
+  uint8_t airborne(const bool connected);
+
   // | --------------------- topic callbacks -------------------- |
 
   bool callbackActuatorCmd(const mrs_msgs::msg::HwApiActuatorCmd::ConstSharedPtr msg);
@@ -108,6 +111,7 @@ private:
   mrs_lib::SubscriberHandler<nav_msgs::msg::Odometry> sh_odom_;
   mrs_lib::SubscriberHandler<sensor_msgs::msg::Imu>   sh_imu_;
   mrs_lib::SubscriberHandler<sensor_msgs::msg::Range> sh_range_;
+  mrs_lib::SubscriberHandler<std_msgs::msg::Bool>     sh_on_ground_;
 
   void callbackOdom(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
   void callbackImu(const sensor_msgs::msg::Imu::ConstSharedPtr msg);
@@ -269,6 +273,8 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
 
   sh_odom_ = mrs_lib::SubscriberHandler<nav_msgs::msg::Odometry>(shopts, "~/simulator_odom_in", &Api::callbackOdom, this);
 
+  sh_on_ground_ = mrs_lib::SubscriberHandler<std_msgs::msg::Bool>(shopts, "~/simulator_on_ground_in");
+
   sh_imu_ = mrs_lib::SubscriberHandler<sensor_msgs::msg::Imu>(shopts, "~/simulator_imu_in", &Api::callbackImu, this);
 
   sh_range_ = mrs_lib::SubscriberHandler<sensor_msgs::msg::Range>(shopts, "~/simulator_rangefinder_in", &Api::callbackRangefinder, this);
@@ -402,7 +408,23 @@ mrs_msgs::msg::HwApiStatus Api::getStatus() {
     status.mode      = mode_;
   }
 
+  status.airborne = airborne(status.connected);
+
   return status;
+}
+
+//}
+
+/* airborne() //{ */
+
+uint8_t Api::airborne(const bool connected) {
+
+  // no staleness check: the simulator also publishes /clock, so if it stops, sim time stops and nothing downstream advances either
+  if (!connected || !sh_on_ground_.hasMsg()) {
+    return mrs_msgs::msg::HwApiStatus::AIRBORNE_UNKNOWN;
+  }
+
+  return sh_on_ground_.getMsg()->data ? mrs_msgs::msg::HwApiStatus::AIRBORNE_NO : mrs_msgs::msg::HwApiStatus::AIRBORNE_YES;
 }
 
 //}
@@ -747,6 +769,8 @@ void Api::callbackOdom(const nav_msgs::msg::Odometry::ConstSharedPtr msg) {
     status.connected = connected_;
     status.mode      = mode_;
   }
+
+  status.airborne = airborne(status.connected);
 
   common_handlers_->publishers.publishStatus(status);
 
