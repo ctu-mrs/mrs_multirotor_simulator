@@ -61,7 +61,7 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
 
   // | ------------------ model-specific params ----------------- |
 
-  param_loader_->loadParam(type + "/mass", model_params_.m);
+  // param_loader_->loadParam(type + "/mass", model_params_.m);
  
   // | --------------------- spawn location --------------------- |
 
@@ -115,6 +115,9 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
     sh_control_group_cmd_ = mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiControlGroupCmd>(shopts, "~/" + _uav_name_ + "/control_group_cmd",
                                                                                             &UavSystemRos::callbackControlGroupCmd, this);
   }
+
+  sh_teleport_cmd_ = mrs_lib::SubscriberHandler<nav_msgs::msg::Odometry>(
+  shopts, "~/" + _uav_name_ + "/teleport_cmd", &UavSystemRos::callbackTeleportCmd, this);
 
   // | --------------------- tf broadcaster --------------------- |
 
@@ -271,8 +274,14 @@ void UavSystemRos::publishOdometry(const FixedwingModel::State &state) {
   odom.header.frame_id = _frame_world_;
   odom.child_frame_id  = _frame_fcu_;
 
-  odom.pose.pose.orientation = mrs_lib::AttitudeConverter(state.R);
+  // odom.pose.pose.orientation = mrs_lib::AttitudeConverter(state.R); opacne osa roll v grafickem rozhrani
 
+  double yaw = std::atan2(state.R(1, 0), state.R(0, 0));
+  double pitch = std::atan2(-state.R(2, 0), std::sqrt(state.R(0, 0) * state.R(0, 0) + state.R(1, 0) * state.R(1, 0)));
+  double roll = std::atan2(state.R(2, 1), state.R(2, 2));
+
+    // Překlopení Roll osy (záporné znaménko)
+  odom.pose.pose.orientation = mrs_lib::AttitudeConverter(-roll, pitch, yaw);
   odom.pose.pose.position.x = state.x(0);
   odom.pose.pose.position.y = state.x(1);
   odom.pose.pose.position.z = state.x(2);
@@ -308,7 +317,14 @@ void UavSystemRos::publishFCUTF(const FixedwingModel::State &state) {
     tf.transform.translation.y = state.x(1);
     tf.transform.translation.z = state.x(2);
 
-    tf.transform.rotation = mrs_lib::AttitudeConverter(state.R);
+    // tf.transform.rotation = mrs_lib::AttitudeConverter(state.R); mela opacne osu roll v grafickem rozhrani
+
+    double yaw = std::atan2(state.R(1, 0), state.R(0, 0));
+    double pitch = std::atan2(-state.R(2, 0), std::sqrt(state.R(0, 0) * state.R(0, 0) + state.R(1, 0) * state.R(1, 0)));
+    double roll = std::atan2(state.R(2, 1), state.R(2, 2));
+
+    // Překlopení Roll osy (záporné znaménko)
+    tf.transform.rotation = mrs_lib::AttitudeConverter(-roll, -pitch, yaw);
 
     tf_broadcaster_->sendTransform(tf);
   }
@@ -371,5 +387,39 @@ bool UavSystemRos::callbackSetMass(const std::shared_ptr<mrs_msgs::srv::Float64S
 
 //}
 
+/* callbackTeleportCmd() //{ */
+
+/* callbackTeleportCmd() //{ */
+
+void UavSystemRos::callbackTeleportCmd(const nav_msgs::msg::Odometry::ConstSharedPtr msg) {
+
+  if (!is_initialized_) {
+    return;
+  }
+
+  RCLCPP_INFO(node_->get_logger(), "Provadim teleportaci letadla!");
+
+  std::scoped_lock lock(mutex_uav_system_);
+
+  // Vytáhneme data ze zprávy
+  Eigen::Vector3d pos(msg->pose.pose.position.x, msg->pose.pose.position.y, msg->pose.pose.position.z);
+  Eigen::Vector3d vel(msg->twist.twist.linear.x, msg->twist.twist.linear.y, msg->twist.twist.linear.z);
+  
+  double heading = mrs_lib::AttitudeConverter(msg->pose.pose.orientation).getHeading();
+  Eigen::Matrix3d R = mrs_lib::AttitudeConverter(0, 0, heading);
+
+  // Vytvoříme nový stav
+  FixedwingModel::State new_state = uav_system_->getState();
+  new_state.x = pos;
+  new_state.R = R;
+  new_state.v = vel; 
+
+  // Zavoláme tvou metodu setState
+  uav_system_->setState(new_state); 
+}
+
+//}
+
+//}
 
 } // namespace mrs_multirotor_simulator

@@ -20,38 +20,13 @@ public:
   void crash(void);
   bool hasCrashed(void);
 
-  // void applyForce(const Eigen::Vector3d &force);
-
   void setInput(const double pitch, const double roll, const double speed);
-  // void setInput(const reference::ControlGroup &control_group);
-  // void setInput(const reference::AttitudeRate &attitude_rate);
-  // void setInput(const reference::Attitude &attitude);
-  // void setInput(const reference::TiltHdgRate &tilt);
-  // void setInput(const reference::AccelerationHdgRate &acceleration);
-  // void setInput(const reference::AccelerationHdg &acceleration);
-  // void setInput(const reference::VelocityHdgRate &velocity);
-  // void setInput(const reference::VelocityHdg &velocity);
-  // void setInput(const reference::Position &position);
-  // void setInput(void);
-
-  // void setFeedforward(const reference::AccelerationHdgRate &cmd);
-  // void setFeedforward(const reference::AccelerationHdg &cmd);
-  // void setFeedforward(const reference::VelocityHdg &cmd);
-  // void setFeedforward(const reference::VelocityHdgRate &cmd);
 
   FixedwingModel::State getState(void) const;
   FixedwingModel::ModelParams getParams(void);
   void setParams(const FixedwingModel::ModelParams &params);
   void setState(const FixedwingModel::State &state);
   void setStatePos(const Eigen::Vector3d &pos, const Eigen::Vector3d &spawn_rot);
-
-  // void setMixerParams(const Mixer::Params &params);
-  // void setRateControllerParams(const RateController::Params &params);
-  // void setAttitudeControllerParams(const AttitudeController::Params &params);
-  // void setVelocityControllerParams(const VelocityController::Params &params);
-  // void setPositionControllerParams(const PositionController::Params &params);
-
-  // Eigen::MatrixXd getMixerAllocation(void);
 
 private:
   // | ------------------------- basics ------------------------- |
@@ -63,36 +38,6 @@ private:
   // | --------------------- dynamics model --------------------- |
   FixedwingModel fixedwing_model_;
 
-  // | ----------------------- controllers ---------------------- |
-  // Mixer mixer_;
-  // RateController rate_controller_;
-  // AttitudeController attitude_controller_;
-  // AccelerationController acceleration_controller_;
-  // VelocityController velocity_controller_;
-  // PositionController position_controller_;
-  // INPUT_MODE active_input_ = INPUT_UNKNOWN;
-
-  // | ------------- inputs for feedback controllers ------------ |
-  // reference::Actuators actuators_cmd_;
-  // reference::ControlGroup control_group_cmd_;
-  // reference::AttitudeRate attitude_rate_cmd_;
-  // reference::Attitude attitude_cmd_;
-  // reference::TiltHdgRate tilt_hdg_rate_cmd_;
-  // reference::AccelerationHdgRate acceleration_hdg_rate_cmd_;
-  // reference::AccelerationHdg acceleration_hdg_cmd_;
-  // reference::VelocityHdgRate velocity_hdg_rate_cmd_;
-  // reference::VelocityHdg velocity_hdg_cmd_;
-  // reference::Position position_cmd_;
-
-  // | ------------------- feedforward inputs ------------------- |
-  // std::optional<reference::VelocityHdgRate> velocity_hdg_rate_ff_;
-  // std::optional<reference::VelocityHdg> velocity_hdg_ff_;
-  // std::optional<reference::AccelerationHdgRate> acceleration_hdg_rate_ff_;
-  // std::optional<reference::AccelerationHdg> acceleration_hdg_ff_;
-
-  // void shiftPositionReference(const Eigen::Vector3d &translation, const double heading_delta);
-  // static double extractHeading(const Eigen::Matrix3d &R);
-  // static double wrapAngle(const double angle);
 };
 
 // --------------------------------------------------------------

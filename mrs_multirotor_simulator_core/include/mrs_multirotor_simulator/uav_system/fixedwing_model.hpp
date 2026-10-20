@@ -23,19 +23,19 @@ public:
 
     public:
       ModelParams() {
-        AoA_max = 15;     
-        AoA_min = -10;      
-        wing_area = 0.32;
-        T2W_ratio = 0.6;
-        cla = 5.5;
+        AoA_max = 10;     
+        AoA_min = -5;      
+        wing_area = 4.0;
+        T2W_ratio = 0.5;
+        cla = 3.0;
         g = 9.81;  
-        m = 2.5;    
-        pitch_tau = 0.05; 
-        roll_tau = 0.05; 
-        speed_tau = 0.3; 
+        m = 50.0;    
+        pitch_tau = 0.25; 
+        roll_tau = 0.25; 
+        speed_tau = 5.0; 
         rho = 1.225;    
-        v_max = 30;  
-        v_stall = 10; 
+        v_max = 50.0;  
+        v_stall = 20.0; 
       };
 
     real_T AoA_max;   
@@ -101,16 +101,18 @@ inline FixedwingModel::FixedwingModel(const FixedwingModel::ModelParams &params,
   state_.x = spawn_pos;
   state_.v = spawn_vel;
   state_.R = Eigen::AngleAxisd(spawn_rot(2), Eigen::Vector3d::UnitZ())
-         * Eigen::AngleAxisd(spawn_rot(1), Eigen::Vector3d::UnitY())
+         * Eigen::AngleAxisd(-spawn_rot(1), Eigen::Vector3d::UnitY())
          * Eigen::AngleAxisd(spawn_rot(0), Eigen::Vector3d::UnitX());
 
   FlightMechanicsModelForMRS_DW.XPositionState_DSTATE = spawn_pos(0);
   FlightMechanicsModelForMRS_DW.YPositionState_DSTATE = spawn_pos(1);
-  FlightMechanicsModelForMRS_DW.AltitudeState_DSTATE  = -spawn_pos(2);
+  FlightMechanicsModelForMRS_DW.AltitudeState_DSTATE  = spawn_pos(2);
 
   FlightMechanicsModelForMRS_DW.RollAngleState_DSTATE   = spawn_rot(0);
   FlightMechanicsModelForMRS_DW.PitchAngleState_DSTATE  = spawn_rot(1);
   FlightMechanicsModelForMRS_DW.HeadingState_DSTATE     = spawn_rot(2);
+
+
 }
 
 //}
@@ -143,15 +145,16 @@ inline void FixedwingModel::step(const double &dt) {
   state_.x = Eigen::Vector3d(
     FlightMechanicsModelForMRS_Y.States_X,
     FlightMechanicsModelForMRS_Y.States_Y,
-    -FlightMechanicsModelForMRS_Y.States_Z 
+    FlightMechanicsModelForMRS_Y.States_Z // BEZ MÍNUSU
   );
 
   state_.v = Eigen::Vector3d(
     FlightMechanicsModelForMRS_Y.States_VX,
     FlightMechanicsModelForMRS_Y.States_VY,
-    -FlightMechanicsModelForMRS_Y.States_VZ
+    FlightMechanicsModelForMRS_Y.States_VZ // BEZ MÍNUSU
   );
 
+  // V ENU/NWU (X dopředu, Y doleva, Z nahoru) kladný Pitch (čumák nahoru) = záporná rotace kolem Y
   state_.R = Eigen::AngleAxisd(FlightMechanicsModelForMRS_Y.States_Heading * (M_PI / 180.0), Eigen::Vector3d::UnitZ()) 
            * Eigen::AngleAxisd(-FlightMechanicsModelForMRS_Y.States_Pitch * (M_PI / 180.0), Eigen::Vector3d::UnitY())
            * Eigen::AngleAxisd(FlightMechanicsModelForMRS_Y.States_Roll * (M_PI / 180.0), Eigen::Vector3d::UnitX());
@@ -194,12 +197,11 @@ inline FixedwingModel::ModelParams FixedwingModel::getParams(void) {
 
 /* setInput() //{ */
 
+// V metodě FixedwingModel::setInput(...)
 inline void FixedwingModel::setInput(const double &Pitch, const double &Roll, const double &Speed) { 
-
-  FlightMechanicsModelForMRS_U.Commands_PitchRef = -Pitch* (180.0 / M_PI);
-  FlightMechanicsModelForMRS_U.Commands_RollRef = Roll* (180.0 / M_PI);
-  FlightMechanicsModelForMRS_U.Commands_VinfRef = Speed;
-
+  FlightMechanicsModelForMRS_U.Commands_PitchRef = Pitch * (180.0 / M_PI); 
+  FlightMechanicsModelForMRS_U.Commands_RollRef  = Roll * (180.0 / M_PI);
+  FlightMechanicsModelForMRS_U.Commands_VinfRef  = Speed;
 }
 
 //}
@@ -215,20 +217,22 @@ inline const FixedwingModel::State &FixedwingModel::getState(void) const {
 /* setState() //{ */
 
 inline void FixedwingModel::setState(const FixedwingModel::State &state) {
-
   FlightMechanicsModelForMRS_DW.XPositionState_DSTATE = state.x(0);
   FlightMechanicsModelForMRS_DW.YPositionState_DSTATE = state.x(1);
-  FlightMechanicsModelForMRS_DW.AltitudeState_DSTATE = -state.x(2);
+  FlightMechanicsModelForMRS_DW.AltitudeState_DSTATE  = state.x(2); // BEZ MÍNUSU!
 
   FlightMechanicsModelForMRS_DW.SpeedState_DSTATE = state.v.norm();
 
   double heading = std::atan2(state.R(1, 0), state.R(0, 0));
-  double pitch = std::atan2(-state.R(2, 0), std::sqrt(state.R(0, 0) * state.R(0, 0) + state.R(1, 0) * state.R(1, 0)));
-  double roll = std::atan2(state.R(2, 1), state.R(2, 2));
+  // Pozor: protože v step() je kolem osy Y úhel -Pitch, musíme zde vzít +state.R(2, 0)
+  double pitch = std::atan2(state.R(2, 0), std::sqrt(state.R(0, 0) * state.R(0, 0) + state.R(1, 0) * state.R(1, 0)));
+  double roll  = std::atan2(state.R(2, 1), state.R(2, 2));
 
-  FlightMechanicsModelForMRS_DW.HeadingState_DSTATE = heading;
-  FlightMechanicsModelForMRS_DW.PitchAngleState_DSTATE = pitch;
-  FlightMechanicsModelForMRS_DW.RollAngleState_DSTATE = roll;
+  FlightMechanicsModelForMRS_DW.HeadingState_DSTATE      = heading;
+  FlightMechanicsModelForMRS_DW.PitchAngleState_DSTATE   = pitch;
+  FlightMechanicsModelForMRS_DW.RollAngleState_DSTATE    = roll;
+  FlightMechanicsModelForMRS_DW.FlypathAngleState_DSTATE = 0.0; // DŮLEŽITÉ: vynulovat úhel dráhy letu při teleportu!
+  time_accum_ = 0.0;
 
   state_.x = state.x;
   state_.v = state.v;
@@ -243,7 +247,7 @@ inline void FixedwingModel::setStatePos(const Eigen::Vector3d &pos, const Eigen:
 
   FlightMechanicsModelForMRS_DW.XPositionState_DSTATE = pos(0);
   FlightMechanicsModelForMRS_DW.YPositionState_DSTATE = pos(1);
-  FlightMechanicsModelForMRS_DW.AltitudeState_DSTATE  = -pos(2);
+  FlightMechanicsModelForMRS_DW.AltitudeState_DSTATE  = pos(2);
 
   FlightMechanicsModelForMRS_DW.RollAngleState_DSTATE   = spawn_rot(0);
   FlightMechanicsModelForMRS_DW.PitchAngleState_DSTATE  = spawn_rot(1);
@@ -253,7 +257,7 @@ inline void FixedwingModel::setStatePos(const Eigen::Vector3d &pos, const Eigen:
 
   state_.x = pos;
   state_.R = Eigen::AngleAxisd(spawn_rot(2), Eigen::Vector3d::UnitZ())
-           * Eigen::AngleAxisd(spawn_rot(1), Eigen::Vector3d::UnitY())
+           * Eigen::AngleAxisd(-spawn_rot(1), Eigen::Vector3d::UnitY())
            * Eigen::AngleAxisd(spawn_rot(0), Eigen::Vector3d::UnitX());
 }
 

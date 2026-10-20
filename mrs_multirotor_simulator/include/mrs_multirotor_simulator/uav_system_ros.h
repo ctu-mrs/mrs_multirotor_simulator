@@ -131,6 +131,9 @@ private:
   void callbackControlGroupCmd(const mrs_msgs::msg::HwApiControlGroupCmd::ConstSharedPtr msg);
   mrs_lib::SubscriberHandler<mrs_msgs::msg::HwApiControlGroupCmd>        sh_control_group_cmd_;
 
+  void callbackTeleportCmd(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
+  mrs_lib::SubscriberHandler<nav_msgs::msg::Odometry> sh_teleport_cmd_;
+
   // | --------------------- service servers -------------------- |
 
   mrs_lib::ServiceServerHandler<mrs_msgs::srv::Float64Srv> ss_set_mass_;
