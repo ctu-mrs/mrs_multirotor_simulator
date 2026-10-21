@@ -87,11 +87,15 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
   double spawn_y;
   double spawn_z;
   double spawn_heading;
+  double spawn_roll;
+  double spawn_pitch;
 
   param_loader_->loadParam(_uav_name_ + "/spawn/x", spawn_x);
   param_loader_->loadParam(_uav_name_ + "/spawn/y", spawn_y);
   param_loader_->loadParam(_uav_name_ + "/spawn/z", spawn_z);
   param_loader_->loadParam(_uav_name_ + "/spawn/heading", spawn_heading);
+  param_loader_->loadParam(_uav_name_ + "/spawn/roll", spawn_roll, 0.0);
+  param_loader_->loadParam(_uav_name_ + "/spawn/pitch", spawn_pitch, 0.0);
 
   param_loader_->loadParam("randomization/enabled", _randomization_enabled_);
   param_loader_->loadParam("randomization/bounds/x", _randomization_bounds_x_);
@@ -114,7 +118,7 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
   model_params_.allocation_matrix.row(2) *= model_params_.km * model_params_.kf;
   model_params_.allocation_matrix.row(3) *= model_params_.kf;
 
-  uav_system_ = std::make_shared<UavSystem>(model_params_, Eigen::Vector3d(spawn_x, spawn_y, spawn_z), spawn_heading);
+  uav_system_ = std::make_shared<UavSystem>(model_params_, Eigen::Vector3d(spawn_x, spawn_y, spawn_z), spawn_heading, spawn_roll, spawn_pitch);
 
   // | -------------------------- mixer ------------------------- |
 

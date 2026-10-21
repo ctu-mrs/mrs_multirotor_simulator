@@ -101,7 +101,8 @@ public:
 
   MultirotorModel();
 
-  MultirotorModel(const ModelParams &params, const Eigen::Vector3d &spawn_pos, const double spawn_heading);
+  MultirotorModel(const ModelParams &params, const Eigen::Vector3d &spawn_pos, const double spawn_heading, const double spawn_roll = 0.0,
+                  const double spawn_pitch = 0.0);
 
   const MultirotorModel::State &getState(void) const;
 
@@ -109,7 +110,7 @@ public:
 
   void applyForce(const Eigen::Vector3d &state);
 
-  void setStatePos(const Eigen::Vector3d &pos, const double heading);
+  void setStatePos(const Eigen::Vector3d &pos, const double heading, const double roll = 0.0, const double pitch = 0.0);
 
   const Eigen::Vector3d &getExternalForce(void) const;
   void                   setExternalForce(const Eigen::Vector3d &force);
@@ -163,7 +164,8 @@ inline MultirotorModel::MultirotorModel(void) {
   updateInternalState();
 }
 
-inline MultirotorModel::MultirotorModel(const MultirotorModel::ModelParams &params, const Eigen::Vector3d &spawn_pos, const double spawn_heading) {
+inline MultirotorModel::MultirotorModel(const MultirotorModel::ModelParams &params, const Eigen::Vector3d &spawn_pos, const double spawn_heading,
+                                        const double spawn_roll, const double spawn_pitch) {
 
   params_ = params;
 
@@ -172,7 +174,9 @@ inline MultirotorModel::MultirotorModel(const MultirotorModel::ModelParams &para
   _initial_pos_ = spawn_pos;
 
   state_.x = spawn_pos;
-  state_.R = Eigen::AngleAxis(-spawn_heading, Eigen::Vector3d(0, 0, 1));
+  state_.R = (Eigen::AngleAxis(spawn_heading, Eigen::Vector3d(0, 0, 1)) * Eigen::AngleAxis(spawn_pitch, Eigen::Vector3d(0, 1, 0)) *
+              Eigen::AngleAxis(spawn_roll, Eigen::Vector3d(1, 0, 0)))
+                 .toRotationMatrix();
 
   updateInternalState();
 }
@@ -441,11 +445,13 @@ inline void MultirotorModel::setState(const MultirotorModel::State &state) {
 
 /* setStatePos() //{ */
 
-inline void MultirotorModel::setStatePos(const Eigen::Vector3d &pos, const double heading) {
+inline void MultirotorModel::setStatePos(const Eigen::Vector3d &pos, const double heading, const double roll, const double pitch) {
 
   _initial_pos_ = pos;
   state_.x      = pos;
-  state_.R      = Eigen::AngleAxis(-heading, Eigen::Vector3d(0, 0, 1));
+  state_.R      = (Eigen::AngleAxis(heading, Eigen::Vector3d(0, 0, 1)) * Eigen::AngleAxis(pitch, Eigen::Vector3d(0, 1, 0)) *
+              Eigen::AngleAxis(roll, Eigen::Vector3d(1, 0, 0)))
+                 .toRotationMatrix();
 
   updateInternalState();
 }
