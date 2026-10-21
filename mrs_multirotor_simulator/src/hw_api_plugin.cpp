@@ -344,22 +344,6 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
 
     tf.header.stamp    = node_->get_clock()->now();
     tf.header.frame_id = common_handlers_->getUavName() + "/" + common_handlers_->getBodyFrameName();
-    tf.child_frame_id  = common_handlers_->getUavName() + "/garmin";
-
-    tf.transform.translation.x = 0;
-    tf.transform.translation.y = 0;
-    tf.transform.translation.z = 0;
-
-    tf.transform.rotation = mrs_lib::AttitudeConverter(0, 1.57, 0);
-
-    static_tf_broadcaster_->sendTransform(tf);
-  }
-
-  {
-    geometry_msgs::msg::TransformStamped tf;
-
-    tf.header.stamp    = node_->get_clock()->now();
-    tf.header.frame_id = common_handlers_->getUavName() + "/" + common_handlers_->getBodyFrameName();
     tf.child_frame_id  = common_handlers_->getUavName() + "/rtk_antenna";
 
     tf.transform.translation.x = 0;
