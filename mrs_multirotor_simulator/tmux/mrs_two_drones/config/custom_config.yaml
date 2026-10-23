@@ -36,3 +36,10 @@ mrs_uav_managers:
       after_activation:
         controller: "MpcController"
         tracker: "MpcTracker"
+
+mrs_uav_hw_api:
+
+  input_mode:
+    attitude_rate:     false
+    attitude:          false
+    velocity_hdg_rate: true
