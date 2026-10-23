@@ -2,6 +2,37 @@ mrs_uav_hw_api:
 
   hw_interface_plugin: "mrs_uav_simulator_hw_api_plugin::Api"
 
+  input_mode:
+    actuators:             false
+    control_group:         false
+    attitude_rate:         true
+    attitude:              true
+    acceleration_hdg_rate: false
+    acceleration_hdg:      false
+    velocity_hdg_rate:     false
+    velocity_hdg:          false
+    position:              false
+    feedforward:           true
+
+  outputs:
+    distance_sensor:      true
+    gnss:                 true
+    gnss_status:          true
+    rtk:                  true
+    ground_truth:         true
+    imu:                  true
+    altitude:             true
+    magnetometer_heading: true
+    magnetic_field:       true
+    rc_channels:          true
+    rc_rssi:              true
+    battery_state:        true
+    position:             true
+    orientation:          true
+    velocity:             true
+    angular_velocity:     true
+    odometry:             true
+
   plugin:
 
     gnss:
@@ -12,34 +43,3 @@ mrs_uav_hw_api:
 
     # determines if offboard can be switched on
     input_timeout: 1.0 # [s]
-
-    input_mode:
-      actuators:             false
-      control_group:         false
-      attitude_rate:         true
-      attitude:              true
-      acceleration_hdg_rate: false
-      acceleration_hdg:      false
-      velocity_hdg_rate:     false
-      velocity_hdg:          false
-      position:              false
-
-      feedforward: true
-
-    outputs:
-      distance_sensor:      true
-      gnss:                 true
-      rtk:                  true
-      imu:                  true
-      altitude:             true
-      magnetometer_heading: true
-      magnetic_field:       true
-      rc_channels:          true
-      rc_rssi:              true
-      battery_state:        true
-      position:             true
-      orientation:          true
-      velocity:             true
-      angular_velocity:     true
-      odometry:             true
-      ground_truth:         true
