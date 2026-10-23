@@ -1,43 +1,45 @@
-hw_interface_plugin: "mrs_uav_simulator_hw_api_plugin::Api"
+mrs_uav_hw_api:
 
-plugin:
+  hw_interface_plugin: "mrs_uav_simulator_hw_api_plugin::Api"
 
-  gnss:
-    utm_zone: "32T"
-    utm_x: 465710.758973
-    utm_y: 5249465.43086
-    amsl: 340.0
+  plugin:
 
-  # determines if offboard can be switched on
-  input_timeout: 1.0 # [s]
+    gnss:
+      utm_zone: "32T"
+      utm_x: 465710.758973
+      utm_y: 5249465.43086
+      amsl: 340.0
 
-  input_mode:
-    actuators:             false
-    control_group:         false
-    attitude_rate:         true
-    attitude:              true
-    acceleration_hdg_rate: false
-    acceleration_hdg:      false
-    velocity_hdg_rate:     false
-    velocity_hdg:          false
-    position:              false
+    # determines if offboard can be switched on
+    input_timeout: 1.0 # [s]
 
-    feedforward: true
+    input_mode:
+      actuators:             false
+      control_group:         false
+      attitude_rate:         true
+      attitude:              true
+      acceleration_hdg_rate: false
+      acceleration_hdg:      false
+      velocity_hdg_rate:     false
+      velocity_hdg:          false
+      position:              false
 
-  outputs:
-    distance_sensor:      true
-    gnss:                 true
-    rtk:                  true
-    imu:                  true
-    altitude:             true
-    magnetometer_heading: true
-    magnetic_field:       true
-    rc_channels:          true
-    rc_rssi:              true
-    battery_state:        true
-    position:             true
-    orientation:          true
-    velocity:             true
-    angular_velocity:     true
-    odometry:             true
-    ground_truth:         true
+      feedforward: true
+
+    outputs:
+      distance_sensor:      true
+      gnss:                 true
+      rtk:                  true
+      imu:                  true
+      altitude:             true
+      magnetometer_heading: true
+      magnetic_field:       true
+      rc_channels:          true
+      rc_rssi:              true
+      battery_state:        true
+      position:             true
+      orientation:          true
+      velocity:             true
+      angular_velocity:     true
+      odometry:             true
+      ground_truth:         true
