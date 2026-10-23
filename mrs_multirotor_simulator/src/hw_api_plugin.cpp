@@ -795,7 +795,7 @@ void Api::callbackOdom(const nav_msgs::msg::Odometry::ConstSharedPtr msg) {
 
   // | ------------------- publish gnss status ------------------ |
 
-  if (_capabilities_.produces_gnss) {
+  if (_capabilities_.produces_gnss_status) {
 
     mrs_msgs::msg::GpsInfo gnss_status;
 
