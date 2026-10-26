@@ -177,7 +177,7 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
   error_publisher_ = std::make_unique<mrs_lib::errorgraph::ErrorPublisher>(node_, clock_, "HwApiManager", "MrsUavSimulatorHwApi");
   common_handlers_ = common_handlers;
 
-  _capabilities_.api_name = "MrsSimulator";
+  _capabilities_.api_name = "MultirotorSimulatorApi";
 
   _uav_name_         = common_handlers->getUavName();
   _body_frame_name_  = common_handlers->getBodyFrameName();
