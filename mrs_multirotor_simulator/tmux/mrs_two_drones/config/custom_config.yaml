@@ -39,7 +39,7 @@ mrs_uav_managers:
 
 mrs_uav_hw_api:
 
-  input_mode:
+  inputs:
     attitude_rate:     false
     attitude:          false
     velocity_hdg_rate: true
