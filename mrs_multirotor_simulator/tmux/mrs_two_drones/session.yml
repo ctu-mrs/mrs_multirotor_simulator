@@ -22,8 +22,8 @@ windows:
   - hw_api:
       layout: tiled
       panes:
-        - export UAV_NAME=uav1; ros2 launch mrs_multirotor_simulator hw_api.launch.py custom_config:=./config/hw_api.yaml
-        - export UAV_NAME=uav2; ros2 launch mrs_multirotor_simulator hw_api.launch.py custom_config:=./config/hw_api.yaml
+        - export UAV_NAME=uav1; ros2 launch mrs_multirotor_simulator hw_api.launch.py custom_config:=./config/custom_config.yaml
+        - export UAV_NAME=uav2; ros2 launch mrs_multirotor_simulator hw_api.launch.py custom_config:=./config/custom_config.yaml
   - core:
       layout: tiled
       panes:

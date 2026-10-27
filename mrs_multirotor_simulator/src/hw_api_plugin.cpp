@@ -59,8 +59,6 @@ public:
 
   mrs_msgs::msg::HwApiCapabilities _capabilities_;
 
-  bool _feedforward_enabled_;
-
   double      _utm_x_;
   double      _utm_y_;
   std::string _utm_zone_;
@@ -177,8 +175,6 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
   error_publisher_ = std::make_unique<mrs_lib::errorgraph::ErrorPublisher>(node_, clock_, "HwApiManager", "MrsUavSimulatorHwApi");
   common_handlers_ = common_handlers;
 
-  _capabilities_.api_name = "MultirotorSimulatorApi";
-
   _uav_name_         = common_handlers->getUavName();
   _body_frame_name_  = common_handlers->getBodyFrameName();
   _world_frame_name_ = common_handlers->getWorldFrameName();
@@ -187,78 +183,26 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
 
   // | ------------------- loading parameters ------------------- |
 
-  mrs_lib::ParamLoader local_param_loader(node_, "MultirotorSimulatorHwApi");
+  std::shared_ptr<mrs_lib::ParamLoader> param_loader = common_handlers_->plugin_param_loader;
 
-  std::string custom_config_path;
+  param_loader->loadParam("input_timeout", _input_timeout_);
 
-  common_handlers_->main_param_loader->loadParam("custom_config", custom_config_path);
+  param_loader->loadParam("gnss/utm_x", _utm_x_);
+  param_loader->loadParam("gnss/utm_y", _utm_y_);
+  param_loader->loadParam("gnss/utm_zone", _utm_zone_);
+  param_loader->loadParam("gnss/amsl", _amsl_);
 
-  if (custom_config_path != "") {
-    if (!local_param_loader.addYamlFile(custom_config_path)) {
-      RCLCPP_ERROR(node_->get_logger(), "failed to load custom_config");
-      error_publisher_->addOneshotError("failed to load custom_config");
-      error_publisher_->flushAndShutdown();
-    }
-  }
-
-  std::vector<std::string> config_files;
-  common_handlers_->main_param_loader->loadParamReusable("configs", config_files);
-
-  if (!common_handlers_->main_param_loader->loadedSuccessfully()) {
+  if (!param_loader->loadedSuccessfully()) {
     RCLCPP_ERROR(node_->get_logger(), "Could not load all parameters!");
     error_publisher_->addOneshotError("Could not load all parameters");
     error_publisher_->flushAndShutdown();
   }
 
-  for (auto config_file : config_files) {
-    RCLCPP_INFO(node_->get_logger(), "loading config file '%s'", config_file.c_str());
-    if (!local_param_loader.addYamlFile(config_file)) {
-      RCLCPP_ERROR(node_->get_logger(), "failed to load config file '%s'", config_file.c_str());
-      error_publisher_->addOneshotError("failed to load config file '" + config_file + "'");
-      error_publisher_->flushAndShutdown();
-    }
-  }
+  // | ---------------------- capabilities ---------------------- |
 
-  local_param_loader.loadParam("input_timeout", _input_timeout_);
-
-  local_param_loader.loadParam("gnss/utm_x", _utm_x_);
-  local_param_loader.loadParam("gnss/utm_y", _utm_y_);
-  local_param_loader.loadParam("gnss/utm_zone", _utm_zone_);
-  local_param_loader.loadParam("gnss/amsl", _amsl_);
-
-  local_param_loader.loadParam("input_mode/actuators", (bool &)_capabilities_.accepts_actuator_cmd);
-  local_param_loader.loadParam("input_mode/control_group", (bool &)_capabilities_.accepts_control_group_cmd);
-  local_param_loader.loadParam("input_mode/attitude_rate", (bool &)_capabilities_.accepts_attitude_rate_cmd);
-  local_param_loader.loadParam("input_mode/attitude", (bool &)_capabilities_.accepts_attitude_cmd);
-  local_param_loader.loadParam("input_mode/acceleration_hdg_rate", (bool &)_capabilities_.accepts_acceleration_hdg_rate_cmd);
-  local_param_loader.loadParam("input_mode/acceleration_hdg", (bool &)_capabilities_.accepts_acceleration_hdg_cmd);
-  local_param_loader.loadParam("input_mode/velocity_hdg_rate", (bool &)_capabilities_.accepts_velocity_hdg_rate_cmd);
-  local_param_loader.loadParam("input_mode/velocity_hdg", (bool &)_capabilities_.accepts_velocity_hdg_cmd);
-  local_param_loader.loadParam("input_mode/position", (bool &)_capabilities_.accepts_position_cmd);
-  local_param_loader.loadParam("input_mode/feedforward", _feedforward_enabled_);
-
-  local_param_loader.loadParam("outputs/distance_sensor", (bool &)_capabilities_.produces_distance_sensor);
-  local_param_loader.loadParam("outputs/gnss", (bool &)_capabilities_.produces_gnss);
-  local_param_loader.loadParam("outputs/rtk", (bool &)_capabilities_.produces_rtk);
-  local_param_loader.loadParam("outputs/imu", (bool &)_capabilities_.produces_imu);
-  local_param_loader.loadParam("outputs/altitude", (bool &)_capabilities_.produces_altitude);
-  local_param_loader.loadParam("outputs/magnetometer_heading", (bool &)_capabilities_.produces_magnetometer_heading);
-  local_param_loader.loadParam("outputs/rc_channels", (bool &)_capabilities_.produces_rc_channels);
-  local_param_loader.loadParam("outputs/rc_rssi", (bool &)_capabilities_.produces_rc_rssi);
-  local_param_loader.loadParam("outputs/battery_state", (bool &)_capabilities_.produces_battery_state);
-  local_param_loader.loadParam("outputs/position", (bool &)_capabilities_.produces_position);
-  local_param_loader.loadParam("outputs/orientation", (bool &)_capabilities_.produces_orientation);
-  local_param_loader.loadParam("outputs/velocity", (bool &)_capabilities_.produces_velocity);
-  local_param_loader.loadParam("outputs/angular_velocity", (bool &)_capabilities_.produces_angular_velocity);
-  local_param_loader.loadParam("outputs/odometry", (bool &)_capabilities_.produces_odometry);
-  local_param_loader.loadParam("outputs/ground_truth", (bool &)_capabilities_.produces_ground_truth);
-  local_param_loader.loadParam("outputs/magnetic_field", (bool &)_capabilities_.produces_magnetic_field);
-
-  if (!local_param_loader.loadedSuccessfully()) {
-    RCLCPP_ERROR(node_->get_logger(), "Could not load all parameters!");
-    error_publisher_->addOneshotError("Could not load all parameters");
-    error_publisher_->flushAndShutdown();
-  }
+  // the simulator implements all inputs and outputs
+  _capabilities_          = common_handlers_->requested_capabilities;
+  _capabilities_.api_name = "MultirotorSimulatorApi";
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -275,9 +219,13 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
 
   sh_on_ground_ = mrs_lib::SubscriberHandler<std_msgs::msg::Bool>(shopts, "~/simulator_on_ground_in");
 
-  sh_imu_ = mrs_lib::SubscriberHandler<sensor_msgs::msg::Imu>(shopts, "~/simulator_imu_in", &Api::callbackImu, this);
+  if (_capabilities_.produces_imu) {
+    sh_imu_ = mrs_lib::SubscriberHandler<sensor_msgs::msg::Imu>(shopts, "~/simulator_imu_in", &Api::callbackImu, this);
+  }
 
-  sh_range_ = mrs_lib::SubscriberHandler<sensor_msgs::msg::Range>(shopts, "~/simulator_rangefinder_in", &Api::callbackRangefinder, this);
+  if (_capabilities_.produces_distance_sensor) {
+    sh_range_ = mrs_lib::SubscriberHandler<sensor_msgs::msg::Range>(shopts, "~/simulator_rangefinder_in", &Api::callbackRangefinder, this);
+  }
 
   // | ----------------------- publishers ----------------------- |
 
@@ -317,7 +265,7 @@ void Api::initialize(const rclcpp::Node::SharedPtr &node, std::shared_ptr<mrs_ua
     ph_position_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::msg::HwApiPositionCmd>(node_, "~/simulator_position_cmd_out");
   }
 
-  if (_feedforward_enabled_) {
+  if (_capabilities_.accepts_feedforward) {
     ph_tracker_cmd_ = mrs_lib::PublisherHandler<mrs_msgs::msg::TrackerCommand>(node_, "~/simulator_tracker_cmd_out");
   }
 
@@ -851,7 +799,7 @@ void Api::callbackOdom(const nav_msgs::msg::Odometry::ConstSharedPtr msg) {
 
   // | ------------------- publish gnss status ------------------ |
 
-  if (_capabilities_.produces_gnss) {
+  if (_capabilities_.produces_gnss_status) {
 
     mrs_msgs::msg::GpsInfo gnss_status;
 
@@ -935,10 +883,7 @@ void Api::callbackImu(const sensor_msgs::msg::Imu::ConstSharedPtr msg) {
 
   RCLCPP_INFO_ONCE(node_->get_logger(), "getting IMU");
 
-  if (_capabilities_.produces_imu) {
-
-    common_handlers_->publishers.publishIMU(*msg);
-  }
+  common_handlers_->publishers.publishIMU(*msg);
 }
 
 //}
@@ -953,10 +898,7 @@ void Api::callbackRangefinder(const sensor_msgs::msg::Range::ConstSharedPtr msg)
 
   RCLCPP_INFO_ONCE(node_->get_logger(), "getting rangefinder");
 
-  if (_capabilities_.produces_distance_sensor) {
-
-    common_handlers_->publishers.publishDistanceSensor(*msg);
-  }
+  common_handlers_->publishers.publishDistanceSensor(*msg);
 }
 
 //}
