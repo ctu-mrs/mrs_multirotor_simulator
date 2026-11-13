@@ -120,6 +120,10 @@ private:
   std::vector<std::shared_ptr<WorldPlugin>>            world_plugins_;
 
   std::shared_ptr<pluginlib::ClassLoader<UavPlugin>> uav_plugin_loader_;
+
+  // | ------------------------ IMU noise ----------------------- |
+
+  std::shared_ptr<ImuShapingFilters> imu_shaping_filters_;
 };
 
 //}
@@ -181,6 +185,9 @@ void MultirotorSimulator::initialize() {
 
   dynparam_mgr_->get_param_provider().copyYamls(param_loader_->getParamProvider());
 
+  // the IMU noise shaping filters are shared by all the UAVs and loaded lazily, when the noise is enabled
+  imu_shaping_filters_ = std::make_shared<ImuShapingFilters>(node_, *param_loader_);
+
   // | ----------------------- load params ---------------------- |
 
   param_loader_->loadParam("simulation_rate", _simulation_rate_);
@@ -239,6 +246,7 @@ void MultirotorSimulator::initialize() {
     common_handlers.transform_broadcaster      = tf_broadcaster_;
     common_handlers.uav_plugin_loader          = uav_plugin_loader_;
     common_handlers.getUavPluginNeighborRadius = std::bind(&MultirotorSimulator::getUavPluginNeighborRadius, this);
+    common_handlers.imu_shaping_filters        = imu_shaping_filters_;
 
     uavs_.push_back(std::make_unique<UavSystemRos>(common_handlers));
   }

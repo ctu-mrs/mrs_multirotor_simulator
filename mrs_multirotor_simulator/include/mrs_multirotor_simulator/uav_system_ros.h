@@ -15,6 +15,7 @@
 
 #include <mrs_multirotor_simulator/uav_system/uav_system.hpp>
 #include <mrs_multirotor_simulator/plugins/uav_plugin.h>
+#include <mrs_multirotor_simulator/imu_sensor.h>
 
 #include <pluginlib/class_loader.hpp>
 
@@ -48,6 +49,8 @@ struct UavSystemRos_CommonHandlers_t
 
   std::shared_ptr<pluginlib::ClassLoader<UavPlugin>> uav_plugin_loader;
   std::function<double(void)>                        getUavPluginNeighborRadius;
+
+  std::shared_ptr<ImuShapingFilters> imu_shaping_filters; // shared by all the UAVs, loaded lazily
 };
 
 class UavSystemRos {
@@ -121,7 +124,6 @@ private:
 
   // | ----------------------- publishers ----------------------- |
 
-  std::shared_ptr<mrs_lib::PublisherHandler<sensor_msgs::msg::Imu>>   ph_imu_;
   std::shared_ptr<mrs_lib::PublisherHandler<nav_msgs::msg::Odometry>> ph_odom_;
   std::shared_ptr<mrs_lib::PublisherHandler<sensor_msgs::msg::Range>> ph_rangefinder_;
   std::shared_ptr<mrs_lib::PublisherHandler<std_msgs::msg::Bool>>     ph_on_ground_;
@@ -133,6 +135,20 @@ private:
   void publishRangefinder(const MultirotorModel::State &state);
 
   void timeoutInput(void);
+
+  // | -------------------------- IMUs -------------------------- |
+
+  std::shared_ptr<ImuSensor>              imu_; // the main IMU, in the FCU frame
+  std::shared_ptr<ImuShapingFilters>      imu_shaping_filters_;
+  std::vector<std::shared_ptr<ImuSensor>> additional_imus_; // additional IMUs, anywhere on the body
+
+  // angular acceleration of the body (finite difference), needed for IMUs placed outside of the FCU frame origin
+  Eigen::Vector3d omega_prev_ = Eigen::Vector3d::Zero();
+  Eigen::Vector3d omega_dot_  = Eigen::Vector3d::Zero();
+
+  void initializeImus(const bool main_imu_enabled);
+
+  ImuNoiseParams_t loadImuNoiseParams(const std::string &yaml_prefix, const std::optional<ImuNoiseParams_t> &defaults);
 
   // | --------------------------- tf --------------------------- |
 

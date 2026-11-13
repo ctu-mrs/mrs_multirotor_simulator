@@ -1,5 +1,8 @@
 #include <mrs_multirotor_simulator/uav_system_ros.h>
 
+#include <regex>
+#include <set>
+
 namespace mrs_multirotor_simulator
 {
 
@@ -13,6 +16,8 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
   cbgrp_ss_   = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
   _uav_name_ = common_handlers.uav_name;
+
+  imu_shaping_filters_ = common_handlers.imu_shaping_filters;
 
   param_loader_ = std::make_shared<mrs_lib::ParamLoader>(node_, node_->get_name() + std::string("_") + _uav_name_);
 
@@ -187,10 +192,6 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
   param_loader_->loadParam("publishers/rangefinder/enabled", pub_rangefinder_enabled);
   param_loader_->loadParam("publishers/odometry/enabled", pub_odom_enabled);
 
-  if (pub_imu_enabled) {
-    ph_imu_ = std::make_shared<mrs_lib::PublisherHandler<sensor_msgs::msg::Imu>>(node_, "~/" + _uav_name_ + "/imu");
-  }
-
   if (pub_odom_enabled) {
     ph_odom_      = std::make_shared<mrs_lib::PublisherHandler<nav_msgs::msg::Odometry>>(node_, "~/" + _uav_name_ + "/odom");
     ph_on_ground_ = std::make_shared<mrs_lib::PublisherHandler<std_msgs::msg::Bool>>(node_, "~/" + _uav_name_ + "/on_ground");
@@ -296,6 +297,10 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
     publishRangefinderStaticTF();
   }
 
+  // | -------------------------- IMUs -------------------------- |
+
+  initializeImus(pub_imu_enabled);
+
   // | --------------------- service servers -------------------- |
 
   ss_set_mass_ = mrs_lib::ServiceServerHandler<mrs_msgs::srv::Float64Srv>(
@@ -377,6 +382,8 @@ UavSystemRos::UavSystemRos(const UavSystemRos_CommonHandlers_t common_handlers) 
   uav_system_->makeStep(0.01);
   uav_system_->makeStep(0.01);
 
+  omega_prev_ = uav_system_->getState().omega;
+
   is_initialized_ = true;
 
   RCLCPP_INFO(node_->get_logger(), "initialized");
@@ -452,6 +459,13 @@ void UavSystemRos::makeStep(const double dt, const double time_stamp, const std:
 
   // extract the current state
   MultirotorModel::State state = uav_system_->getState();
+
+  // angular acceleration, needed for the IMUs placed out of the FCU frame origin
+  if (dt > 0) {
+    omega_dot_ = (state.omega - omega_prev_) / dt;
+  }
+
+  omega_prev_ = state.omega;
 
   // publish data
 
@@ -617,28 +631,19 @@ void UavSystemRos::publishFCUTF(const MultirotorModel::State &state) {
 
 void UavSystemRos::publishIMU(const MultirotorModel::State &state) {
 
-  if (!ph_imu_) {
+  if (!imu_ && additional_imus_.empty()) {
     return;
   }
 
-  sensor_msgs::msg::Imu imu;
+  const Eigen::Vector3d imu_acc = uav_system_->getImuAcceleration();
 
-  imu.header.stamp    = time_stamp_;
-  imu.header.frame_id = _frame_fcu_;
+  if (imu_) {
+    imu_->publish(time_stamp_, state, imu_acc, omega_dot_);
+  }
 
-  imu.angular_velocity.x = state.omega(0);
-  imu.angular_velocity.y = state.omega(1);
-  imu.angular_velocity.z = state.omega(2);
-
-  auto acc = uav_system_->getImuAcceleration();
-
-  imu.linear_acceleration.x = acc(0);
-  imu.linear_acceleration.y = acc(1);
-  imu.linear_acceleration.z = acc(2);
-
-  imu.orientation = mrs_lib::AttitudeConverter(state.R);
-
-  ph_imu_->publish(imu);
+  for (auto &imu : additional_imus_) {
+    imu->publish(time_stamp_, state, imu_acc, omega_dot_);
+  }
 }
 
 //}
@@ -706,6 +711,153 @@ void UavSystemRos::publishRangefinderStaticTF(void) {
 //}
 
 // | ------------------------ routines ------------------------ |
+
+/* initializeImus() //{ */
+
+void UavSystemRos::initializeImus(const bool main_imu_enabled) {
+
+  if (!imu_shaping_filters_) {
+    imu_shaping_filters_ = std::make_shared<ImuShapingFilters>(node_, *param_loader_);
+  }
+
+  // | ------------------------ main IMU ------------------------ |
+
+  const ImuNoiseParams_t main_imu_noise_params = loadImuNoiseParams("imu/noise/", std::nullopt);
+
+  if (main_imu_enabled) {
+
+    bool publish_noiseless;
+
+    param_loader_->loadParam("imu/publish_noiseless", publish_noiseless);
+
+    ImuSensorParams_t imu_params;
+
+    imu_params.topic                = "~/" + _uav_name_ + "/imu";
+    imu_params.noiseless_topic      = publish_noiseless ? "~/" + _uav_name_ + "/imu_default" : "";
+    imu_params.service_prefix       = "~/" + _uav_name_ + "/";
+    imu_params.noise_toggle_service = "set_imu_noise";
+    imu_params.frame_id             = _frame_fcu_;
+    imu_params.noise                = main_imu_noise_params;
+
+    imu_ = std::make_shared<ImuSensor>(node_, cbgrp_ss_, imu_params, imu_shaping_filters_);
+  }
+
+  // | --------------------- additional IMUs -------------------- |
+
+  std::vector<std::string> additional_imu_names;
+
+  param_loader_->loadParam("additional_imus/names", additional_imu_names, std::vector<std::string>());
+
+  std::set<std::string> used_names;
+
+  std::vector<geometry_msgs::msg::TransformStamped> static_tfs;
+
+  for (const auto &name : additional_imu_names) {
+
+    if (!std::regex_match(name, std::regex("[a-zA-Z0-9_]+"))) {
+      RCLCPP_ERROR(node_->get_logger(), "[%s] invalid additional IMU name '%s', only [a-zA-Z0-9_] are allowed", _uav_name_.c_str(), name.c_str());
+      throw std::runtime_error("[" + _uav_name_ + "] invalid additional IMU name '" + name + "'");
+    }
+
+    if (!used_names.insert(name).second) {
+      RCLCPP_ERROR(node_->get_logger(), "[%s] duplicate additional IMU name '%s'", _uav_name_.c_str(), name.c_str());
+      throw std::runtime_error("[" + _uav_name_ + "] duplicate additional IMU name '" + name + "'");
+    }
+
+    const std::string yaml_prefix = "additional_imus/" + name + "/";
+
+    std::string     frame;
+    bool            publish_tf;
+    bool            publish_noiseless;
+    Eigen::Vector3d position;
+    Eigen::Vector3d orientation_rpy;
+
+    param_loader_->loadParam(yaml_prefix + "frame", frame, "imu_" + name);
+    param_loader_->loadParam(yaml_prefix + "publish_tf", publish_tf, true);
+    param_loader_->loadParam(yaml_prefix + "publish_noiseless", publish_noiseless, true);
+    param_loader_->loadMatrixStatic(yaml_prefix + "position", position);
+    param_loader_->loadMatrixStatic(yaml_prefix + "orientation", orientation_rpy);
+
+    ImuSensorParams_t imu_params;
+
+    imu_params.topic                = "~/" + _uav_name_ + "/imu_" + name;
+    imu_params.noiseless_topic      = publish_noiseless ? "~/" + _uav_name_ + "/imu_" + name + "_default" : "";
+    imu_params.service_prefix       = "~/" + _uav_name_ + "/imu_" + name + "/";
+    imu_params.noise_toggle_service = "set_noise";
+    imu_params.frame_id             = _uav_name_ + "/" + frame;
+    imu_params.position             = position;
+    imu_params.orientation          = mrs_lib::AttitudeConverter(orientation_rpy(0), orientation_rpy(1), orientation_rpy(2));
+    imu_params.noise                = loadImuNoiseParams(yaml_prefix + "noise/", main_imu_noise_params);
+
+    auto imu = std::make_shared<ImuSensor>(node_, cbgrp_ss_, imu_params, imu_shaping_filters_);
+
+    if (publish_tf) {
+      static_tfs.push_back(imu->getStaticTF(_frame_fcu_, node_->get_clock()->now()));
+    }
+
+    additional_imus_.push_back(imu);
+
+    RCLCPP_INFO(node_->get_logger(), "[%s] additional IMU '%s' initialized (frame '%s', noise %s, shaping filter '%s')", _uav_name_.c_str(), name.c_str(),
+                imu_params.frame_id.c_str(), imu_params.noise.enabled ? "enabled" : "disabled", imu_params.noise.shaping_filter_name.c_str());
+  }
+
+  if (!param_loader_->loadedSuccessfully()) {
+    RCLCPP_ERROR(node_->get_logger(), "[%s] could not load all the IMU parameters", _uav_name_.c_str());
+    throw std::runtime_error("[" + _uav_name_ + "] could not load all the IMU parameters");
+  }
+
+  if (!static_tfs.empty()) {
+
+    if (!static_tf_broadcaster_) {
+      static_tf_broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(node_);
+    }
+
+    static_tf_broadcaster_->sendTransform(static_tfs);
+  }
+}
+
+//}
+
+/* loadImuNoiseParams() //{ */
+
+ImuNoiseParams_t UavSystemRos::loadImuNoiseParams(const std::string &yaml_prefix, const std::optional<ImuNoiseParams_t> &defaults) {
+
+  ImuNoiseParams_t noise_params;
+
+  if (defaults) {
+
+    // optional, the defaults are used for the missing params
+    param_loader_->loadParam(yaml_prefix + "enabled", noise_params.enabled, defaults->enabled);
+    param_loader_->loadParam(yaml_prefix + "shaping_filter", noise_params.shaping_filter_name, defaults->shaping_filter_name);
+    param_loader_->loadParam(yaml_prefix + "accel/bias", noise_params.accel_bias, defaults->accel_bias);
+    param_loader_->loadParam(yaml_prefix + "accel/stddev", noise_params.accel_stddev, defaults->accel_stddev);
+    param_loader_->loadParam(yaml_prefix + "gyro/bias", noise_params.gyro_bias, defaults->gyro_bias);
+    param_loader_->loadParam(yaml_prefix + "gyro/stddev", noise_params.gyro_stddev, defaults->gyro_stddev);
+    param_loader_->loadParam(yaml_prefix + "gyro/separate_z_bias/enabled", noise_params.gyro_separate_z_bias, defaults->gyro_separate_z_bias);
+    param_loader_->loadParam(yaml_prefix + "gyro/separate_z_bias/bias", noise_params.gyro_z_bias, defaults->gyro_z_bias);
+
+  } else {
+
+    // compulsory
+    param_loader_->loadParam(yaml_prefix + "enabled", noise_params.enabled);
+    param_loader_->loadParam(yaml_prefix + "shaping_filter", noise_params.shaping_filter_name);
+    param_loader_->loadParam(yaml_prefix + "accel/bias", noise_params.accel_bias);
+    param_loader_->loadParam(yaml_prefix + "accel/stddev", noise_params.accel_stddev);
+    param_loader_->loadParam(yaml_prefix + "gyro/bias", noise_params.gyro_bias);
+    param_loader_->loadParam(yaml_prefix + "gyro/stddev", noise_params.gyro_stddev);
+    param_loader_->loadParam(yaml_prefix + "gyro/separate_z_bias/enabled", noise_params.gyro_separate_z_bias);
+    param_loader_->loadParam(yaml_prefix + "gyro/separate_z_bias/bias", noise_params.gyro_z_bias);
+  }
+
+  if (noise_params.accel_stddev < 0.0 || noise_params.gyro_stddev < 0.0) {
+    RCLCPP_ERROR(node_->get_logger(), "[%s] '%s': the noise stddev has to be >= 0", _uav_name_.c_str(), yaml_prefix.c_str());
+    throw std::runtime_error("[" + _uav_name_ + "] '" + yaml_prefix + "': the noise stddev has to be >= 0");
+  }
+
+  return noise_params;
+}
+
+//}
 
 /* timeoutInput() //{ */
 

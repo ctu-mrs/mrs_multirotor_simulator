@@ -39,6 +39,8 @@ set(DEPENDENCIES
   nav_msgs
   std_msgs
   sensor_msgs
+  std_srvs
+  tf2_ros
   mrs_uav_hw_api
   Eigen3
   backward_ros
@@ -66,6 +68,9 @@ include_directories(
 
 add_library(MrsMultirotorSimulator_SimulatorSystemRos SHARED
   src/uav_system_ros.cpp
+  src/imu_sensor.cpp
+  src/imu_noise_shaper.cpp
+  src/imu_shaping_filters.cpp
 )
 
 target_include_directories(MrsMultirotorSimulator_SimulatorSystemRos
@@ -84,6 +89,8 @@ target_link_libraries(MrsMultirotorSimulator_SimulatorSystemRos
   ${nav_msgs_TARGETS}
   ${std_msgs_TARGETS}
   ${sensor_msgs_TARGETS}
+  ${std_srvs_TARGETS}
+  tf2_ros::tf2_ros
   mrs_uav_hw_api::mrs_uav_hw_api
   Eigen3::Eigen
   ${bakward_ros_TARGETS}

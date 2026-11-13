@@ -1,0 +1,89 @@
+# | ------------------------- main IMU ------------------------- |
+
+# * published as ~/<uav_name>/imu, located in the origin of the FCU frame
+# * enable/disable using 'publishers/imu/enabled' in multirotor_simulator.yaml
+imu:
+
+  # also publish the noiseless measurement as ~/<uav_name>/imu_default
+  publish_noiseless: true
+
+  noise:
+
+    # can be toggled in runtime using the ~/<uav_name>/set_imu_noise service
+    enabled: true
+
+    # name of the FIR noise-shaping filter from 'imu_noise_filters' (see imu_noise_filters.yaml)
+    # "none" = no shaping, white gaussian noise with the bias/stddev in physical units is added directly
+    # * the filter is loaded only when the noise gets enabled (here or by the service)
+    #
+    # ! when a shaping filter is used, the bias and stddev are the parameters of the noise **before**
+    # ! the filtering, i.e., they are not in the physical units, the resulting noise is however linear in them
+    # * "measured_250hz" matches 'simulation_rate: 250.0', use "measured" for 1 kHz (with 2x the stddevs below)
+    shaping_filter: "measured_250hz"
+
+    # the bias and stddev can be changed in runtime using the services
+    # ~/<uav_name>/set_accel_bias, ~/<uav_name>/set_accel_stddev
+    accel:
+      bias: -0.024397085561010813
+      stddev: 0.008501694171029146 # = 0.5 * the 1 kHz value 0.017003388342058293
+
+    # the bias and stddev can be changed in runtime using the services
+    # ~/<uav_name>/set_gyro_bias, ~/<uav_name>/set_gyro_stddev
+    gyro:
+      bias: -0.000623120592237621
+      stddev: 0.0005631477748114335 # = 0.5 * the 1 kHz value 0.001126295549622867
+
+      # when enabled, the z axis of the gyro uses this bias instead of 'gyro/bias'
+      separate_z_bias:
+        enabled: true
+        bias: 0.0
+
+# | ---------------------- additional IMUs --------------------- |
+
+# * a dynamic list of additional IMUs that can be placed anywhere on the UAV
+# * each IMU is published as ~/<uav_name>/imu_<name>
+# * the measurement is computed as if the IMU was rigidly attached to the UAV body at the given pose,
+#   i.e., it includes the centripetal and tangential accelerations due to its offset from the FCU frame
+#   origin, and its orientation (+ angular velocity, linear acceleration) is expressed in its own frame
+# * noise services: ~/<uav_name>/imu_<name>/{set_noise,set_accel_bias,set_accel_stddev,set_gyro_bias,set_gyro_stddev}
+additional_imus:
+
+  names: []
+
+  # | ------------------------- example ------------------------ |
+
+  # names: ["lidar", "camera"]
+
+  # lidar:
+
+  #   # [optional] the frame name (prefixed with "<uav_name>/"), default = "imu_<name>"
+  #   frame: "imu_lidar"
+
+  #   # [optional] publish the static tf from the FCU frame to the IMU frame, default = true
+  #   publish_tf: true
+
+  #   # the pose of the IMU in the FCU frame
+  #   position: [0.1, 0.0, 0.05] # [m], x, y, z
+  #   orientation: [0.0, 0.0, 1.5708] # [rad], roll, pitch, yaw (extrinsic, same convention as tf)
+
+  #   # [optional] also publish the noiseless measurement as ~/<uav_name>/imu_<name>_default, default = true
+  #   publish_noiseless: true
+
+  #   # [optional] all the noise params have the same meaning as for the main IMU
+  #   # and default to the values of the main IMU when not specified
+  #   noise:
+  #     enabled: true
+  #     shaping_filter: "none"
+  #     accel:
+  #       bias: 0.0
+  #       stddev: 0.05
+  #     gyro:
+  #       bias: 0.0
+  #       stddev: 0.005
+  #       separate_z_bias:
+  #         enabled: false
+  #         bias: 0.0
+
+  # camera:
+  #   position: [0.2, 0.0, -0.05]
+  #   orientation: [0.0, 1.5708, 0.0]
