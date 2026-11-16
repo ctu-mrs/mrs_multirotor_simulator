@@ -62,6 +62,8 @@ public:
   MultirotorModel::State       getState(void);
   MultirotorModel::ModelParams getParams(void);
 
+  void setState(const MultirotorModel::State& state);
+
   void setParams(const MultirotorModel::ModelParams& params);
 
   Eigen::Vector3d getImuAcceleration(void);
@@ -406,6 +408,14 @@ void UavSystem::setParams(const MultirotorModel::ModelParams& params) {
   multirotor_model_.setParams(params);
 
   initializeControllers();
+}
+
+//}
+
+/* setState() //{ */
+
+void UavSystem::setState(const MultirotorModel::State& state) {
+  multirotor_model_.setState(state);
 }
 
 //}

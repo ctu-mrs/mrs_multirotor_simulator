@@ -386,6 +386,17 @@ MultirotorModel::ModelParams UavSystemRos::getParams() {
 
 //}
 
+/* setState() //{ */
+
+void UavSystemRos::setState(const MultirotorModel::State& state) {
+
+  std::scoped_lock lock(mutex_uav_system_);
+
+  uav_system_.setState(state);
+}
+
+//}
+
 /* getState() //{ */
 
 MultirotorModel::State UavSystemRos::getState() {

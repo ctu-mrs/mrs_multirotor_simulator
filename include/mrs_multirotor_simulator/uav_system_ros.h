@@ -59,6 +59,7 @@ public:
 
   MultirotorModel::ModelParams getParams();
   MultirotorModel::State       getState();
+  void                         setState(const MultirotorModel::State& state);
 
 private:
   rclcpp::Node::SharedPtr node_;
