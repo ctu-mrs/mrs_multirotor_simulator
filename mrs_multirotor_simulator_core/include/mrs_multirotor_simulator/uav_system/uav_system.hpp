@@ -68,6 +68,8 @@ public:
 
   void setParams(const MultirotorModel::ModelParams &params);
 
+  void setGroundZ(const double ground_z);
+
   void setState(const MultirotorModel::State &state);
   void setStatePos(const Eigen::Vector3d &pos, const double heading);
 
@@ -419,6 +421,19 @@ inline void UavSystem::setParams(const MultirotorModel::ModelParams &params) {
   multirotor_model_.setParams(params);
 
   initializeControllers();
+}
+
+//}
+
+/* setGroundZ() //{ */
+
+inline void UavSystem::setGroundZ(const double ground_z) {
+
+  MultirotorModel::ModelParams params = multirotor_model_.getParams();
+
+  params.ground_z = ground_z;
+
+  multirotor_model_.setParams(params);
 }
 
 //}

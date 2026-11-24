@@ -70,6 +70,9 @@ public:
 
   MultirotorModel::ModelParams getParams();
   MultirotorModel::State       getState();
+  void                         setState(const MultirotorModel::State &state);
+
+  void setGroundZ(const double ground_z);
 
   std::shared_ptr<UavSystem> getUavSystem(void) const;
 

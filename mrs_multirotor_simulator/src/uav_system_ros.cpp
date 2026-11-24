@@ -518,6 +518,30 @@ std::string UavSystemRos::getUavName(void) const {
 
 //}
 
+/* setGroundZ() //{ */
+
+void UavSystemRos::setGroundZ(const double ground_z) {
+
+  std::scoped_lock lock(mutex_uav_system_);
+
+  uav_system_->setGroundZ(ground_z);
+
+  model_params_.ground_z = ground_z;
+}
+
+//}
+
+/* setState() //{ */
+
+void UavSystemRos::setState(const MultirotorModel::State &state) {
+
+  std::scoped_lock lock(mutex_uav_system_);
+
+  uav_system_->setState(state);
+}
+
+//}
+
 /* getState() //{ */
 
 MultirotorModel::State UavSystemRos::getState() {
