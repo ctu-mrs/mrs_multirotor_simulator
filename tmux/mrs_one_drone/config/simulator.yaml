@@ -12,6 +12,15 @@ uav1:
 
 dynamic:
   realtime_factor: 1.0 # [-]
+  collisions:
+
+    enabled: false 
+    crash: true
+
+    # if crash==false, then the collisions are elastic
+    rebounce: 1.0
 
 individual_takeoff_platform:
+  enabled: true 
+ground:
   enabled: false

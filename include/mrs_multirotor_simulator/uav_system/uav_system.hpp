@@ -66,6 +66,8 @@ public:
 
   void setParams(const MultirotorModel::ModelParams& params);
 
+  void setGroundZ(const double ground_z);
+
   Eigen::Vector3d getImuAcceleration(void);
 
   void setMixerParams(const Mixer::Params& params);
@@ -408,6 +410,19 @@ void UavSystem::setParams(const MultirotorModel::ModelParams& params) {
   multirotor_model_.setParams(params);
 
   initializeControllers();
+}
+
+//}
+
+/* setGroundZ() //{ */
+
+void UavSystem::setGroundZ(const double ground_z) {
+
+  MultirotorModel::ModelParams params = multirotor_model_.getParams();
+
+  params.ground_z = ground_z;
+
+  multirotor_model_.setParams(params);
 }
 
 //}
